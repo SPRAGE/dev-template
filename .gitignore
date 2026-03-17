@@ -1,0 +1,12 @@
+# Nix
+result
+result-*
+.direnv/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+*~

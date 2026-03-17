@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv *)",
+      "Bash(python *)",
+      "Bash(nix develop *)",
+      "Bash(nix build *)",
+      "Bash(nix flake *)",
+      "Bash(ruflo *)",
+      "mcp__ruflo__*"
+    ],
+    "deny": [
+      "Bash(cat .env*)",
+      "Read(.env*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [],
+    "PostToolUse": [],
+    "SessionStart": [],
+    "SessionEnd": []
+  }
+}
