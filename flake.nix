@@ -19,39 +19,31 @@
       templates = {
         default = {
           path = ./template;
-          description = "Base project with Nix devShell, Ruflo, direnv, Claude Code config";
+          description = "Base project with Nix devShell, Claude Code, Ruflo, direnv";
         };
 
         rust = {
           path = ./templates/rust;
-          description = "Rust project with rust-overlay, Ruflo, cargo tools, Claude Code config";
+          description = "Rust project with rust-overlay, Claude Code, Ruflo, cargo tools";
         };
 
         python = {
           path = ./templates/python;
-          description = "Python project with uv, Ruflo, Claude Code config";
+          description = "Python project with uv, Claude Code, Ruflo";
         };
       };
     }
     //
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfreePredicate = pkg:
-            builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
-          overlays = [
-            ruflo-nix.overlays.default
-            claude-code.overlays.default
-          ];
-        };
+        pkgs = import nixpkgs { inherit system; };
       in
       {
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.git
-            pkgs.ruflo
-            pkgs.claude-code
+            claude-code.packages.${system}.default
+            ruflo-nix.packages.${system}.default
           ];
 
           shellHook = ''

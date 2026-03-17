@@ -17,21 +17,13 @@
   outputs = { self, nixpkgs, flake-utils, ruflo-nix, claude-code, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-          config.allowUnfreePredicate = pkg:
-            builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
-          overlays = [
-            ruflo-nix.overlays.default
-            claude-code.overlays.default
-          ];
-        };
+        pkgs = import nixpkgs { inherit system; };
       in
       {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [
-            claude-code
-            ruflo
+          packages = [
+            claude-code.packages.${system}.default
+            ruflo-nix.packages.${system}.default
             # TODO: add project dependencies
           ];
 

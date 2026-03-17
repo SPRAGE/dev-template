@@ -21,16 +21,8 @@
   outputs = { self, nixpkgs, rust-overlay, flake-utils, ruflo-nix, claude-code, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [
-          (import rust-overlay)
-          ruflo-nix.overlays.default
-          claude-code.overlays.default
-        ];
-        pkgs = import nixpkgs {
-          inherit system overlays;
-          config.allowUnfreePredicate = pkg:
-            builtins.elem (nixpkgs.lib.getName pkg) [ "claude-code" ];
-        };
+        overlays = [ (import rust-overlay) ];
+        pkgs = import nixpkgs { inherit system overlays; };
 
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
           extensions = [
@@ -49,8 +41,8 @@
             pkgs.openssl
             pkgs.cargo-edit
             pkgs.cargo-watch
-            pkgs.claude-code
-            pkgs.ruflo
+            claude-code.packages.${system}.default
+            ruflo-nix.packages.${system}.default
           ];
 
           env = {
