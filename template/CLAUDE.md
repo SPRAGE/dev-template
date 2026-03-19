@@ -10,9 +10,8 @@ This project was scaffolded from dev-template. To set up:
 
 1. Replace `PROJECTNAME` in this file and `flake.nix`
 2. `direnv allow` to enter the dev shell (includes ruflo)
-3. Run `/project-brainstorm` to plan the project interactively
-4. Run `/cc-project-setup` to generate real CLAUDE.md, .mcp.json, and rules from the plan
-5. Run `/feature-planner` to spec out individual features before implementing them
+3. Run `/virtual-tech-org` to spin up a full virtual tech company that builds your project through staged delivery (discovery → architecture → prototype → MVP → production)
+   - OR use individual skills: `/project-brainstorm` → `/cc-project-setup` → `/feature-planner`
 
 ## Stack
 

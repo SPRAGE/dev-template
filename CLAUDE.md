@@ -19,9 +19,16 @@ dev-template — Nix flake templates for scaffolding new projects with Claude Co
 Each template bundles:
 - **Claude Code** — AI coding assistant (via `github:sadjow/claude-code-nix` flake input)
 - **Ruflo** — AI agent orchestration (via `github:SPRAGE/ruflo-nix` flake input + MCP server)
+- **virtual-tech-org** skill — simulates a full tech company (CEO + CTO + engineering team) that builds software via ruflo hive-mind swarm orchestration. Language/stack-agnostic, supports any project archetype (web app, API, CLI, library, data pipeline, etc.). Subsumes brainstorming, architecture, and staged delivery (prototype → MVP → production).
 - **project-brainstorm** skill — interactive planning (7 phases → project brief)
 - **cc-project-setup** skill — generates CLAUDE.md, .mcp.json, rules from the brief
 - **feature-planner** skill — interactive feature spec builder (8 steps → feature spec file)
+- **frontend-design** skill — production-grade frontend interfaces with distinctive aesthetics
+- **claude-automation-recommender** skill — analyzes codebase, recommends hooks/skills/MCP/subagents
+- **claude-md-improver** skill — audits and improves CLAUDE.md files
+- **skill-creator** skill — create, test, and iterate on new skills with eval framework
+- **writing-rules** skill — create hookify rules for automated guardrails
+- **playground** skill — interactive HTML playgrounds for visual exploration
 
 ## Commands
 
@@ -36,8 +43,8 @@ Each template bundles:
 1. `nix flake init -t github:USER/dev-template#rust` (or `#python`, or default)
 2. Replace `PROJECTNAME` in files
 3. `direnv allow`
-4. Open Claude Code → `/project-brainstorm` → `/cc-project-setup`
-5. Use `/feature-planner` to spec out features before implementing
+4. Open Claude Code → `/virtual-tech-org` to spin up the full org and build through staged delivery
+   - OR use individual skills: `/project-brainstorm` → `/cc-project-setup` → `/feature-planner`
 
 ## Conventions
 
