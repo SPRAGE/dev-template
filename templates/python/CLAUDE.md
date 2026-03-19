@@ -13,6 +13,7 @@ This project was scaffolded from dev-template (Python variant). To set up:
 3. `direnv allow` to enter the dev shell (includes python, uv, ruflo)
 4. Run `/project-brainstorm` to plan the project interactively
 5. Run `/cc-project-setup` to generate real CLAUDE.md, .mcp.json, and rules from the plan
+6. Run `/feature-planner` to spec out individual features before implementing them
 
 ## Stack
 
@@ -27,6 +28,7 @@ This project was scaffolded from dev-template (Python variant). To set up:
 - `uv run ruff check .` — lint
 - `uv run ruff format .` — format
 - `nix develop` — enter dev shell
+- `nix run github:USER/dev-template#sync-skills` — pull latest skills from template
 
 ## Conventions
 

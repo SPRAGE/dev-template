@@ -21,6 +21,7 @@ Each template bundles:
 - **Ruflo** — AI agent orchestration (via `github:SPRAGE/ruflo-nix` flake input + MCP server)
 - **project-brainstorm** skill — interactive planning (7 phases → project brief)
 - **cc-project-setup** skill — generates CLAUDE.md, .mcp.json, rules from the brief
+- **feature-planner** skill — interactive feature spec builder (8 steps → feature spec file)
 
 ## Commands
 
@@ -28,6 +29,7 @@ Each template bundles:
 - `nix flake init -t .` — test default template
 - `nix flake init -t .#rust` — test rust template
 - `nix flake init -t .#python` — test python template
+- `nix run .#sync-skills` — sync skills into current project from template
 
 ## Workflow (for new projects)
 
@@ -35,6 +37,7 @@ Each template bundles:
 2. Replace `PROJECTNAME` in files
 3. `direnv allow`
 4. Open Claude Code → `/project-brainstorm` → `/cc-project-setup`
+5. Use `/feature-planner` to spec out features before implementing
 
 ## Conventions
 
