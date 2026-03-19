@@ -1,0 +1,41 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  flake-check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - run: nix flake check --all-systems
+
+  validate-templates:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Validate default template
+        run: |
+          mkdir -p /tmp/test-default && cd /tmp/test-default
+          nix flake init -t path:$GITHUB_WORKSPACE
+          nix flake check
+      - name: Validate rust template
+        run: |
+          mkdir -p /tmp/test-rust && cd /tmp/test-rust
+          nix flake init -t path:$GITHUB_WORKSPACE#rust
+          nix flake check
+      - name: Validate python template
+        run: |
+          mkdir -p /tmp/test-python && cd /tmp/test-python
+          nix flake init -t path:$GITHUB_WORKSPACE#python
+          nix flake check
