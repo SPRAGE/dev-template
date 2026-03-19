@@ -19,6 +19,7 @@ ECC defines battle-tested agent definitions that our org roles use as their oper
 | Casey (Code Review) | `code-reviewer.md` | Quality/security/maintainability review with severity ratings |
 | Morgan (Docs) | `doc-updater.md` | Documentation sync, ensuring docs stay current with code |
 | Drew (Research) | `docs-lookup.md` | Documentation research, library evaluation |
+| Riley (Domain Expert) | N/A — user-facing persona | Domain knowledge is provided conversationally; during execution stages, domain requirements are injected into agent prompts via ruflo shared memory |
 
 ### Engineering Rules (the org's standards)
 ECC's rules become the org's engineering handbook. Every agent follows these:

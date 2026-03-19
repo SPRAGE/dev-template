@@ -73,11 +73,17 @@ This is a lightweight workflow — just the architect and researcher doing desig
       "claudePrompt": "You are a senior technology researcher. Analyze the requirements and produce a technology evaluation report covering: architecture patterns, frameworks, and tooling options. Focus on {{TECH_CONSTRAINTS}}. The user's preferred stack is {{USER_PREFERRED_STACK}}. Be practical — recommend what works, not what's trendy. If the user has stated preferences, evaluate those first."
     },
     {
+      "id": "domain_research",
+      "assignTo": "researcher",
+      "description": "Research domain-specific requirements: industry standards, compliance, data formats, and integration requirements for {{DOMAIN}}.",
+      "claudePrompt": "You are a domain research specialist. For the {{DOMAIN}} industry, research and document: 1) Regulatory and compliance requirements that affect architecture (e.g., HIPAA, PCI-DSS, GDPR, FERPA), 2) Industry-standard data formats and protocols, 3) Common integrations and third-party systems, 4) Domain-specific security considerations, 5) Industry best practices for software in this space. Output a structured domain requirements report."
+    },
+    {
       "id": "architecture",
       "assignTo": "architect",
-      "depends": ["research"],
-      "description": "Design the system architecture based on research findings. Produce: component diagram, data model (if applicable), interface surface, and project structure.",
-      "claudePrompt": "You are a system architect. Using the research findings, design a clean, modular architecture for {{PROJECT_NAME}} (archetype: {{ARCHETYPE}}). Produce: 1) High-level component diagram (ASCII), 2) Data model with entities and relationships (if applicable), 3) Interface surface — endpoints, commands, or public API depending on archetype, 4) Directory structure. Optimize for simplicity and maintainability. Tech stack: {{TECH_STACK}}."
+      "depends": ["research", "domain_research"],
+      "description": "Design the system architecture based on research findings and domain requirements. Produce: component diagram, data model (if applicable), interface surface, and project structure.",
+      "claudePrompt": "You are a system architect. Using the research findings and domain requirements, design a clean, modular architecture for {{PROJECT_NAME}} (archetype: {{ARCHETYPE}}). Produce: 1) High-level component diagram (ASCII), 2) Data model with entities and relationships (if applicable), 3) Interface surface — endpoints, commands, or public API depending on archetype, 4) Directory structure. Ensure the architecture satisfies domain-specific requirements (compliance, data formats, integration standards). Optimize for simplicity and maintainability. Tech stack: {{TECH_STACK}}."
     }
   ]
 }
@@ -176,11 +182,18 @@ Full team, phased execution with quality gates between phases.
       "claudePrompt": "You are a DevOps engineer. Set up a CI/CD pipeline for {{PROJECT_NAME}} that: runs the full test suite, lints code, checks coverage (fail if below 80%), builds artifacts, and provides deployment/publish instructions as appropriate for the archetype. Use {{CI_TOOL}} if specified, otherwise choose the most natural CI for the project's ecosystem."
     },
     {
+      "id": "domain_validation",
+      "assignTo": "analyst",
+      "depends": ["core_features", "ui_features"],
+      "description": "Validate implementation against domain requirements.",
+      "claudePrompt": "You are a domain validation specialist for the {{DOMAIN}} industry. Review the implementation of {{PROJECT_NAME}} against domain requirements: 1) Verify domain-specific workflows are correctly implemented, 2) Check that industry terminology is used correctly in UI/API/docs, 3) Validate compliance requirements are met ({{COMPLIANCE_REQUIREMENTS}}), 4) Verify data formats match industry standards, 5) Check that integrations follow domain conventions. Report any domain mismatches with severity ratings and specific fixes."
+    },
+    {
       "id": "documentation",
       "assignTo": "documenter",
-      "depends": ["core_features", "ui_features", "tests"],
+      "depends": ["core_features", "ui_features", "tests", "domain_validation"],
       "description": "Write complete project documentation.",
-      "claudePrompt": "You are a technical writer. Write documentation for {{PROJECT_NAME}} including: README with setup/run instructions, interface documentation (API docs, CLI help, library reference — per archetype), architecture overview (with ADRs), and contributing guide. Ensure docs are synced with actual code — don't document features that don't exist or miss features that do. Make it clear enough that a new developer can get up and running in 10 minutes."
+      "claudePrompt": "You are a technical writer. Write documentation for {{PROJECT_NAME}} including: README with setup/run instructions, interface documentation (API docs, CLI help, library reference — per archetype), architecture overview (with ADRs), and contributing guide. Incorporate domain-specific terminology and context from the domain validation report. Ensure docs are synced with actual code — don't document features that don't exist or miss features that do. Make it clear enough that a new developer can get up and running in 10 minutes."
     }
   ]
 }
@@ -198,10 +211,17 @@ All agents, including security and performance specialists.
   "description": "Production hardening for {{PROJECT_NAME}} ({{ARCHETYPE}})",
   "tasks": [
     {
+      "id": "domain_compliance",
+      "assignTo": "analyst",
+      "description": "Domain compliance and standards audit.",
+      "claudePrompt": "You are a domain compliance specialist for the {{DOMAIN}} industry. Perform a thorough domain compliance audit of {{PROJECT_NAME}}: 1) Regulatory compliance check ({{COMPLIANCE_REQUIREMENTS}}), 2) Industry data format standards compliance, 3) Domain workflow correctness — verify all domain-specific processes follow industry conventions, 4) Terminology audit — ensure all user-facing text uses correct domain language, 5) Integration standards — verify third-party integrations follow industry protocols, 6) Domain-specific security requirements beyond general OWASP (e.g., PHI handling for healthcare, PCI tokenization for payments). Rate each finding: CRITICAL / HIGH / MEDIUM / LOW."
+    },
+    {
       "id": "security_audit",
       "assignTo": "analyst",
-      "description": "Security audit.",
-      "claudePrompt": "You are a security engineer. Perform a thorough security audit of {{PROJECT_NAME}}: 1) OWASP Top 10 review (as applicable to archetype), 2) Dependency vulnerability scan (check for known CVEs), 3) Secret detection (grep for hardcoded API keys, tokens, passwords, connection strings), 4) Input validation review (all user inputs must be sanitized), 5) Authentication/authorization audit (if applicable), 6) Supply chain security (for libraries: safe defaults, no credential leaks in published packages). Rate each finding: CRITICAL / HIGH / MEDIUM / LOW. For each: describe the vulnerability, show the exact location, explain the attack vector, and provide a specific fix."
+      "depends": ["domain_compliance"],
+      "description": "Security audit (informed by domain compliance findings).",
+      "claudePrompt": "You are a security engineer. Perform a thorough security audit of {{PROJECT_NAME}}, incorporating domain-specific security requirements from the compliance audit: 1) OWASP Top 10 review (as applicable to archetype), 2) Dependency vulnerability scan (check for known CVEs), 3) Secret detection (grep for hardcoded API keys, tokens, passwords, connection strings), 4) Input validation review (all user inputs must be sanitized), 5) Authentication/authorization audit (if applicable), 6) Supply chain security (for libraries: safe defaults, no credential leaks in published packages), 7) Domain-specific security ({{DOMAIN_SECURITY_REQUIREMENTS}}). Rate each finding: CRITICAL / HIGH / MEDIUM / LOW. For each: describe the vulnerability, show the exact location, explain the attack vector, and provide a specific fix."
     },
     {
       "id": "performance_profile",
@@ -320,6 +340,10 @@ $RUFLO_CMD memory store "architecture" "$(cat project/architecture.md)" --namesp
 # Store tech stack for consistent usage
 $RUFLO_CMD memory store "tech-stack" '{"language":"...","framework":"...","database":"..."}' --namespace project
 
+# Store domain context (from Riley) for all agents to reference
+$RUFLO_CMD memory store "domain-context" '{"domain":"...","regulations":["..."],"data_formats":["..."],"integrations":["..."],"terminology":{"domain_term":"definition"}}' --namespace project
+
 # Agents can query this during execution
 $RUFLO_CMD memory query "tech stack" --namespace project
+$RUFLO_CMD memory query "domain context" --namespace project
 ```

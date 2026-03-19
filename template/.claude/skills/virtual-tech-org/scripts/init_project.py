@@ -20,11 +20,11 @@ STAGE_NAMES = {
 }
 
 STAGE_TEAMS = {
-    0: ["CEO", "CTO", "Drew (Research)"],
-    1: ["CTO", "Priya (Architect)", "Drew (Research)"],
-    2: ["CTO", "Priya (Architect)", "Marcus (Core Dev)", "Lina (UI/Client Dev)"],
-    3: ["CTO", "Sam (VP Eng)", "Priya", "Marcus", "Lina", "Robin (QA)", "Kai (DevOps)", "Morgan (Docs)"],
-    4: ["CTO", "Sam", "Priya", "Marcus", "Lina", "Robin", "Kai", "Ash (Security)", "Taylor (Perf)", "Morgan", "Casey (Review)"]
+    0: ["CEO", "CTO", "Riley (Domain Expert)", "Drew (Research)"],
+    1: ["CTO", "Riley (Domain Expert)", "Priya (Architect)", "Drew (Research)"],
+    2: ["CTO", "Riley (Domain Expert)", "Priya (Architect)", "Marcus (Core Dev)", "Lina (UI/Client Dev)"],
+    3: ["CTO", "Riley (Domain Expert)", "Sam (VP Eng)", "Priya", "Marcus", "Lina", "Robin (QA)", "Kai (DevOps)", "Morgan (Docs)"],
+    4: ["CTO", "Riley (Domain Expert)", "Sam", "Priya", "Marcus", "Lina", "Robin", "Kai", "Ash (Security)", "Taylor (Perf)", "Morgan", "Casey (Review)"]
 }
 
 # Roles to remove per archetype (from all stages)

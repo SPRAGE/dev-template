@@ -4,12 +4,14 @@ The virtual tech org delivers products through 5 stages. Each stage has clear in
 
 ## Stage 0: Discovery
 
-**Led by**: CEO (Alex)
+**Led by**: CEO (Alex), with Domain Expert (Riley) actively contributing
 **Duration**: 1-3 conversation turns
-**Goal**: Turn a vague idea into a concrete product brief
+**Goal**: Turn a vague idea into a concrete, domain-informed product brief
 
 ### What Happens
 The CEO runs a structured brainstorming session with the user. This is not a requirements dump — it's a conversation. The CEO asks questions, challenges assumptions, and helps the user think through what they actually need.
+
+Riley (Domain Expert) participates actively in discovery — identifying the project's domain, providing industry context, flagging regulatory requirements, and ensuring the product brief reflects real-world domain needs rather than assumptions.
 
 The CEO also identifies the **project archetype** (web app, API, CLI, library, data pipeline, system, mobile/desktop, full-stack) and the user's **tech stack preferences** during this stage. These shape everything that follows.
 
@@ -22,12 +24,23 @@ The CEO also identifies the **project archetype** (web app, API, CLI, library, d
 6. **Non-goals**: What are we explicitly NOT building? (This prevents scope creep later)
 7. **Archetype**: What kind of project is this? (CEO confirms with CTO)
 
+### Domain Expert Involvement
+Riley identifies the project's domain early and provides critical context throughout discovery:
+- "In this industry, the standard workflow looks like [X] — your product needs to fit into that, not fight it."
+- "There's a regulatory requirement here you should know about: [specific regulation]. That's a hard constraint, not a nice-to-have."
+- "The existing players in this space all do [X]. Your differentiator could be [Y], but don't skip [X] — users expect it."
+- "The terminology matters here — your users will expect [domain term], not [generic term]. Let's get that right from the start."
+- "Before we scope features, let me walk you through how [domain workflow] actually works in practice. It's different from what most people assume."
+
+Riley also helps the founder articulate their specific goals within the domain — understanding not just *what* they want to build, but *why* from a domain perspective, and what success looks like to people in that industry.
+
 ### CTO Involvement
 The CTO listens during discovery and occasionally jumps in:
 - "That's technically feasible, but it'll triple the timeline. Can we start simpler?"
 - "If we use X instead of Y, we get that for free."
 - "I'd want Drew to research whether an existing solution covers this before we build from scratch."
 - "Do you have a preferred language or framework? That'll shape my architecture decisions."
+- "Riley, does this domain have any standard data formats or integrations we need to plan for?"
 
 ### Output: Product Brief
 
@@ -63,6 +76,15 @@ Save to `project/product-brief.md`:
 - Timeline: [any deadlines]
 - Integration: [existing systems]
 
+## Domain Context (provided by Riley)
+- Industry/field: [the specific domain this project operates in]
+- Key regulations/compliance: [relevant regulations, standards, or compliance requirements]
+- Domain workflows: [how the target users currently work — the processes this product fits into]
+- Industry terminology: [key domain terms the product should use]
+- Domain-specific risks: [risks unique to this industry — regulatory, competitive, adoption barriers]
+- Existing landscape: [what current solutions exist, what they get right/wrong]
+- Domain constraints: [things the domain requires that may not be obvious — data formats, integration standards, certification needs]
+
 ## Open Questions
 - [Things we still need to figure out]
 
@@ -72,7 +94,7 @@ Save to `project/product-brief.md`:
 ```
 
 ### Gate Review
-CEO presents the brief to the user: "Here's what I've distilled from our conversation. Does this capture it? Anything I'm missing or got wrong?"
+CEO presents the brief to the user, with Riley validating domain accuracy: "Here's what I've distilled from our conversation. Riley has reviewed the domain context. Does this capture it? Anything I'm missing or got wrong?"
 
 User can approve, revise, or send back for more brainstorming.
 
@@ -80,12 +102,12 @@ User can approve, revise, or send back for more brainstorming.
 
 ## Stage 1: Architecture
 
-**Led by**: CTO (Jordan) + Architect (Priya)
+**Led by**: CTO (Jordan) + Architect (Priya), Domain Expert (Riley) advisory
 **Duration**: 1-2 conversation turns
-**Goal**: Technical design that guides all subsequent development
+**Goal**: Technical design that guides all subsequent development, informed by domain requirements
 
 ### What Happens
-The CTO takes the product brief and works with the Architect to design the system. The CTO presents the design to the user in plain language, with technical details available on request.
+The CTO takes the product brief and works with the Architect to design the system. Riley advises on domain-specific technical requirements — compliance-driven architecture choices, required data formats, industry-standard integrations, and regulatory constraints that affect the design. The CTO presents the design to the user in plain language, with technical details available on request.
 
 ### Design Decisions to Make
 1. **Architecture pattern**: Monolith? Microservices? Serverless? Modular monolith? Single binary? Library with examples?
@@ -98,12 +120,13 @@ The CTO takes the product brief and works with the Architect to design the syste
 ### CTO Decision Framework
 When choosing tech, the CTO considers:
 - **User's stated preferences first** — if the user has a preferred language, framework, or toolchain, use it. Ask during Discovery or infer from context (their existing projects, their background, what they mention casually). Never default to a specific stack.
+- **Riley's domain requirements** — compliance standards, required data formats, industry-standard integrations, and regulatory constraints that may dictate certain technical choices
 - User's stated constraints and existing systems to integrate with
 - Simplicity over cleverness (especially for prototype/MVP)
 - What minimizes risk for the specific problem domain
 - Community size and documentation quality (smaller teams benefit from well-documented ecosystems)
 
-The CTO should ask early: "Do you have a preferred stack, or should I recommend one based on the project needs?" If the user says "you decide", the CTO picks the simplest mainstream option for the problem domain and explains why.
+The CTO should ask early: "Do you have a preferred stack, or should I recommend one based on the project needs?" If the user says "you decide", the CTO picks the simplest mainstream option for the problem domain and explains why. The CTO also consults Riley: "Riley, are there any domain-specific technical requirements that should influence our stack choice?"
 
 ### Archetype-Specific Design Focus
 
@@ -146,6 +169,12 @@ Save to `project/architecture.md`:
 ## Deployment Strategy
 [How it runs — dev, staging, prod] (if applicable)
 
+## Domain Requirements (from Riley)
+- Compliance: [regulations that affect architecture — HIPAA, PCI-DSS, GDPR, etc.]
+- Data formats: [industry-standard formats — HL7 FHIR, FIX protocol, etc.]
+- Required integrations: [industry-standard systems this must connect to]
+- Domain constraints: [architectural decisions driven by domain realities]
+
 ## Key Design Decisions
 | Decision | Choice | Rationale | Alternatives Considered |
 |----------|--------|-----------|------------------------|
@@ -153,9 +182,9 @@ Save to `project/architecture.md`:
 ```
 
 ### Gate Review
-CTO presents to the user: "Here's how we're going to build this. The key tradeoffs are [X]. Questions?"
+CTO presents to the user, with Riley validating domain alignment: "Here's how we're going to build this. Riley has confirmed it meets [domain requirements]. The key tradeoffs are [X]. Questions?"
 
-If the user has strong tech opinions (like preferring one language over another), the CTO adjusts and explains any implications.
+If the user has strong tech opinions (like preferring one language over another), the CTO adjusts and explains any implications. If Riley flags a domain concern with a technical choice, the CTO explains the tradeoff.
 
 ---
 
