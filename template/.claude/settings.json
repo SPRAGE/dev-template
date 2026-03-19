@@ -4,12 +4,40 @@
       "Bash(nix develop *)",
       "Bash(nix build *)",
       "Bash(nix flake *)",
-      "Bash(ruflo *)",
-      "mcp__ruflo__*"
+      "Bash(ruflo mcp start)",
+      "Bash(ruflo mcp stop)",
+      "Bash(ruflo mcp status)",
+      "mcp__ruflo__read_plan",
+      "mcp__ruflo__list_tasks",
+      "mcp__ruflo__get_task",
+      "mcp__ruflo__update_task"
     ],
     "deny": [
       "Bash(cat .env*)",
-      "Read(.env*)"
+      "Read(.env*)",
+      "Bash(head .env*)",
+      "Bash(tail .env*)",
+      "Bash(less .env*)",
+      "Bash(more .env*)",
+      "Bash(grep * .env*)",
+      "Bash(sed * .env*)",
+      "Bash(awk * .env*)",
+      "Bash(python*)",
+      "Bash(node*)",
+      "Bash(ruby*)",
+      "Bash(perl*)",
+      "Bash(rm -rf *)",
+      "Bash(rm -r *)",
+      "Bash(git push *)",
+      "Bash(git push --force *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(ssh *)",
+      "Bash(scp *)",
+      "Bash(sudo *)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Bash(nix-store --delete *)"
     ]
   },
   "hooks": {

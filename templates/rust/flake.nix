@@ -9,10 +9,14 @@
     };
     flake-utils.url = "github:numtide/flake-utils";
     ruflo-nix = {
+      # SECURITY: Pin to a specific rev for production use
+      # url = "github:SPRAGE/ruflo-nix/<rev>";
       url = "github:SPRAGE/ruflo-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     claude-code = {
+      # SECURITY: Pin to a specific rev for production use
+      # url = "github:sadjow/claude-code-nix/<rev>";
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
