@@ -37,7 +37,7 @@ A structured, file-based persistent knowledge store that lives in the project. H
 
 | File | Purpose | Updated by |
 |------|---------|------------|
-| `active-context.md` | Current WIP, active decisions, blockers, recent changes. The "hot" context loaded on session start. | Pre-compact hook, session-end hook, `/cc-refresh` |
+| `active-context.md` | Current WIP, active decisions, blockers, recent changes. The "hot" context loaded on session start. | Session-end hook, post-commit hook, `/cc-refresh` |
 | `decisions.md` | Architectural and design decisions still in effect. | Skills, manual, `/cc-refresh` prunes reversed decisions |
 | `architecture-snapshot.md` | Current codebase structure — directories, entry points, dependency graph, data flow. Auto-generated from scanning. | `/cc-onboard`, `/cc-refresh` |
 | `conventions.md` | Coding patterns, naming conventions, error handling, testing patterns detected from code. | `/cc-onboard`, `/cc-refresh` |
@@ -48,7 +48,7 @@ A structured, file-based persistent knowledge store that lives in the project. H
 ```markdown
 ---
 last_updated: 2026-03-21T14:30:00Z
-session_id: <last session that wrote this>
+last_updated_by: human | session-end-hook | cc-refresh
 ---
 
 ## Current Focus
@@ -56,6 +56,9 @@ session_id: <last session that wrote this>
 
 ## Recent Decisions
 [Decisions made in the last 1-3 sessions not yet moved to decisions.md]
+
+## Recent Changes
+[Commits and file changes from recent sessions — appended by post-commit hook]
 
 ## Open Questions
 [Unresolved questions that need answers]
@@ -65,6 +68,54 @@ session_id: <last session that wrote this>
 
 ## Blockers
 [Anything blocking progress]
+```
+
+### Schema: architecture-snapshot.md
+
+```markdown
+---
+last_updated: 2026-03-21T14:30:00Z
+generated_by: cc-onboard | cc-refresh
+---
+
+## Stack
+[Languages, frameworks, key libraries — detected from config files]
+
+## Directory Structure
+[Key directories and what lives in each — from actual tree scan]
+
+## Entry Points
+[Main files, CLI entry points, server start files, test runners]
+
+## Dependencies
+[Key dependency graph — what depends on what, external service deps]
+
+## Data Flow
+[How data moves through the system — only if applicable]
+```
+
+### Schema: conventions.md
+
+```markdown
+---
+last_updated: 2026-03-21T14:30:00Z
+generated_by: cc-onboard | cc-refresh
+---
+
+## Naming Patterns
+[snake_case vs camelCase, file naming, module naming — detected from code samples]
+
+## Error Handling
+[How errors are handled — Result types, exceptions, error codes — detected patterns]
+
+## Testing Patterns
+[Test framework, test file locations, test naming, assertion style]
+
+## Import/Module Patterns
+[How imports are organized, module system conventions]
+
+## Build & Tooling
+[Build commands, linter config, formatter config, CI patterns]
 ```
 
 ### Schema: decisions.md
@@ -107,11 +158,11 @@ session_id: <last session that wrote this>
 #### Phase 2 — `/cc-onboard` skill (inside Claude Code)
 
 1. **Detect existing state** — check what exists. If Phase 1 wasn't run, do minimal bootstrap inline.
-2. **Scan codebase** using parallel subagents:
-   - Language/framework detector — glob for telltale files, read configs
-   - Structure mapper — directory tree, entry points, test dirs, config locations
-   - Convention detector — sample source files, detect naming/error/test patterns
-   - Command discoverer — parse Makefiles, package.json, Cargo.toml, flake.nix
+2. **Scan codebase** using parallel Agent tool dispatches (Claude Code's built-in subagent mechanism — each runs as a separate Claude instance with its own context):
+   - Language/framework detector agent — glob for telltale files, read configs
+   - Structure mapper agent — directory tree, entry points, test dirs, config locations
+   - Convention detector agent — sample source files, detect naming/error/test patterns
+   - Command discoverer agent — parse Makefiles, package.json, Cargo.toml, flake.nix
 3. **Generate artifacts:**
    - `CLAUDE.md` — populated with real commands, architecture, conventions
    - `.mcp.json` — servers selected by detected stack
@@ -138,8 +189,8 @@ session_id: <last session that wrote this>
    |--------|--------|
    | `CLAUDE.md` | Commands valid? Architecture matches dirs? Conventions match code? |
    | `.claude/knowledge/*` | Decisions still active? Snapshot matches reality? Active-context refs exist? |
-   | `~/.claude/projects/<path>/memory/*` | Memory files reference existing functions/files? Reversed decisions? |
-   | `~/.claude/projects/<path>/*.jsonl` | Session count, total size, age of oldest |
+   | `~/.claude/projects/<path>/memory/*` | Memory files reference existing functions/files? Reversed decisions? (Note: path is internal to Claude Code and may change between versions. Skill should discover path dynamically and skip gracefully if not found.) |
+   | `~/.claude/projects/<path>/*.jsonl` | Session count, total size, age of oldest. (Same fragile-path caveat as memory.) |
    | `.claude/rules/*` | Rules relevant to current codebase? |
 
 2. **Report phase** — structured findings per target with specific issues found.
@@ -150,9 +201,11 @@ session_id: <last session that wrote this>
    - **Prune:** remove stale memory files (logged to stale-log.md)
    - **Supersede:** mark reversed decisions
 
-4. **User approves** — granular approval (all, per-category, or per-item).
+4. **User approves** — granular approval (all, per-category, or per-item). Declined items are logged to stdout with "Skipped: [reason]" so the user has a record, but no file changes are made for them. The skill does not re-prompt for declined items.
 
 5. **Execute** — apply approved changes, append all removals to `stale-log.md`.
+
+**Dry-run support:** When invoked as `/cc-refresh --dry-run` (or when the user asks for a preview), the skill runs the audit and report phases only — no proposals, no file changes. Useful for scripting and CI checks.
 
 6. **Optional ruflo sync** — if available, sync updated knowledge store to ruflo memory.
 
@@ -176,54 +229,68 @@ session_id: <last session that wrote this>
 
 All hooks follow these principles:
 - **Fast by default.** Gate condition check first, bail early. Target < 50ms when skipping.
-- **Non-blocking.** Output suggestions, don't modify files autonomously (except lightweight active-context append on commit).
+- **Knowledge store maintenance only.** Hooks may append to knowledge store files (active-context.md, .needs-persist marker) but never modify source code, CLAUDE.md, or primary project files. All substantive changes go through skills with user approval.
 - **Inspectable.** Shell scripts in `.claude/hooks/`, readable and editable.
+- **Missing-file safe.** All hooks check for knowledge store file existence before reading/writing. If files are missing (e.g., Phase 2 pruned them before Phase 3 hooks were installed), hooks exit 0 gracefully — never error.
 
 ### 3a: Session-Start Hook
 
-**Event:** `PreToolUse` on `Read|Glob|Grep|Bash`
+**Event:** `SessionStart` (native Claude Code hook event — fires once at session start)
+
+No flag-file workaround needed. Claude Code supports `SessionStart` as a first-class hook event.
 
 **Behavior:**
-- Flag file `.claude/knowledge/.session-loaded` with timestamp — if fresh (< 5 min), skip
-- Reads `active-context.md`, outputs to stdout (Claude sees as hook output)
-- Surfaces decisions from last 7 days
-- If `architecture-snapshot.md` older than 14 days, nudges to run `/cc-refresh`
-- If memory files older than 30 days, nudges to run `/cc-refresh`
-- If session JSONL total > 5MB, nudges to archive
-- Touches flag file
+- Reads `active-context.md` (if it exists), outputs to stdout (Claude sees as hook output)
+- Surfaces decisions from last 7 days from `decisions.md`
+- Surfaces recent agent outputs from `.claude/knowledge/agent-outputs/` (last 3 days)
+- Staleness checks:
+  - If `architecture-snapshot.md` older than 14 days → nudge: "Architecture snapshot is stale. Consider running /cc-refresh."
+  - If auto-memory files older than 30 days → nudge to run `/cc-refresh`
+  - If session JSONL total > 5MB → nudge to archive old sessions
+- Triggers ruflo pull sync (if ruflo available) to surface agent outputs
 
 ### 3b: Context Watchdog Hook
 
 **Event:** `PostToolUse` on `.*`
 
 **Behavior:**
-- Checks timestamp file, skips if last run < 3 minutes ago
-- Reads current session JSONL file size
-- If growth delta > 100KB since last check, writes `.claude/knowledge/.needs-persist` marker
+- Checks timestamp file `.claude/knowledge/.watchdog-last-run` — skips if last run < 3 minutes ago (single `stat` call, ~1ms)
+- When it does run: uses `stat -c %s` (Linux) or `stat -f %z` (macOS) on the current session JSONL file to get size — never reads the file content
+- Stores the byte count in `.claude/knowledge/.watchdog-last-size`
+- If growth delta > 100KB since last check (configurable via `CLAUDE_WATCHDOG_THRESHOLD` env var, default 100KB), writes `.claude/knowledge/.needs-persist` marker
 - Outputs nudge: "Context is growing. Key decisions and active work should be persisted to knowledge store."
-- Heuristic proxy for context compression — can't intercept compact directly, but JSONL growth rate correlates
+- This is a heuristic proxy for context compression — can't intercept compact directly, but JSONL growth rate correlates
+
+**Fragile dependency note:** The session JSONL path (`~/.claude/projects/<path>/*.jsonl`) is an internal Claude Code implementation detail. If the path format changes between Claude Code versions, this hook will silently skip (no JSONL found = no size check = no nudge). The core functionality (knowledge store, skills) is unaffected.
 
 ### 3c: Post-Commit Persist Hook
 
 **Event:** `PostToolUse` on `Bash`
 
 **Behavior:**
-- Checks if Bash command was `git commit` — exits immediately if not
-- Extracts commit message and files changed
-- Appends to `active-context.md` "Recent Changes" section
-- If `.claude/knowledge/` files were modified, triggers ruflo sync (if available)
-- Clears `.needs-persist` flag
+- Receives tool input on stdin as JSON; checks if the command contains `git commit` — exits immediately if not
+- Extracts commit message via `git log -1 --pretty=%s` and files changed via `git diff --name-only HEAD~1`
+- Appends to `active-context.md` "Recent Changes" section (knowledge store maintenance, not source modification)
+- If `.claude/knowledge/` files were modified in the commit, triggers ruflo push sync (if available)
+- Clears `.needs-persist` marker if set
 
-### 3d: Hook Configuration
+### 3d: Session-End Hook
 
-Added to `.claude/settings.json` in template:
+**Event:** `SessionEnd` (native Claude Code hook event — fires when session closes)
+
+**Behavior:**
+- Triggers ruflo push sync (if available) to persist latest knowledge store to ruflo memory
+- Lightweight — just the sync call, no analysis
+
+### 3e: Hook Configuration
+
+Added to `.claude/settings.json` in template. Hook schema uses `matcher` (regex for tool name filtering, applies to PreToolUse/PostToolUse only) and `command` (shell command to execute):
 
 ```json
 {
   "hooks": {
-    "PreToolUse": [
+    "SessionStart": [
       {
-        "matcher": "Read|Glob|Grep|Bash",
         "command": ".claude/hooks/session-start.sh"
       }
     ],
@@ -236,10 +303,17 @@ Added to `.claude/settings.json` in template:
         "matcher": "Bash",
         "command": ".claude/hooks/post-commit-persist.sh"
       }
+    ],
+    "SessionEnd": [
+      {
+        "command": ".claude/hooks/session-end.sh"
+      }
     ]
   }
 }
 ```
+
+**Note:** The hook object schema (`matcher`, `command`) matches the structure used in Claude Code's settings.json. `matcher` is only applicable to PreToolUse/PostToolUse events. SessionStart/SessionEnd hooks omit `matcher` since they are not tool-scoped.
 
 ## Layer 4: Ruflo Bridge
 
@@ -256,7 +330,7 @@ Bidirectional with clear ownership:
 | Agent outputs | Ruflo agents | ruflo -> Claude |
 | Swarm status/metrics | Ruflo | ruflo -> Claude |
 
-**Conflict resolution:** Last-write-wins with stale-log audit trail.
+**Conflict resolution:** Last-write-wins with stale-log audit trail. For bidirectional files (`architecture-snapshot.md`, `conventions.md`), every sync overwrite appends the overwritten content to `stale-log.md` with a `[sync-overwrite]` tag, timestamp, and source (claude vs ruflo). This ensures silent data loss is detectable and recoverable.
 
 ### Sync Mechanism
 
@@ -325,6 +399,7 @@ Added to `flake.nix` as `apps.onboard`.
    │   ├── session-start.sh
    │   ├── context-watchdog.sh
    │   ├── post-commit-persist.sh
+   │   ├── session-end.sh
    │   └── ruflo-sync.sh
    └── skills/               (via existing sync-skills)
    .mcp.json
@@ -335,7 +410,9 @@ Added to `flake.nix` as `apps.onboard`.
 
 4. Print next steps.
 
-**Relationship to sync-skills:** `onboard` runs once for initial setup. `sync-skills` runs whenever you want the latest skills. Complementary.
+**Note:** `nix run .#onboard` always runs outside Claude Code in the user's shell. The `chmod` call is a direct shell command, not routed through Claude Code's Bash tool (which has `chmod` in its deny list).
+
+**Relationship to sync-skills:** `onboard` runs once for initial setup. `sync-skills` runs whenever you want the latest skills. The existing `sync-skills` app syncs only `.claude/skills/`. It should be expanded to also sync `.claude/hooks/` and `.claude/knowledge/` templates (empty schemas only — never overwrite populated knowledge files). This ensures hook updates and new knowledge store schema fields propagate to existing projects.
 
 ## New Files Added to Template
 
@@ -346,9 +423,10 @@ Added to `flake.nix` as `apps.onboard`.
 | `template/.claude/knowledge/architecture-snapshot.md` | Template | Empty, filled by onboard |
 | `template/.claude/knowledge/conventions.md` | Template | Empty, filled by onboard |
 | `template/.claude/knowledge/stale-log.md` | Template | Initialized with creation date |
-| `template/.claude/hooks/session-start.sh` | Hook | Context reload |
+| `template/.claude/hooks/session-start.sh` | Hook | Context reload on SessionStart |
 | `template/.claude/hooks/context-watchdog.sh` | Hook | Monitor context pressure |
 | `template/.claude/hooks/post-commit-persist.sh` | Hook | Persist on commit |
+| `template/.claude/hooks/session-end.sh` | Hook | Ruflo push sync on SessionEnd |
 | `template/.claude/hooks/ruflo-sync.sh` | Hook | Bidirectional ruflo sync |
 | `template/.claude/skills/cc-onboard/SKILL.md` | Skill | Codebase scan + config gen |
 | `template/.claude/skills/cc-refresh/SKILL.md` | Skill | Audit + prune stale context |
