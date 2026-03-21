@@ -2,53 +2,105 @@
 name: cc-refresh
 description: >
   Audit and refresh all Claude Code context — CLAUDE.md, knowledge store, auto-memory files,
-  session history, and rules. Scans for stale content, proposes targeted fixes, and executes
-  approved changes. Use when the user says "refresh claude context", "clean up claude memory",
-  "prune stale context", "context cleanup", "refresh knowledge", or any variation of wanting
-  to clean up outdated Claude Code configuration. Also trigger when context feels stale,
-  Claude is referencing things that no longer exist, or the user mentions "CLAUDE.md maintenance"
-  or "project memory optimization". Supports --dry-run for audit-only mode.
+  session history, and rules. Scans for stale content, scores CLAUDE.md quality (A-F grades),
+  proposes targeted fixes, and executes approved changes. Use when the user says "refresh
+  claude context", "clean up claude memory", "prune stale context", "context cleanup",
+  "refresh knowledge", "audit CLAUDE.md", "improve CLAUDE.md", "check CLAUDE.md quality",
+  "CLAUDE.md maintenance", "project memory optimization", or any variation of wanting to
+  clean up, audit, or improve Claude Code configuration. Also trigger when context feels
+  stale, Claude is referencing things that no longer exist, or CLAUDE.md seems outdated.
+  Supports --dry-run for audit-only mode and --claude-md-only for CLAUDE.md-focused audit.
 tools: Read, Glob, Grep, Bash, Edit, Write, Agent
 ---
 
 # Claude Code Context Refresh
 
-Audit all Claude Code artifacts for staleness, report findings, propose fixes, and
-execute approved changes. This is the maintenance counterpart to `/cc-onboard`.
+Audit all Claude Code artifacts for staleness, score CLAUDE.md quality, report findings,
+propose fixes, and execute approved changes. This is the maintenance counterpart to `/cc-setup`.
 
 **This skill modifies files.** It updates CLAUDE.md, knowledge store, memory files,
 and can archive old sessions. All changes require user approval.
 
-## Dry-Run Mode
+## Modes
 
-If the user invokes with `--dry-run` or asks for a preview/audit only, run the Audit
-and Report phases only. Skip Propose, Approve, and Execute phases entirely.
+**Full refresh** (default): Audit all targets — CLAUDE.md, knowledge store, memory, rules.
+
+**Dry-run** (`--dry-run`): Audit and Report phases only. Skip Propose, Approve, Execute.
+
+**CLAUDE.md only** (`--claude-md-only`): Run only Agent 1 (CLAUDE.md Auditor) with full
+quality scoring. Skip knowledge store, memory, and rules agents. Use when you just want
+to audit or improve CLAUDE.md files without touching anything else.
 
 ## Phase 1: Audit
 
 Dispatch parallel Agent tool subagents, each auditing one target area:
 
-### Agent 1: CLAUDE.md Auditor
+### Agent 1: CLAUDE.md Auditor (with Quality Scoring)
 
 **Prompt for agent:**
-> Audit the CLAUDE.md file at the project root for accuracy against the current codebase.
-> Check:
-> 1. Every command listed — does it actually work? Check if the binary/script exists.
->    (e.g., if CLAUDE.md says `npm test`, does package.json have a test script?)
-> 2. Architecture section — do the listed directories exist? Are there new directories
->    not mentioned?
-> 3. Conventions — sample 3-5 source files and check if stated conventions match actual code.
-> 4. Stack — does the listed stack match what's in config files (package.json, Cargo.toml, etc.)?
+> Audit ALL CLAUDE.md files in the repository for accuracy and quality.
 >
-> Return structured findings:
+> **Step 1: Discovery**
+> Find all CLAUDE.md files:
+> ```bash
+> find . -name "CLAUDE.md" -o -name ".claude.md" -o -name ".claude.local.md" 2>/dev/null | head -50
+> ```
+>
+> File types to look for:
+> | Type | Location | Purpose |
+> |------|----------|---------|
+> | Project root | `./CLAUDE.md` | Primary project context (shared with team) |
+> | Local overrides | `./.claude.local.md` | Personal settings (gitignored) |
+> | Global defaults | `~/.claude/CLAUDE.md` | User-wide defaults |
+> | Package-specific | `./packages/*/CLAUDE.md` | Module-level context in monorepos |
+>
+> **Step 2: Staleness Audit** (for each file)
+> 1. Every command listed — does it actually work? Check if the binary/script exists.
+> 2. Architecture section — do the listed directories exist? Are there new ones not mentioned?
+> 3. Conventions — sample 3-5 source files and check if stated conventions match actual code.
+> 4. Stack — does the listed stack match config files (package.json, Cargo.toml, etc.)?
+>
+> **Step 3: Quality Scoring** (for each file)
+> Score against 6 criteria (see `references/quality-criteria.md` for full rubric):
+> | Criterion | Max Points | What to Check |
+> |-----------|-----------|---------------|
+> | Commands/workflows | 20 | Are build/test/deploy commands present and working? |
+> | Architecture clarity | 20 | Can Claude understand the codebase structure? |
+> | Non-obvious patterns | 15 | Are gotchas and quirks documented? |
+> | Conciseness | 15 | No verbose explanations or obvious info? |
+> | Currency | 15 | Does it reflect current codebase state? |
+> | Actionability | 15 | Are instructions executable, not vague? |
+>
+> Grades: A (90-100), B (70-89), C (50-69), D (30-49), F (0-29)
+>
+> **Step 4: Red Flags**
+> Flag: commands that would fail, references to deleted files, outdated tech versions,
+> copy-paste from templates without customization, generic advice, unresolved TODOs,
+> duplicate info across multiple CLAUDE.md files.
+>
+> Return structured findings per file:
 > ```
 > ## CLAUDE.md Audit
-> ### Stale Items
+>
+> ### ./CLAUDE.md (Project Root)
+> **Score: XX/100 (Grade: X)**
+> | Criterion | Score | Notes |
+> |-----------|-------|-------|
+> | Commands/workflows | X/20 | ... |
+> | Architecture clarity | X/20 | ... |
+> | Non-obvious patterns | X/15 | ... |
+> | Conciseness | X/15 | ... |
+> | Currency | X/15 | ... |
+> | Actionability | X/15 | ... |
+>
+> #### Stale Items
 > - [item]: [what's wrong] (severity: HIGH/MEDIUM/LOW)
-> ### Missing Items
+> #### Missing Items
 > - [item]: [what should be added]
-> ### Accurate Items
+> #### Accurate Items
 > - [item]: confirmed current
+> #### Red Flags
+> - [flag]: [details]
 > ```
 
 ### Agent 2: Knowledge Store Auditor
@@ -191,3 +243,32 @@ Every removal/prune appends an entry:
 ```
 
 This ensures nothing is permanently lost. Users can recover incorrectly pruned items.
+
+## CLAUDE.md Update Format
+
+For CLAUDE.md changes, use diff-based proposals. See `references/update-guidelines.md` for
+detailed guidelines on what to add vs what to avoid. For each proposed change, show:
+
+```markdown
+### Update: ./CLAUDE.md
+**Why:** [reason this helps future sessions]
+```diff
++ [addition]
+- [removal]
+```
+```
+
+## User Tips
+
+When presenting the audit report, remind users:
+- **`#` key shortcut**: During a Claude session, press `#` to auto-incorporate learnings into CLAUDE.md
+- **Keep it concise**: Dense is better than verbose — every line must earn its place
+- **Actionable commands**: All documented commands should be copy-paste ready
+- **Use `.claude.local.md`**: For personal preferences not shared with team (add to `.gitignore`)
+- **Global defaults**: Put user-wide preferences in `~/.claude/CLAUDE.md`
+
+## References
+
+- `references/quality-criteria.md` — Full scoring rubric for CLAUDE.md quality assessment
+- `references/templates.md` — CLAUDE.md templates by project type (minimal, comprehensive, monorepo, package)
+- `references/update-guidelines.md` — What to add, what to avoid, diff format, validation checklist

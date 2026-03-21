@@ -21,15 +21,12 @@ dev-template — Nix flake templates for scaffolding new projects with Claude Co
 Each template bundles:
 - **Claude Code** — AI coding assistant (via `github:sadjow/claude-code-nix` flake input)
 - **Ruflo** — AI agent orchestration (via `github:SPRAGE/ruflo-nix` flake input + MCP server)
-- **virtual-tech-org** skill — simulates a full tech company (CEO + CTO + engineering team) that builds software via ruflo hive-mind swarm orchestration. Language/stack-agnostic, supports any project archetype (web app, API, CLI, library, data pipeline, etc.). Subsumes brainstorming, architecture, and staged delivery (prototype → MVP → production).
-- **project-brainstorm** skill — interactive planning (7 phases → project brief)
-- **cc-project-setup** skill — generates CLAUDE.md, .mcp.json, rules from the brief
-- **feature-planner** skill — interactive feature spec builder (8 steps → feature spec file)
+- **virtual-tech-org** skill — simulates a full tech company (CEO + CTO + engineering team) that builds software via ruflo hive-mind swarm orchestration. Integrates superpowers for disciplined engineering (TDD, code review, verification). Language/stack-agnostic, supports any project archetype.
+- **planner** skill — interactive planning companion (project mode: 7 phases → project brief; feature mode: 8 steps → feature spec)
+- **cc-setup** skill — set up Claude Code for any project (greenfield from brief, brownfield from codebase scan, or recommend automations)
+- **cc-refresh** skill — audit and refresh Claude Code context with CLAUDE.md quality scoring (A-F grades)
 - **frontend-design** skill — production-grade frontend interfaces with distinctive aesthetics
-- **claude-automation-recommender** skill — analyzes codebase, recommends hooks/skills/MCP/subagents
-- **claude-md-improver** skill — audits and improves CLAUDE.md files
-- **skill-creator** skill — create, test, and iterate on new skills with eval framework
-- **writing-rules** skill — create hookify rules for automated guardrails
+- **skill-creator** skill — create, test, and iterate on skills and hookify rules with eval framework
 - **playground** skill — interactive HTML playgrounds for visual exploration
 
 ## Commands
@@ -47,9 +44,9 @@ Each template bundles:
 2. Replace `PROJECTNAME` in files
 3. `direnv allow`
 4. Open Claude Code → `/virtual-tech-org` to spin up the full org and build through staged delivery
-   - OR use individual skills: `/project-brainstorm` → `/cc-project-setup` → `/feature-planner`
-5. OR run `nix run .#onboard` to bootstrap Claude Code onto an existing repo, then `/cc-onboard` to scan and configure
-6. Use `/cc-refresh` periodically to clean up stale context, memory, and session history
+   - OR use individual skills: `/planner` → `/cc-setup` → `/planner` (feature mode)
+5. OR run `nix run .#onboard` to bootstrap Claude Code onto an existing repo, then `/cc-setup` to scan and configure
+6. Use `/cc-refresh` periodically to clean up stale context, memory, and session history (includes CLAUDE.md quality scoring)
 7. Use `/ruflo-builder` to scaffold custom ruflo agents and workflows from the knowledge store
 
 ## Conventions

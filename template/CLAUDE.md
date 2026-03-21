@@ -11,12 +11,12 @@ This project was scaffolded from dev-template. To set up:
 1. Replace `PROJECTNAME` in this file and `flake.nix`
 2. `direnv allow` to enter the dev shell (includes ruflo)
 3. Run `/virtual-tech-org` to spin up a full virtual tech company that builds your project through staged delivery (discovery → architecture → prototype → MVP → production)
-   - OR use individual skills: `/project-brainstorm` → `/cc-project-setup` → `/feature-planner`
-4. OR if onboarding an existing project: run `/cc-onboard` to scan your codebase and generate config
+   - OR use individual skills: `/planner` → `/cc-setup` → `/planner` (feature mode)
+4. OR if onboarding an existing project: run `/cc-setup` to scan your codebase and generate config
 
 ## Stack
 
-TODO: filled in by `/cc-project-setup` after brainstorm.
+TODO: filled in by `/cc-setup` after brainstorm.
 
 ## Knowledge Store
 
@@ -37,4 +37,4 @@ Hooks automatically maintain this store. Run `/cc-refresh` to audit and clean up
 
 ## Conventions
 
-TODO: filled in by `/cc-project-setup` after brainstorm.
+TODO: filled in by `/cc-setup` after brainstorm.

@@ -31,6 +31,26 @@ The org has two layers:
 
 The key insight: the CEO/CTO/Domain Expert conversation is real Claude interaction. The engineering team execution is real ruflo swarm orchestration producing real code artifacts.
 
+## Superpowers Integration
+
+The org integrates with the **superpowers** plugin for disciplined engineering methodology.
+Superpowers are invoked via `Skill(skill: "superpowers:<name>")` at key moments in the
+product development lifecycle:
+
+| Stage | Superpowers | Who Invokes |
+|-------|-------------|-------------|
+| 0: Discovery | `brainstorming` | CEO |
+| 1: Architecture | `writing-plans` | CTO |
+| 2: Prototype | `using-git-worktrees`, `dispatching-parallel-agents` | CTO |
+| 3: MVP | `executing-plans`, `test-driven-development`, `systematic-debugging` | CTO |
+| 4: Production | All of Stage 3 + `requesting-code-review` | CTO |
+| Gate Reviews | `verification-before-completion`, `requesting-code-review` | CTO |
+| Completion | `finishing-a-development-branch` | CTO |
+
+See `references/superpowers-integration.md` for detailed flows, invocation syntax, and
+fallback behavior. If superpowers are not available, the VTO still works — it uses its
+built-in flows without the methodology enforcement layer.
+
 ## Before Starting
 
 Read the reference files:
@@ -38,6 +58,7 @@ Read the reference files:
 - `references/workflow-stages.md` — The 5-stage product delivery lifecycle
 - `references/ruflo-config.md` — Ruflo workflow templates and CLI commands
 - `references/ecc-integration.md` — How everything-claude-code provides agent behaviors, rules, and quality enforcement
+- `references/superpowers-integration.md` — How superpowers enforce engineering discipline at each stage
 
 ### Infrastructure Setup
 
@@ -119,6 +140,7 @@ The user always talks to either the **CEO**, the **CTO**, or the **Domain Expert
 - Translates product requirements into technical design
 - Decides how to decompose work across the engineering team
 - Reports technical tradeoffs in plain language
+- **Leverages superpowers** for engineering rigor — invokes brainstorming for discovery, writing-plans for architecture, TDD for implementation, verification before completion, and code review at gate reviews
 - **Stack-agnostic**: never defaults to a specific language or framework. Asks the user about preferences first. If they have none, picks the simplest proven option for the problem domain and explains why.
 - Thinks about **operability from day one**: "How will we debug this at 3am? How will we know when something breaks?"
 - Tracks **technical debt** explicitly — every prototype shortcut gets logged with a target stage for resolution
@@ -185,21 +207,21 @@ Moving to Stage 2 unless you want to review first.
 See `references/workflow-stages.md` for full details. Summary:
 
 ### Stage 0: Discovery (CEO-led, Domain Expert active)
-CEO brainstorms with the user. Riley provides domain context — industry-specific constraints, terminology, regulatory requirements, and workflow realities that shape the product brief. Includes archetype detection and tech stack preference gathering. Output: Product Brief (with domain context section).
+CEO invokes `superpowers:brainstorming` to structure the discovery conversation, then brainstorms with the user. Riley provides domain context — industry-specific constraints, terminology, regulatory requirements, and workflow realities that shape the product brief. Includes archetype detection and tech stack preference gathering. Output: Product Brief (with domain context section).
 
 ### Stage 1: Architecture (CTO-led, Domain Expert advisory)
-CTO designs the system with the Architect, adapted to the project archetype and chosen stack. Riley advises on domain-specific technical requirements (compliance, data formats, industry integrations). Output: Architecture doc + tech stack decision.
+CTO designs the system with the Architect, adapted to the project archetype and chosen stack. Riley advises on domain-specific technical requirements (compliance, data formats, industry integrations). CTO then invokes `superpowers:writing-plans` to formalize the architecture into an executable implementation plan — this plan becomes the blueprint for Stages 2-4. Output: Architecture doc + tech stack decision + implementation plan.
 
 ### Stage 2: Prototype (Team execution)
-First working code. Bare minimum, ugly but functional. All shortcuts logged as technical debt. Ruflo swarm: architect + coders in parallel.
+First working code. Bare minimum, ugly but functional. All shortcuts logged as technical debt. CTO invokes `superpowers:using-git-worktrees` for isolation and `superpowers:dispatching-parallel-agents` to coordinate independent tasks. Ruflo swarm: architect + coders in parallel. No TDD at this stage — intentionally rough.
 
 ### Stage 3: MVP (Full team)
-Feature-complete for core use case. Technical debt from prototype resolved. Ruflo swarm: full team in coordinated stages.
+Feature-complete for core use case. Technical debt from prototype resolved. CTO invokes `superpowers:executing-plans` to follow the Stage 1 plan with review checkpoints. `superpowers:test-driven-development` is **mandatory** for all feature work. When issues arise, CTO uses `superpowers:systematic-debugging` — no guessing. Ruflo swarm: full team in coordinated stages.
 
 ### Stage 4: Production (Full team + hardening)
-Performance tuning, security audit, CI/CD, documentation. Ruflo swarm with all agents.
+Performance tuning, security audit, CI/CD, documentation. Same discipline as Stage 3, plus CTO invokes `superpowers:requesting-code-review` for security and quality review. Ruflo swarm with all agents.
 
-Each stage has a **gate review** where the CEO/CTO present results to the user before proceeding.
+Each stage has a **gate review** where the CEO/CTO present results to the user before proceeding. Before presenting gate results, the CTO MUST invoke `superpowers:verification-before-completion` to run all tests and verify deliverables, then `superpowers:requesting-code-review` for quality review. At Stage 4 completion, the CTO invokes `superpowers:finishing-a-development-branch` to guide final integration.
 
 ## Orchestrating the Team via Ruflo
 
@@ -315,3 +337,5 @@ Detect engagement level from the user's tone and response patterns. If they give
 11. **Track technical debt explicitly.** Every shortcut in the prototype stage gets logged with a "resolve by Stage N" target. The CTO reports the debt balance at each gate review. By the end of Stage 3, the balance should be zero.
 
 12. **Risks are first-class.** The CEO maintains a risk register from Stage 0 onward. Every gate review includes the top 3 risks and their status. Risks aren't mentioned once and forgotten — they're tracked until mitigated or accepted.
+
+13. **Superpowers enforce discipline.** The CTO uses superpowers skills to enforce engineering rigor at every stage. Brainstorming ensures thorough discovery. Plans formalize architecture into executable steps. TDD prevents regressions from Stage 3 onward. Verification prevents premature claims of completion. Code review catches issues before gate reviews. The org doesn't just role-play quality — it enforces it through methodology.

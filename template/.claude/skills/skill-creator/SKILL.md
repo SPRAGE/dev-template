@@ -1,11 +1,35 @@
 ---
 name: skill-creator
-description: Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+description: >
+  Create new skills, hookify rules, modify and improve existing skills, and measure skill
+  performance. Use when users want to create a skill from scratch, create a hookify rule,
+  write a hook rule, configure hookify, add a hookify rule, write an automation rule,
+  update or optimize an existing skill, run evals to test a skill, benchmark skill
+  performance with variance analysis, or optimize a skill's description for better
+  triggering accuracy.
 ---
 
 # Skill Creator
 
-A skill for creating new skills and iteratively improving them.
+A skill for creating new skills, hookify rules, and iteratively improving them.
+
+## Mode Detection
+
+This skill handles two types of automation artifacts:
+
+1. **Skills** — Claude Code skills (SKILL.md files with YAML frontmatter). Use the full
+   skill creation workflow below with evals, benchmarks, and description optimization.
+
+2. **Hookify Rules** — Automation guardrails (markdown files with YAML frontmatter and
+   regex patterns). Use the streamlined hookify rule workflow at the end of this document.
+
+If the user says "create a skill", "build a skill", "make a skill" → **Skill mode** (default).
+If the user says "create a hookify rule", "write a hook rule", "add an automation rule",
+"configure hookify" → **Hookify rule mode** (jump to "Creating Hookify Rules" section).
+
+---
+
+## Creating Skills
 
 At a high level, the process of creating a skill goes like this:
 
@@ -477,3 +501,104 @@ Repeating one more time the core loop here for emphasis:
 Please add steps to your TodoList, if you have such a thing, to make sure you don't forget. If you're in Cowork, please specifically put "Create evals JSON and run `eval-viewer/generate_review.py` so human can review test cases" in your TodoList to make sure it happens.
 
 Good luck!
+
+---
+
+## Creating Hookify Rules
+
+Hookify rules are a simpler automation artifact — markdown files with YAML frontmatter
+that define patterns to watch for and messages to show when those patterns match. They
+don't need the full eval framework; a quick regex validation is sufficient.
+
+### Rule File Format
+
+```markdown
+---
+name: rule-identifier
+enabled: true
+event: bash|file|stop|prompt|all
+pattern: regex-pattern-here
+---
+
+Message to show Claude when this rule triggers.
+Can include markdown formatting, warnings, suggestions, etc.
+```
+
+### Frontmatter Fields
+
+**name** (required): Unique identifier in kebab-case. Be descriptive and action-oriented.
+Start with a verb: `warn-dangerous-rm`, `block-console-log`, `require-tests`.
+
+**enabled** (required): `true` to activate, `false` to disable without deleting.
+
+**event** (required): Which hook event to trigger on:
+- `bash` — Bash tool commands
+- `file` — Edit, Write, MultiEdit tools
+- `stop` — When agent wants to stop
+- `prompt` — When user submits a prompt
+- `all` — All events
+
+**action** (optional): `warn` (default, show message) or `block` (prevent operation).
+
+**pattern** (simple format): Regex pattern to match against command (bash) or new_text (file).
+
+### Advanced Format (Multiple Conditions)
+
+```markdown
+---
+name: warn-env-file-edits
+enabled: true
+event: file
+conditions:
+  - field: file_path
+    operator: regex_match
+    pattern: \.env$
+  - field: new_text
+    operator: contains
+    pattern: API_KEY
+---
+
+You're adding an API key to a .env file. Ensure this file is in .gitignore!
+```
+
+**Condition fields:**
+- `field`: `command` (bash), `file_path` / `new_text` / `old_text` / `content` (file), `user_prompt` (prompt)
+- `operator`: `regex_match`, `contains`, `equals`, `not_contains`, `starts_with`, `ends_with`
+- All conditions must match for the rule to trigger.
+
+### Message Body Guidelines
+
+Good messages:
+- Explain what was detected
+- Explain why it's problematic
+- Suggest alternatives or best practices
+
+### Event Type Patterns
+
+**bash**: `rm\s+-rf`, `sudo\s+`, `chmod\s+777`, `dd\s+if=`
+**file**: `console\.log\(`, `eval\(`, `innerHTML\s*=`, `debugger`, `\.env$`
+**stop**: `.*` (match all — used for completion checklists)
+
+### Pattern Writing Tips
+
+- Escape special regex chars: `.` → `\.`, `(` → `\(`
+- Use `\s` for whitespace, `\d` for digits, `|` for OR
+- Use unquoted patterns in YAML (avoids double-backslash issues)
+- Test with: `python3 -c "import re; print(re.search(r'pattern', 'test'))"`
+- Avoid too-broad patterns (`log` matches "login", "dialog", "catalog")
+
+### File Organization
+
+- **Location:** `.claude/` directory
+- **Naming:** `.claude/hookify.{descriptive-name}.local.md`
+- **Gitignore:** Add `.claude/*.local.md` to `.gitignore`
+
+### Hookify Rule Workflow
+
+1. Ask the user what behavior they want to guard against
+2. Determine which tool is involved (Bash, Edit, etc.) → choose event type
+3. Write the regex pattern
+4. Write the message body
+5. Create the `.claude/hookify.{name}.local.md` file
+6. Validate the regex: `python3 -c "import re; re.compile(r'pattern')"`
+7. Tell the user: "Rule active — it'll trigger on next matching tool use."
