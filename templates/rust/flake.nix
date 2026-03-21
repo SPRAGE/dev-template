@@ -51,6 +51,7 @@
             pkgs.cargo-watch
             claude-code.packages.${system}.default
             ruflo-nix.packages.${system}.default
+            pkgs.nodejs
           ];
 
           env = {

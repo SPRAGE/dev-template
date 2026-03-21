@@ -35,6 +35,7 @@
             pkgs.uv
             claude-code.packages.${system}.default
             ruflo-nix.packages.${system}.default
+            pkgs.nodejs
           ];
 
           shellHook = ''
