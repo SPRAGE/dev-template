@@ -106,6 +106,129 @@
             type = "app";
             program = "${script}/bin/sync-skills";
           };
+
+        apps.onboard =
+          let
+            knowledge-src = ./template/.claude/knowledge;
+            hooks-src = ./template/.claude/hooks;
+            settings-src = ./template/.claude/settings.json;
+            mcp-src = ./template/.mcp.json;
+            claude-md-src = ./template/CLAUDE.md;
+            script = pkgs.writeShellScriptBin "onboard" ''
+              set -euo pipefail
+
+              # Must be run from a project root
+              if [ ! -f "$PWD/flake.nix" ] && [ ! -d "$PWD/.git" ] && [ ! -f "$PWD/package.json" ] && [ ! -f "$PWD/Cargo.toml" ] && [ ! -f "$PWD/pyproject.toml" ] && [ ! -f "$PWD/go.mod" ]; then
+                echo "error: no project root indicators found (flake.nix, .git, package.json, Cargo.toml, pyproject.toml, go.mod)"
+                echo "Run this from your project root."
+                exit 1
+              fi
+
+              # Detect state
+              if [ -d "$PWD/.claude/knowledge" ] && [ -f "$PWD/.claude/knowledge/active-context.md" ]; then
+                # Check if knowledge files have been populated (not just templates)
+                if grep -q "TEMPLATE" "$PWD/.claude/knowledge/active-context.md" 2>/dev/null; then
+                  echo "Knowledge store exists but is unpopulated. Proceeding with bootstrap..."
+                else
+                  echo "This project appears already onboarded (.claude/knowledge/ exists with content)."
+                  echo "Run /cc-refresh inside Claude Code to update existing configuration."
+                  exit 0
+                fi
+              fi
+
+              if [ -d "$PWD/.claude" ] && [ ! -d "$PWD/.claude/knowledge" ]; then
+                echo "onboard: .claude/ exists but no knowledge store. Adding knowledge store + hooks..."
+                echo ""
+
+                # Knowledge store only
+                mkdir -p "$PWD/.claude/knowledge"
+                for f in "${knowledge-src}"/*; do
+                  [ -f "$f" ] || continue
+                  fname=$(basename "$f")
+                  cp -L "$f" "$PWD/.claude/knowledge/$fname"
+                  chmod u+w "$PWD/.claude/knowledge/$fname"
+                done
+
+                # Hooks
+                mkdir -p "$PWD/.claude/hooks"
+                for f in "${hooks-src}"/*; do
+                  [ -f "$f" ] || continue
+                  fname=$(basename "$f")
+                  cp -L "$f" "$PWD/.claude/hooks/$fname"
+                  chmod u+w "$PWD/.claude/hooks/$fname"
+                  chmod +x "$PWD/.claude/hooks/$fname"
+                done
+
+                echo "Done. Knowledge store and hooks added."
+                echo ""
+                echo "Next: open Claude Code and run /cc-onboard to scan your codebase."
+                exit 0
+              fi
+
+              # Full bootstrap
+              echo "onboard: bootstrapping Claude Code for this project"
+              echo ""
+
+              # .claude/ directory
+              mkdir -p "$PWD/.claude"
+
+              # Settings
+              cp -L "${settings-src}" "$PWD/.claude/settings.json"
+              chmod u+w "$PWD/.claude/settings.json"
+              echo "  + .claude/settings.json"
+
+              # Knowledge store
+              mkdir -p "$PWD/.claude/knowledge"
+              for f in "${knowledge-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                cp -L "$f" "$PWD/.claude/knowledge/$fname"
+                chmod u+w "$PWD/.claude/knowledge/$fname"
+                echo "  + .claude/knowledge/$fname"
+              done
+
+              # Hooks
+              mkdir -p "$PWD/.claude/hooks"
+              for f in "${hooks-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                cp -L "$f" "$PWD/.claude/hooks/$fname"
+                chmod u+w "$PWD/.claude/hooks/$fname"
+                chmod +x "$PWD/.claude/hooks/$fname"
+                echo "  + .claude/hooks/$fname"
+              done
+
+              # .mcp.json
+              if [ ! -f "$PWD/.mcp.json" ]; then
+                cp -L "${mcp-src}" "$PWD/.mcp.json"
+                chmod u+w "$PWD/.mcp.json"
+                echo "  + .mcp.json"
+              else
+                echo "  = .mcp.json (already exists, skipped)"
+              fi
+
+              # CLAUDE.md
+              if [ ! -f "$PWD/CLAUDE.md" ]; then
+                cp -L "${claude-md-src}" "$PWD/CLAUDE.md"
+                chmod u+w "$PWD/CLAUDE.md"
+                echo "  + CLAUDE.md (stub — run /cc-onboard to populate)"
+              else
+                echo "  = CLAUDE.md (already exists, skipped)"
+              fi
+
+              echo ""
+              echo "Bootstrap complete."
+              echo ""
+              echo "Next steps:"
+              echo "  1. direnv allow          (if using direnv)"
+              echo "  2. Open Claude Code"
+              echo "  3. Run /cc-onboard       (scans codebase and generates tailored config)"
+            '';
+          in
+          {
+            type = "app";
+            program = "${script}/bin/onboard";
+          };
       }
     );
 }
