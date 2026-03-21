@@ -54,6 +54,8 @@
         apps.sync-skills =
           let
             skills-src = ./template/.claude/skills;
+            hooks-src = ./template/.claude/hooks;
+            knowledge-src = ./template/.claude/knowledge;
             script = pkgs.writeShellScriptBin "sync-skills" ''
               set -euo pipefail
 
@@ -98,13 +100,195 @@
                 fi
               done
 
+              # Sync hooks (always overwrite — hooks are template-owned)
+              HOOKS_SOURCE="${hooks-src}"
+              HOOKS_TARGET="$PWD/.claude/hooks"
+              if [ -d "$HOOKS_SOURCE" ] && [ "$(ls -A "$HOOKS_SOURCE" 2>/dev/null)" ]; then
+                mkdir -p "$HOOKS_TARGET"
+                echo ""
+                echo "sync-skills: syncing hooks"
+                hooks_added=0
+                hooks_updated=0
+                hooks_unchanged=0
+                for hook_file in "$HOOKS_SOURCE"/*; do
+                  [ -f "$hook_file" ] || continue
+                  hook_name=$(basename "$hook_file")
+                  [ "$hook_name" = ".gitkeep" ] && continue
+                  if [ -f "$HOOKS_TARGET/$hook_name" ]; then
+                    if ! diff -q "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name" >/dev/null 2>&1; then
+                      cp -L "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name"
+                      chmod u+w "$HOOKS_TARGET/$hook_name"
+                      chmod +x "$HOOKS_TARGET/$hook_name"
+                      echo "  ~ $hook_name (updated)"
+                      hooks_updated=$((hooks_updated + 1))
+                    else
+                      echo "  = $hook_name (up to date)"
+                      hooks_unchanged=$((hooks_unchanged + 1))
+                    fi
+                  else
+                    cp -L "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name"
+                    chmod u+w "$HOOKS_TARGET/$hook_name"
+                    chmod +x "$HOOKS_TARGET/$hook_name"
+                    echo "  + $hook_name (added)"
+                    hooks_added=$((hooks_added + 1))
+                  fi
+                done
+              fi
+
+              # Sync knowledge templates (never overwrite populated files)
+              KNOWLEDGE_SOURCE="${knowledge-src}"
+              KNOWLEDGE_TARGET="$PWD/.claude/knowledge"
+              if [ -d "$KNOWLEDGE_SOURCE" ]; then
+                mkdir -p "$KNOWLEDGE_TARGET"
+                echo ""
+                echo "sync-skills: syncing knowledge templates"
+                know_added=0
+                know_skipped=0
+                for know_file in "$KNOWLEDGE_SOURCE"/*; do
+                  [ -f "$know_file" ] || continue
+                  know_name=$(basename "$know_file")
+                  if [ -f "$KNOWLEDGE_TARGET/$know_name" ]; then
+                    echo "  = $know_name (exists, not overwriting)"
+                    know_skipped=$((know_skipped + 1))
+                  else
+                    cp -L "$KNOWLEDGE_SOURCE/$know_name" "$KNOWLEDGE_TARGET/$know_name"
+                    chmod u+w "$KNOWLEDGE_TARGET/$know_name"
+                    echo "  + $know_name (added)"
+                    know_added=$((know_added + 1))
+                  fi
+                done
+              fi
+
               echo ""
-              echo "Done: $count_added added, $count_updated updated, $count_unchanged unchanged"
+              echo "Done: skills: $count_added added, $count_updated updated, $count_unchanged unchanged | hooks: ''${hooks_added:-0} added, ''${hooks_updated:-0} updated, ''${hooks_unchanged:-0} unchanged | knowledge: ''${know_added:-0} added, ''${know_skipped:-0} skipped"
             '';
           in
           {
             type = "app";
             program = "${script}/bin/sync-skills";
+          };
+
+        apps.onboard =
+          let
+            knowledge-src = ./template/.claude/knowledge;
+            hooks-src = ./template/.claude/hooks;
+            settings-src = ./template/.claude/settings.json;
+            mcp-src = ./template/.mcp.json;
+            claude-md-src = ./template/CLAUDE.md;
+            script = pkgs.writeShellScriptBin "onboard" ''
+              set -euo pipefail
+
+              # Must be run from a project root
+              if [ ! -f "$PWD/flake.nix" ] && [ ! -d "$PWD/.git" ] && [ ! -f "$PWD/package.json" ] && [ ! -f "$PWD/Cargo.toml" ] && [ ! -f "$PWD/pyproject.toml" ] && [ ! -f "$PWD/go.mod" ]; then
+                echo "error: no project root indicators found (flake.nix, .git, package.json, Cargo.toml, pyproject.toml, go.mod)"
+                echo "Run this from your project root."
+                exit 1
+              fi
+
+              # Detect state
+              if [ -d "$PWD/.claude/knowledge" ] && [ -f "$PWD/.claude/knowledge/active-context.md" ]; then
+                # Check if knowledge files have been populated (not just templates)
+                if grep -q "TEMPLATE" "$PWD/.claude/knowledge/active-context.md" 2>/dev/null; then
+                  echo "Knowledge store exists but is unpopulated. Proceeding with bootstrap..."
+                else
+                  echo "This project appears already onboarded (.claude/knowledge/ exists with content)."
+                  echo "Run /cc-refresh inside Claude Code to update existing configuration."
+                  exit 0
+                fi
+              fi
+
+              if [ -d "$PWD/.claude" ] && [ ! -d "$PWD/.claude/knowledge" ]; then
+                echo "onboard: .claude/ exists but no knowledge store. Adding knowledge store + hooks..."
+                echo ""
+
+                # Knowledge store only
+                mkdir -p "$PWD/.claude/knowledge"
+                for f in "${knowledge-src}"/*; do
+                  [ -f "$f" ] || continue
+                  fname=$(basename "$f")
+                  cp -L "$f" "$PWD/.claude/knowledge/$fname"
+                  chmod u+w "$PWD/.claude/knowledge/$fname"
+                done
+
+                # Hooks
+                mkdir -p "$PWD/.claude/hooks"
+                for f in "${hooks-src}"/*; do
+                  [ -f "$f" ] || continue
+                  fname=$(basename "$f")
+                  cp -L "$f" "$PWD/.claude/hooks/$fname"
+                  chmod u+w "$PWD/.claude/hooks/$fname"
+                  chmod +x "$PWD/.claude/hooks/$fname"
+                done
+
+                echo "Done. Knowledge store and hooks added."
+                echo ""
+                echo "Next: open Claude Code and run /cc-onboard to scan your codebase."
+                exit 0
+              fi
+
+              # Full bootstrap
+              echo "onboard: bootstrapping Claude Code for this project"
+              echo ""
+
+              # .claude/ directory
+              mkdir -p "$PWD/.claude"
+
+              # Settings
+              cp -L "${settings-src}" "$PWD/.claude/settings.json"
+              chmod u+w "$PWD/.claude/settings.json"
+              echo "  + .claude/settings.json"
+
+              # Knowledge store
+              mkdir -p "$PWD/.claude/knowledge"
+              for f in "${knowledge-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                cp -L "$f" "$PWD/.claude/knowledge/$fname"
+                chmod u+w "$PWD/.claude/knowledge/$fname"
+                echo "  + .claude/knowledge/$fname"
+              done
+
+              # Hooks
+              mkdir -p "$PWD/.claude/hooks"
+              for f in "${hooks-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                cp -L "$f" "$PWD/.claude/hooks/$fname"
+                chmod u+w "$PWD/.claude/hooks/$fname"
+                chmod +x "$PWD/.claude/hooks/$fname"
+                echo "  + .claude/hooks/$fname"
+              done
+
+              # .mcp.json
+              if [ ! -f "$PWD/.mcp.json" ]; then
+                cp -L "${mcp-src}" "$PWD/.mcp.json"
+                chmod u+w "$PWD/.mcp.json"
+                echo "  + .mcp.json"
+              else
+                echo "  = .mcp.json (already exists, skipped)"
+              fi
+
+              # CLAUDE.md
+              if [ ! -f "$PWD/CLAUDE.md" ]; then
+                cp -L "${claude-md-src}" "$PWD/CLAUDE.md"
+                chmod u+w "$PWD/CLAUDE.md"
+                echo "  + CLAUDE.md (stub — run /cc-onboard to populate)"
+              else
+                echo "  = CLAUDE.md (already exists, skipped)"
+              fi
+
+              echo ""
+              echo "Bootstrap complete."
+              echo ""
+              echo "Next steps:"
+              echo "  1. direnv allow          (if using direnv)"
+              echo "  2. Open Claude Code"
+              echo "  3. Run /cc-onboard       (scans codebase and generates tailored config)"
+            '';
+          in
+          {
+            type = "app";
+            program = "${script}/bin/onboard";
           };
       }
     );
