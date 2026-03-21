@@ -37,6 +37,7 @@ Each template bundles:
 - `nix flake init -t .#python` — test python template
 - `nix run .#sync-skills` — sync skills into current project from template
 - `nix run .#onboard` — bootstrap Claude Code onto an existing project
+- `nix run .#fresh-start` — nuke all Claude Code config and re-sync from template (clean slate)
 
 ## Workflow (for new projects)
 

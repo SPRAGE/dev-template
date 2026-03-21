@@ -168,6 +168,137 @@
             program = "${script}/bin/sync-skills";
           };
 
+        apps.fresh-start =
+          let
+            skills-src = ./template/.claude/skills;
+            knowledge-src = ./template/.claude/knowledge;
+            hooks-src = ./template/.claude/hooks;
+            settings-src = ./template/.claude/settings.json;
+            mcp-src = ./template/.mcp.json;
+            claude-md-src = ./template/CLAUDE.md;
+            script = pkgs.writeShellScriptBin "fresh-start" ''
+              set -euo pipefail
+
+              # Must be run from a project root
+              if [ ! -f "$PWD/flake.nix" ] && [ ! -d "$PWD/.git" ] && [ ! -f "$PWD/package.json" ] && [ ! -f "$PWD/Cargo.toml" ] && [ ! -f "$PWD/pyproject.toml" ] && [ ! -f "$PWD/go.mod" ]; then
+                echo "error: no project root indicators found (flake.nix, .git, package.json, Cargo.toml, pyproject.toml, go.mod)"
+                echo "Run this from your project root."
+                exit 1
+              fi
+
+              # Sanitize CWD for auto-memory path (replaces / with -)
+              sanitized_cwd=$(echo "$PWD" | sed 's|/|-|g')
+              memory_dir="$HOME/.claude/projects/$sanitized_cwd"
+
+              echo "fresh-start: This will REMOVE ALL Claude Code configuration and re-sync from template."
+              echo ""
+              echo "  Targets:"
+              [ -d "$PWD/.claude" ]        && echo "    .claude/              (skills, hooks, knowledge, settings, rules)"
+              [ -f "$PWD/CLAUDE.md" ]      && echo "    CLAUDE.md"
+              [ -f "$PWD/.mcp.json" ]      && echo "    .mcp.json"
+              [ -f "$PWD/.claude.local.md" ] && echo "    .claude.local.md"
+              [ -d "$memory_dir" ]         && echo "    $memory_dir/"
+              echo ""
+              printf "  Continue? [y/N] "
+              read -r confirm
+              case "$confirm" in
+                [yY]) ;;
+                *) echo "Aborted."; exit 0 ;;
+              esac
+
+              echo ""
+
+              # === NUKE PHASE ===
+              echo "Removing Claude Code configuration..."
+
+              if [ -d "$PWD/.claude" ]; then
+                rm -rf "$PWD/.claude"
+                echo "  - .claude/"
+              fi
+
+              if [ -f "$PWD/CLAUDE.md" ]; then
+                rm -f "$PWD/CLAUDE.md"
+                echo "  - CLAUDE.md"
+              fi
+
+              if [ -f "$PWD/.mcp.json" ]; then
+                rm -f "$PWD/.mcp.json"
+                echo "  - .mcp.json"
+              fi
+
+              if [ -f "$PWD/.claude.local.md" ]; then
+                rm -f "$PWD/.claude.local.md"
+                echo "  - .claude.local.md"
+              fi
+
+              if [ -d "$memory_dir" ]; then
+                rm -rf "$memory_dir"
+                echo "  - auto-memory ($memory_dir/)"
+              fi
+
+              echo ""
+
+              # === RESTORE PHASE ===
+              echo "Restoring from template..."
+
+              # Settings
+              mkdir -p "$PWD/.claude"
+              cp -L "${settings-src}" "$PWD/.claude/settings.json"
+              chmod u+w "$PWD/.claude/settings.json"
+              echo "  + .claude/settings.json"
+
+              # Knowledge store
+              mkdir -p "$PWD/.claude/knowledge"
+              for f in "${knowledge-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                cp -L "$f" "$PWD/.claude/knowledge/$fname"
+                chmod u+w "$PWD/.claude/knowledge/$fname"
+              done
+              echo "  + .claude/knowledge/ (templates)"
+
+              # Hooks
+              mkdir -p "$PWD/.claude/hooks"
+              for f in "${hooks-src}"/*; do
+                [ -f "$f" ] || continue
+                fname=$(basename "$f")
+                [ "$fname" = ".gitkeep" ] && continue
+                cp -L "$f" "$PWD/.claude/hooks/$fname"
+                chmod u+w "$PWD/.claude/hooks/$fname"
+                chmod +x "$PWD/.claude/hooks/$fname"
+              done
+              echo "  + .claude/hooks/"
+
+              # Skills
+              mkdir -p "$PWD/.claude/skills"
+              for skill_dir in "${skills-src}"/*/; do
+                [ -d "$skill_dir" ] || continue
+                skill_name=$(basename "$skill_dir")
+                cp -rL "$skill_dir" "$PWD/.claude/skills/$skill_name"
+                chmod -R u+w "$PWD/.claude/skills/$skill_name"
+              done
+              skill_count=$(ls -d "$PWD/.claude/skills"/*/ 2>/dev/null | wc -l)
+              echo "  + .claude/skills/ ($skill_count skills)"
+
+              # .mcp.json
+              cp -L "${mcp-src}" "$PWD/.mcp.json"
+              chmod u+w "$PWD/.mcp.json"
+              echo "  + .mcp.json"
+
+              # CLAUDE.md
+              cp -L "${claude-md-src}" "$PWD/CLAUDE.md"
+              chmod u+w "$PWD/CLAUDE.md"
+              echo "  + CLAUDE.md (template stub)"
+
+              echo ""
+              echo "Fresh start complete. Open Claude Code and run /cc-setup to generate config from your codebase."
+            '';
+          in
+          {
+            type = "app";
+            program = "${script}/bin/fresh-start";
+          };
+
         apps.onboard =
           let
             knowledge-src = ./template/.claude/knowledge;
