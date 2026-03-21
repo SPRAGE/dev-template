@@ -32,6 +32,7 @@
           packages = [
             claude-code.packages.${system}.default
             ruflo-nix.packages.${system}.default
+            pkgs.nodejs
             # TODO: add project dependencies
           ];
 
