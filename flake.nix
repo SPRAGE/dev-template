@@ -54,6 +54,8 @@
         apps.sync-skills =
           let
             skills-src = ./template/.claude/skills;
+            hooks-src = ./template/.claude/hooks;
+            knowledge-src = ./template/.claude/knowledge;
             script = pkgs.writeShellScriptBin "sync-skills" ''
               set -euo pipefail
 
@@ -98,8 +100,67 @@
                 fi
               done
 
+              # Sync hooks (always overwrite — hooks are template-owned)
+              HOOKS_SOURCE="${hooks-src}"
+              HOOKS_TARGET="$PWD/.claude/hooks"
+              if [ -d "$HOOKS_SOURCE" ] && [ "$(ls -A "$HOOKS_SOURCE" 2>/dev/null)" ]; then
+                mkdir -p "$HOOKS_TARGET"
+                echo ""
+                echo "sync-skills: syncing hooks"
+                hooks_added=0
+                hooks_updated=0
+                hooks_unchanged=0
+                for hook_file in "$HOOKS_SOURCE"/*; do
+                  [ -f "$hook_file" ] || continue
+                  hook_name=$(basename "$hook_file")
+                  [ "$hook_name" = ".gitkeep" ] && continue
+                  if [ -f "$HOOKS_TARGET/$hook_name" ]; then
+                    if ! diff -q "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name" >/dev/null 2>&1; then
+                      cp -L "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name"
+                      chmod u+w "$HOOKS_TARGET/$hook_name"
+                      chmod +x "$HOOKS_TARGET/$hook_name"
+                      echo "  ~ $hook_name (updated)"
+                      hooks_updated=$((hooks_updated + 1))
+                    else
+                      echo "  = $hook_name (up to date)"
+                      hooks_unchanged=$((hooks_unchanged + 1))
+                    fi
+                  else
+                    cp -L "$HOOKS_SOURCE/$hook_name" "$HOOKS_TARGET/$hook_name"
+                    chmod u+w "$HOOKS_TARGET/$hook_name"
+                    chmod +x "$HOOKS_TARGET/$hook_name"
+                    echo "  + $hook_name (added)"
+                    hooks_added=$((hooks_added + 1))
+                  fi
+                done
+              fi
+
+              # Sync knowledge templates (never overwrite populated files)
+              KNOWLEDGE_SOURCE="${knowledge-src}"
+              KNOWLEDGE_TARGET="$PWD/.claude/knowledge"
+              if [ -d "$KNOWLEDGE_SOURCE" ]; then
+                mkdir -p "$KNOWLEDGE_TARGET"
+                echo ""
+                echo "sync-skills: syncing knowledge templates"
+                know_added=0
+                know_skipped=0
+                for know_file in "$KNOWLEDGE_SOURCE"/*; do
+                  [ -f "$know_file" ] || continue
+                  know_name=$(basename "$know_file")
+                  if [ -f "$KNOWLEDGE_TARGET/$know_name" ]; then
+                    echo "  = $know_name (exists, not overwriting)"
+                    know_skipped=$((know_skipped + 1))
+                  else
+                    cp -L "$KNOWLEDGE_SOURCE/$know_name" "$KNOWLEDGE_TARGET/$know_name"
+                    chmod u+w "$KNOWLEDGE_TARGET/$know_name"
+                    echo "  + $know_name (added)"
+                    know_added=$((know_added + 1))
+                  fi
+                done
+              fi
+
               echo ""
-              echo "Done: $count_added added, $count_updated updated, $count_unchanged unchanged"
+              echo "Done: skills: $count_added added, $count_updated updated, $count_unchanged unchanged | hooks: ''${hooks_added:-0} added, ''${hooks_updated:-0} updated, ''${hooks_unchanged:-0} unchanged | knowledge: ''${know_added:-0} added, ''${know_skipped:-0} skipped"
             '';
           in
           {
