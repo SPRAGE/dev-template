@@ -78,6 +78,12 @@
               done
               [ "$_n" -gt 0 ] && echo "synced $_n skill(s) from dev-template"
             fi
+
+            # Fix hook permissions (nix flake init strips execute bit)
+            if [ -d "$PWD/.claude/hooks" ]; then
+              chmod +x "$PWD/.claude/hooks"/*.sh 2>/dev/null || true
+            fi
+
             echo "PROJECTNAME dev shell ready"
             echo "Rust: $(rustc --version)"
           '';
