@@ -15,6 +15,8 @@ dev-template — Nix flake templates for scaffolding new projects with Claude Co
 - `templates/rust/` — Rust template with rust-overlay, cargo tools
 - `templates/python/` — Python template with uv
 - `*.skill` — distributable skill archives for manual installation
+- `template/.claude/knowledge/` — knowledge store templates (active-context, decisions, architecture, conventions, stale-log)
+- `template/.claude/hooks/` — hook scripts (session-start, context-watchdog, post-commit-persist, session-end, ruflo-sync)
 
 Each template bundles:
 - **Claude Code** — AI coding assistant (via `github:sadjow/claude-code-nix` flake input)
@@ -37,6 +39,7 @@ Each template bundles:
 - `nix flake init -t .#rust` — test rust template
 - `nix flake init -t .#python` — test python template
 - `nix run .#sync-skills` — sync skills into current project from template
+- `nix run .#onboard` — bootstrap Claude Code onto an existing project
 
 ## Workflow (for new projects)
 
@@ -45,6 +48,9 @@ Each template bundles:
 3. `direnv allow`
 4. Open Claude Code → `/virtual-tech-org` to spin up the full org and build through staged delivery
    - OR use individual skills: `/project-brainstorm` → `/cc-project-setup` → `/feature-planner`
+5. OR run `nix run .#onboard` to bootstrap Claude Code onto an existing repo, then `/cc-onboard` to scan and configure
+6. Use `/cc-refresh` periodically to clean up stale context, memory, and session history
+7. Use `/ruflo-builder` to scaffold custom ruflo agents and workflows from the knowledge store
 
 ## Conventions
 
