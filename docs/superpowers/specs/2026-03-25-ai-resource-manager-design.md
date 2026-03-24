@@ -2,13 +2,15 @@
 
 ## Overview
 
-Add "Morgan," an AI Resource Manager, to the virtual-tech-organization skill's leadership layer. Morgan proactively assesses talent gaps and collaboratively hires domain expert personas on-the-fly, enabling the org to adapt its expertise to any project's unique domain, regulatory, and technical requirements.
+Add "Quinn," an AI Resource Manager, to the virtual-tech-organization skill's leadership layer. Quinn proactively assesses talent gaps and collaboratively hires domain expert personas on-the-fly, enabling the org to adapt its expertise to any project's unique domain, regulatory, and technical requirements.
 
-**Approach:** Standalone skill (`ai-resource-manager`) that integrates with VTO via org-roles reference and project-state.json, rather than embedding directly into the VTO skill.
+**Approach:** Standalone skill (`ai-resource-manager`) that coordinates with VTO via `project-state.json` as shared state. VTO does not invoke Quinn directly — instead, VTO recommends that the user invoke `/ai-resource-manager` at key lifecycle points (handoff protocol).
 
 ## Persona & Role Definition
 
-**Name:** Morgan, AI Resource Manager
+**Name:** Quinn, AI Resource Manager
+(Note: "Morgan" was considered but is already used by the Technical Writer in VTO's engineering team.)
+
 **Layer:** Leadership (user-facing conversational persona), peer to CEO (Alex), CTO (Jordan), and Domain Expert (Riley).
 
 **Personality:**
@@ -29,17 +31,17 @@ Add "Morgan," an AI Resource Manager, to the virtual-tech-organization skill's l
 
 ## Talent Lifecycle
 
-Morgan manages experts through five phases:
+Quinn manages experts through five phases:
 
 ### 1. Assess — Identify talent gaps
 
-- **Proactive (Stage 0-1):** After the product brief and architecture doc are produced, Morgan analyzes the domain, regulatory landscape, tech stack, and archetype to recommend an initial expert roster.
-- **Reactive (any stage):** Team members flag gaps ("we need help with X"), or Morgan detects struggles in ongoing work (e.g., CTO hitting repeated blockers in a domain area).
+- **Proactive (Stage 0-1):** After the product brief and architecture doc are produced, Quinn analyzes the domain, regulatory landscape, tech stack, and archetype to recommend an initial expert roster.
+- **Reactive (any stage):** Team members flag gaps ("we need help with X"), or Quinn detects struggles in ongoing work (e.g., CTO hitting repeated blockers in a domain area).
 - **Inputs:** `project-state.json`, product brief, architecture doc, tech stack, team feedback, domain signals.
 
 ### 2. Propose — Present a candidate profile
 
-Morgan drafts a one-paragraph role description:
+Quinn drafts a one-paragraph role description:
 
 > "**Dr. Yara Okonkwo — Payment Systems Architect.** Specializes in PCI-DSS compliance, payment gateway integrations, tokenization patterns, and fraud detection pipelines. Would advise on transaction flow design and audit requirements."
 
@@ -47,7 +49,7 @@ User approves or refines before moving forward.
 
 ### 3. Define — Collaborative interview
 
-Morgan asks 3-5 targeted questions to shape the expert's knowledge and focus:
+Quinn asks 3-5 targeted questions to shape the expert's knowledge and focus:
 
 - What specific problems should this expert solve?
 - What domain knowledge is non-negotiable vs nice-to-have?
@@ -56,12 +58,12 @@ Morgan asks 3-5 targeted questions to shape the expert's knowledge and focus:
 
 ### 4. Create — Write the expert skill
 
-Morgan generates a lightweight SKILL.md placed at `.claude/skills/experts/<name>/SKILL.md`. See "Expert Skill Structure" section below.
+Quinn generates a lightweight SKILL.md placed at `project/experts/<name>/SKILL.md`. See "Expert Skill Structure" section below.
 
 ### 5. Manage — Bench rotation and promotion
 
-- **Bench:** When an expert isn't needed for the current stage, Morgan moves them to inactive. They can be reactivated instantly.
-- **Promote:** After a successful engagement, Morgan can package the expert as a `.skill` file for reuse in future projects. Uses the skill-creator's packaging script.
+- **Bench:** When an expert isn't needed for the current stage, Quinn moves them to inactive. They can be reactivated instantly.
+- **Promote:** After a successful engagement, Quinn can package the expert as a `.skill` file for reuse in future projects using the skill-creator's packaging infrastructure.
 
 ## Integration with Virtual-Tech-Org
 
@@ -72,18 +74,32 @@ Morgan generates a lightweight SKILL.md placed at `.claude/skills/experts/<name>
 | CEO | Alex | Leadership (user-facing) |
 | CTO | Jordan | Leadership (user-facing) |
 | Domain Expert | Riley | Leadership (user-facing) |
-| Resource Manager | Morgan | Leadership (user-facing) |
+| Resource Manager | Quinn | Leadership (user-facing) |
+
+### Handoff protocol
+
+VTO does not invoke Quinn via `Skill()` — Claude Code's Skill tool does not support nested multi-turn interactive invocations within an already-active skill. Instead, VTO uses a **handoff protocol**: at defined trigger points, the CTO or CEO recommends that the user invoke `/ai-resource-manager` to run a talent assessment. Quinn then reads `project-state.json` for context and writes results back to it.
 
 ### Trigger points in VTO lifecycle
 
-| Stage | Morgan's Role | Trigger |
-|-------|--------------|---------|
-| 0: Discovery | Listens to product brief, begins talent assessment | Automatic after brief is drafted |
-| 1: Architecture | Analyzes tech stack + domain, presents initial hiring recommendations | Automatic after architecture doc |
-| 2: Prototype | On standby — responds to team feedback if gaps emerge | Reactive only |
-| 3: MVP | Monitors for knowledge gaps as complexity increases | Reactive + gap detection |
-| 4: Production | Assesses need for security/compliance/performance specialists | Proactive for production concerns |
-| Gate reviews | Reports on expert utilization — who's active, benched, recommended | Included in stage gate summary |
+| Stage | Quinn's Role | CTO/CEO Handoff |
+|-------|-------------|-----------------|
+| 0: Discovery | Talent assessment based on product brief | After CEO presents the product brief and user approves the gate review, CTO says: "Before we move to architecture, I'd recommend bringing in Quinn to assess what specialist expertise we'll need. Run `/ai-resource-manager` to start a talent assessment." |
+| 1: Architecture | Analyzes tech stack + domain, presents hiring recommendations | After architecture doc is finalized, CTO says: "Now that we've locked the tech stack, let's have Quinn review whether we need any specialists. Run `/ai-resource-manager`." |
+| 2: Prototype | On standby — responds to team feedback if gaps emerge | Reactive only — CTO or user invokes when gaps surface |
+| 3: MVP | Monitors for knowledge gaps as complexity increases | Reactive — CTO flags if agents struggle with domain-specific tasks |
+| 4: Production | Assesses need for security/compliance/performance specialists | CTO proactively recommends: "Before production hardening, let's check with Quinn on specialist needs." |
+| Gate reviews | Reports on expert utilization — who's active, benched, recommended | Quinn's roster summary is included in project-state.json, which the CTO reads during gate reviews |
+
+### Relationship between Riley and hired experts
+
+Riley remains active as the **generalist domain lead** throughout the project. Hired experts are narrow specialists that augment Riley's knowledge:
+
+- Riley provides broad domain context (industry workflows, regulatory landscape, terminology)
+- Hired experts provide deep, specific expertise (e.g., "PCI-DSS section 3.4 tokenization requirements")
+- Riley integrates expert advice into domain recommendations to the CEO
+- Experts do not replace Riley — they report to Riley on domain matters and to the CTO on technical matters
+- At gate reviews, Riley summarizes domain status including expert contributions
 
 ### project-state.json extension
 
@@ -95,7 +111,7 @@ Morgan generates a lightweight SKILL.md placed at `.claude/skills/experts/<name>
       "role": "Payment Systems Architect",
       "status": "active|benched|promoted|released",
       "hired_stage": 1,
-      "skill_path": ".claude/skills/experts/yara-okonkwo/SKILL.md",
+      "skill_path": "project/experts/yara-okonkwo/SKILL.md",
       "promoted_to_skill": null
     }
   ],
@@ -110,22 +126,30 @@ Morgan generates a lightweight SKILL.md placed at `.claude/skills/experts/<name>
 }
 ```
 
-### Cross-skill invocation
+**`project-state.json` is the single source of truth** for all talent state. No separate roster file.
 
-VTO invokes Morgan at the trigger points above via `Skill(skill: "ai-resource-manager")`. Morgan reads project state, performs the assessment, and returns recommendations. The CTO then references hired experts in ruflo workflow prompts so agents can consult them.
+### Fallback when ai-resource-manager is not installed
+
+If the `ai-resource-manager` skill is absent, VTO degrades gracefully:
+- CTO skips talent assessment handoff recommendations
+- Riley absorbs the generalist domain expert role (current behavior)
+- No errors or broken references — VTO checks for the skill's existence before recommending it
 
 ## Expert Skill Structure
 
 ### Directory layout
 
+Experts live outside `.claude/skills/` to avoid polluting Claude Code's auto-discovery:
+
 ```
-.claude/skills/experts/
+project/experts/
 ├── yara-okonkwo/
 │   └── SKILL.md
-├── kai-nakamura/
-│   └── SKILL.md
-└── .roster.json          # Morgan's local roster index
+└── kai-nakamura/
+    └── SKILL.md
 ```
+
+Quinn reads expert SKILL.md files explicitly when activating them, using the Read tool. Auto-discovery only applies to promoted experts that have been moved to `.claude/skills/`.
 
 ### Expert SKILL.md template
 
@@ -134,14 +158,16 @@ VTO invokes Morgan at the trigger points above via `Skill(skill: "ai-resource-ma
 name: <slug>
 description: >
   <Full name> — <Title>. <One-line specialization summary>.
-  Hired by Morgan for <project-name>. Invoke when discussing
-  <trigger topics>.
-type: expert
-hired_by: ai-resource-manager
-project: <project-name>
+  Invoke when discussing <trigger topics>.
 ---
 
 # <Full Name> — <Title>
+
+## Metadata
+- **Hired by:** Quinn (AI Resource Manager)
+- **Project:** <project-name>
+- **Hired at stage:** <N>
+- **Status:** active
 
 ## Identity
 <Name, title, personality, speaking style>
@@ -150,8 +176,9 @@ project: <project-name>
 <Specific knowledge areas, standards, frameworks, methodologies>
 
 ## Interaction Model
-<How they relate to Alex, Jordan, Riley, and other experts.
-Advisory role — not decision-making authority unless delegated by CEO/CTO.>
+Advisory role. Reports to Riley on domain matters, to CTO (Jordan) on technical matters.
+Does not have decision-making authority unless explicitly delegated by CEO or CTO.
+<How they relate to Alex, Jordan, Riley, and other experts>
 
 ## Focus Areas
 <What they actively contribute to in this project>
@@ -160,23 +187,25 @@ Advisory role — not decision-making authority unless delegated by CEO/CTO.>
 <What they explicitly don't opine on>
 ```
 
+Note: Only standard frontmatter fields (`name`, `description`) are used. Project-specific metadata (hired_by, project, status) lives in the Metadata body section to stay compatible with the skill-creator's validation.
+
 ### Quick hire vs promoted skill
 
 | Aspect | Quick hire | Promoted |
 |--------|-----------|----------|
-| Location | `.claude/skills/experts/` | `.claude/skills/` (top-level) |
+| Location | `project/experts/` | `.claude/skills/` (top-level) |
 | Structure | Single SKILL.md | SKILL.md + `references/` with domain docs |
 | Scope | Project-bound | Reusable across projects |
-| Discovery | Loaded by Morgan on-demand | Auto-discovered by Claude Code |
-| Packaging | None | `.skill` archive via skill-creator's packager |
+| Discovery | Read explicitly by Quinn | Auto-discovered by Claude Code |
+| Packaging | None | `.skill` archive via skill-creator |
 
 ### Promotion process
 
-1. Morgan proposes promotion with rationale ("Yara was critical in 3 stages, this expertise will recur")
+1. Quinn proposes promotion with rationale ("Yara was critical in 3 stages, this expertise will recur")
 2. User approves
-3. Morgan enriches the SKILL.md — adds references, generalizes project-specific language, refines the trigger description
-4. Packages as `.skill` file using `scripts/package_skill.py`
-5. Moves from `experts/` to top-level `skills/`
+3. Quinn enriches the SKILL.md — adds `references/` directory with domain documentation, generalizes project-specific language, refines the trigger description
+4. Invokes skill-creator's packaging infrastructure (`.claude/skills/skill-creator/scripts/package_skill.py`) to create a distributable `.skill` archive
+5. Moves from `project/experts/` to `.claude/skills/` for auto-discovery
 
 ## AI Resource Manager Skill Structure
 
@@ -185,13 +214,13 @@ Advisory role — not decision-making authority unless delegated by CEO/CTO.>
 ```
 ai-resource-manager/
 ├── SKILL.md                           # Main skill definition
-├── references/
-│   ├── expert-template.md             # Template for generating expert SKILL.md files
-│   ├── assessment-criteria.md         # Framework for evaluating talent gaps
-│   └── promotion-checklist.md         # Quality bar for promoting to permanent
-└── scripts/
-    └── manage_roster.py               # Roster CRUD operations
+└── references/
+    ├── expert-template.md             # Template for generating expert SKILL.md files
+    ├── assessment-criteria.md         # Framework for evaluating talent gaps
+    └── promotion-checklist.md         # Quality bar for promoting to permanent
 ```
+
+No scripts directory — Quinn manipulates `project-state.json` directly using Read/Write/Edit tools, consistent with how `init_project.py` already manages project state.
 
 ### SKILL.md frontmatter
 
@@ -199,44 +228,37 @@ ai-resource-manager/
 ---
 name: ai-resource-manager
 description: >
-  Morgan, the AI Resource Manager. Assesses talent needs, collaboratively
+  Quinn, the AI Resource Manager. Assesses talent needs, collaboratively
   hires domain expert personas, and manages the expert bench. Invoke when
   you need specialized expertise, want to assess talent gaps, or manage
   hired experts. Triggers: "hire an expert", "we need a specialist",
   "talent assessment", "who's on the team", "bench/activate expert".
-tools: Read, Write, Edit, Glob, Grep, Bash, Agent
+tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 ```
 
 ### SKILL.md sections
 
-1. **Persona definition** — Morgan's identity, speaking style, authority scope
-2. **Proactive assessment protocol** — how Morgan analyzes project state to recommend hires (reads product brief, architecture doc, tech stack, domain signals)
+1. **Persona definition** — Quinn's identity, speaking style, authority scope
+2. **Proactive assessment protocol** — how Quinn analyzes project state to recommend hires (reads product brief, architecture doc, tech stack, domain signals)
 3. **Hiring workflow** — the 5-phase lifecycle (Assess, Propose, Define, Create, Manage)
-4. **Expert template** — the SKILL.md template Morgan uses when writing expert skills
+4. **Expert template** — the SKILL.md template Quinn uses when writing expert skills (references `references/expert-template.md`)
 5. **Bench management** — rules for soft cap (~3-5 active), benching criteria, reactivation
-6. **Promotion pipeline** — criteria for promoting project-scoped experts to permanent skills, enrichment steps, packaging
-7. **Integration hooks** — how VTO invokes Morgan at each stage, how Morgan reads/writes `project-state.json`
-
-### manage_roster.py
-
-Handles mechanical state management:
-- Reads/writes the `talent_roster` section of `project-state.json`
-- Tracks expert status transitions (active -> benched -> promoted -> released)
-- Enforces the soft cap (warns Morgan when approaching 5 active)
-- Generates roster summary for gate reviews
+6. **Talent cap enforcement** — when the cap is reached, Quinn tells the user and asks them to bench an existing expert before hiring a new one, or the user can explicitly raise the cap
+7. **Promotion pipeline** — criteria for promoting project-scoped experts to permanent skills, enrichment steps, packaging via skill-creator
+8. **Integration protocol** — how Quinn reads/writes `project-state.json`, how VTO hands off to Quinn at lifecycle points
 
 ## Changes to Existing Files
 
 ### VTO updates required
 
-1. **`org-roles.md`** — Add Morgan to the leadership table
-2. **`workflow-stages.md`** — Add Morgan's trigger points at each stage
-3. **`SKILL.md` (VTO)** — Add cross-skill invocation to `ai-resource-manager` at Stage 0-1 and gate reviews
-4. **`init_project.py`** — Extend `project-state.json` schema with `talent_roster`, `talent_cap`, and `talent_assessments` fields
+1. **`org-roles.md`** — Add Quinn to the leadership table with authority scope and interaction model
+2. **`workflow-stages.md`** — Add Quinn's handoff recommendations at Stage 0, 1, and 4 trigger points
+3. **`SKILL.md` (VTO)** — Add handoff protocol: CTO/CEO recommends `/ai-resource-manager` at trigger points; add fallback check (if skill not installed, skip recommendation)
+4. **`init_project.py`** — Extend `project-state.json` schema with `talent_roster`, `talent_cap`, and `talent_assessments` fields; add Quinn to leadership personas
 
 ### Template updates
 
-5. **`template/.claude/skills/`** — Add `ai-resource-manager/` directory
-6. **`template/.claude/skills/experts/`** — Create empty directory (populated at runtime)
-7. **`flake.nix`** — Include `ai-resource-manager` in sync-skills targets (automatic — syncs all directories)
+5. **`template/.claude/skills/`** — Add `ai-resource-manager/` directory with SKILL.md and references/
+6. **`project/experts/`** — Created at runtime by Quinn when first expert is hired (not in template)
+7. **`flake.nix`** — No changes needed (sync-skills already syncs all directories under `template/.claude/skills/`)
