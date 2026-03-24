@@ -204,8 +204,9 @@ Note: Only standard frontmatter fields (`name`, `description`) are used. Project
 1. Quinn proposes promotion with rationale ("Yara was critical in 3 stages, this expertise will recur")
 2. User approves
 3. Quinn enriches the SKILL.md — adds `references/` directory with domain documentation, generalizes project-specific language, refines the trigger description
-4. Invokes skill-creator's packaging infrastructure (`.claude/skills/skill-creator/scripts/package_skill.py`) to create a distributable `.skill` archive
-5. Moves from `project/experts/` to `.claude/skills/` for auto-discovery
+4. Updates `project-state.json`: sets the expert's `status` to `"promoted"` and `promoted_to_skill` to the new `.claude/skills/<name>/` path
+5. Invokes skill-creator's packaging infrastructure (`.claude/skills/skill-creator/scripts/package_skill.py`) to create a distributable `.skill` archive
+6. Moves from `project/experts/` to `.claude/skills/` for auto-discovery
 
 ## AI Resource Manager Skill Structure
 
@@ -243,21 +244,21 @@ tools: Read, Write, Edit, Glob, Grep, Bash
 2. **Proactive assessment protocol** — how Quinn analyzes project state to recommend hires (reads product brief, architecture doc, tech stack, domain signals)
 3. **Hiring workflow** — the 5-phase lifecycle (Assess, Propose, Define, Create, Manage)
 4. **Expert template** — the SKILL.md template Quinn uses when writing expert skills (references `references/expert-template.md`)
-5. **Bench management** — rules for soft cap (~3-5 active), benching criteria, reactivation
-6. **Talent cap enforcement** — when the cap is reached, Quinn tells the user and asks them to bench an existing expert before hiring a new one, or the user can explicitly raise the cap
+5. **Bench management** — rules for active expert cap, benching criteria, reactivation
+6. **Talent cap enforcement** — `talent_cap` in project-state.json defines the maximum number of *active* experts (default 5, excludes benched/promoted/released). When the cap is reached, Quinn tells the user and asks them to bench an existing expert before hiring a new one. The user can explicitly raise the cap if needed.
 7. **Promotion pipeline** — criteria for promoting project-scoped experts to permanent skills, enrichment steps, packaging via skill-creator
 8. **Integration protocol** — how Quinn reads/writes `project-state.json`, how VTO hands off to Quinn at lifecycle points
 
 ## Changes to Existing Files
 
-### VTO updates required
+### VTO updates required (implementation needed)
 
 1. **`org-roles.md`** — Add Quinn to the leadership table with authority scope and interaction model
 2. **`workflow-stages.md`** — Add Quinn's handoff recommendations at Stage 0, 1, and 4 trigger points
 3. **`SKILL.md` (VTO)** — Add handoff protocol: CTO/CEO recommends `/ai-resource-manager` at trigger points; add fallback check (if skill not installed, skip recommendation)
 4. **`init_project.py`** — Extend `project-state.json` schema with `talent_roster`, `talent_cap`, and `talent_assessments` fields; add Quinn to leadership personas
 
-### Template updates
+### Template updates (implementation needed)
 
 5. **`template/.claude/skills/`** — Add `ai-resource-manager/` directory with SKILL.md and references/
 6. **`project/experts/`** — Created at runtime by Quinn when first expert is hired (not in template)
