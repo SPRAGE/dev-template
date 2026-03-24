@@ -234,7 +234,7 @@ description: >
   you need specialized expertise, want to assess talent gaps, or manage
   hired experts. Triggers: "hire an expert", "we need a specialist",
   "talent assessment", "who's on the team", "bench/activate expert".
-tools: Read, Write, Edit, Glob, Grep, Bash
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 ```
 
