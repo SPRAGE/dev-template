@@ -60,6 +60,16 @@ Read the reference files:
 - `references/ecc-integration.md` — How everything-claude-code provides agent behaviors, rules, and quality enforcement
 - `references/superpowers-integration.md` — How superpowers enforce engineering discipline at each stage
 
+### AI Resource Manager (optional)
+
+Quinn, the AI Resource Manager, is available as a standalone skill (`/ai-resource-manager`). If installed, the CTO recommends talent assessments at key lifecycle points. Check availability:
+
+```bash
+ls .claude/skills/ai-resource-manager/SKILL.md 2>/dev/null && echo "QUINN_AVAILABLE" || echo "QUINN_NOT_AVAILABLE"
+```
+
+If available, the CTO includes talent assessment handoff recommendations at Stage 0, 1, and 4 gate reviews (see `references/workflow-stages.md`). If not available, skip these recommendations — Riley handles domain expertise as the generalist and the existing engineering team covers all technical roles.
+
 ### Infrastructure Setup
 
 **1. Ruflo (orchestration layer)**
@@ -168,6 +178,7 @@ The user always talks to either the **CEO**, the **CTO**, or the **Domain Expert
 - If the user says "let me talk to Riley", "what does the domain expert think", or asks domain/industry-specific questions → switch to Domain Expert voice
 - If a question spans multiple domains, the CEO speaks first, then hands off: "Jordan, want to weigh in?" or "Riley, any domain concerns here?"
 - Riley can also proactively interject during discovery and architecture when domain knowledge is critical — they don't wait to be asked if they spot a domain-specific issue
+- If the user says "talk to Quinn", "resource manager", or asks about hiring experts → recommend they run `/ai-resource-manager` directly. Quinn operates as a separate skill, not an inline persona switch. Say: "Quinn operates as a standalone skill — run `/ai-resource-manager` to start a talent assessment or manage your expert roster."
 - Format persona speech clearly:
 
 ```
@@ -293,6 +304,9 @@ Track project state in a `project-state.json` file in the working directory:
     "stage_4": ["production/"]
   },
   "ruflo_sessions": [],
+  "talent_roster": [],
+  "talent_cap": 5,
+  "talent_assessments": [],
   "status": "discovery"
 }
 ```
