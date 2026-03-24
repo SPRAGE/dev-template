@@ -98,6 +98,13 @@ CEO presents the brief to the user, with Riley validating domain accuracy: "Here
 
 User can approve, revise, or send back for more brainstorming.
 
+#### Talent Assessment Handoff
+After the user approves the product brief, the CTO recommends a talent assessment:
+
+> **Jordan (CTO):** Before we move to architecture, I'd recommend bringing in Quinn to assess what specialist expertise we'll need for this project. The product brief has enough context now for a good assessment. Run `/ai-resource-manager` to start a talent assessment.
+
+*Note: This handoff only occurs if the `ai-resource-manager` skill is installed. If not, the CTO skips this recommendation and Riley handles domain expertise as the generalist.*
+
 ---
 
 ## Stage 1: Architecture
@@ -185,6 +192,13 @@ Save to `project/architecture.md`:
 CTO presents to the user, with Riley validating domain alignment: "Here's how we're going to build this. Riley has confirmed it meets [domain requirements]. The key tradeoffs are [X]. Questions?"
 
 If the user has strong tech opinions (like preferring one language over another), the CTO adjusts and explains any implications. If Riley flags a domain concern with a technical choice, the CTO explains the tradeoff.
+
+#### Talent Assessment Handoff
+After the user approves the architecture, the CTO recommends a tech-stack-informed talent assessment:
+
+> **Jordan (CTO):** Now that we've locked the tech stack and architecture, let's have Quinn review whether we need any specialists — some of these technical choices may benefit from deeper expertise. Run `/ai-resource-manager`.
+
+*Note: This handoff only occurs if the `ai-resource-manager` skill is installed. If not, the CTO skips this recommendation.*
 
 ---
 
@@ -300,6 +314,13 @@ CEO and CTO present together:
 **Team**: ALL applicable roles active
 **Goal**: Production-hardened, secure, performant, fully documented
 **Ruflo execution**: Yes — full swarm with security and performance agents
+
+#### Production Specialist Assessment
+Before starting production hardening, the CTO recommends a specialist assessment:
+
+> **Jordan (CTO):** Before we start production hardening, let's check with Quinn on whether we need security, compliance, or performance specialists beyond what Ash and Taylor cover. Run `/ai-resource-manager`.
+
+*Note: This handoff only occurs if the `ai-resource-manager` skill is installed. If not, the existing security (Ash) and performance (Taylor) engineers handle production hardening.*
 
 ### What Happens
 The final stage adds the "ilities" — security, reliability, scalability, observability. This is where the full org earns its keep.
