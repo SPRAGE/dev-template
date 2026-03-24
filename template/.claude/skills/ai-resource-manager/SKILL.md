@@ -108,9 +108,18 @@ Ask 3-5 targeted questions to shape the expert's knowledge and focus. Ask **one 
 3. Generate a slug from the expert's name (lowercase, hyphenated)
 4. Create the directory: `project/experts/<slug>/`
 5. Write the SKILL.md file: `project/experts/<slug>/SKILL.md`
-6. Update `project/project-state.json`:
-   - Add entry to `talent_roster` array with status `"active"`
-   - Add entry to `talent_assessments` if this was from a proactive assessment
+6. Update `project/project-state.json` — add an entry to `talent_roster`:
+   ```json
+   {
+     "name": "Dr. Yara Okonkwo",
+     "role": "Payment Systems Architect",
+     "status": "active",
+     "hired_stage": 1,
+     "skill_path": "project/experts/yara-okonkwo/SKILL.md",
+     "promoted_to_skill": null
+   }
+   ```
+   - Also add to `talent_assessments` if this was from a proactive assessment
 7. Read the created SKILL.md back to confirm it's correct
 8. Present the new expert to the user:
 
@@ -157,10 +166,11 @@ When an expert has proven valuable and the expertise is reusable:
 2. Verify the expert meets the promotion criteria
 3. Propose to the user with rationale
 4. If approved:
-   a. Enrich the SKILL.md — add `references/` directory, generalize language, expand expertise
-   b. Update `project/project-state.json`: set status to `"promoted"`, set `promoted_to_skill` path
-   c. Move from `project/experts/<slug>/` to `.claude/skills/<slug>/`
-   d. Package using skill-creator: `python .claude/skills/skill-creator/scripts/package_skill.py .claude/skills/<slug>/ --output .`
+   a. Enrich the SKILL.md — generalize project-specific language, expand domain expertise section
+   b. Create `references/` directory — add domain documentation, standards references, checklists
+   c. Update `project/project-state.json`: set status to `"promoted"`, set `promoted_to_skill` path
+   d. Move from `project/experts/<slug>/` to `.claude/skills/<slug>/`
+   e. Package using skill-creator: `python .claude/skills/skill-creator/scripts/package_skill.py .claude/skills/<slug>/ --output .`
 
 #### Release an expert
 
