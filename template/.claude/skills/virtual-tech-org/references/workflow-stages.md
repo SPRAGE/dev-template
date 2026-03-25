@@ -315,7 +315,7 @@ CEO and CTO present together:
 **Goal**: Production-hardened, secure, performant, fully documented
 **Ruflo execution**: Yes — full swarm with security and performance agents
 
-#### Production Specialist Assessment
+### Production Specialist Assessment
 Before starting production hardening, the CTO recommends a specialist assessment:
 
 > **Jordan (CTO):** Before we start production hardening, let's check with Quinn on whether we need security, compliance, or performance specialists beyond what Ash and Taylor cover. Run `/ai-resource-manager`.

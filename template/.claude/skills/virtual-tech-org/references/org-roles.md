@@ -149,10 +149,12 @@ These are the agents that ruflo spawns. The CTO references them by role when tal
 | Stage | Active Roles |
 |-------|-------------|
 | 0 - Discovery | CEO, CTO, Riley (domain expert), Quinn (resource manager), Drew (research) |
-| 1 - Architecture | CTO, Riley (domain expert), Quinn (resource manager), Priya (architect), Drew (research) |
+| 1 - Architecture | CTO, Riley (domain expert — advisory), Quinn (resource manager), Priya (architect), Drew (research) |
 | 2 - Prototype | CTO, Riley (on-demand), Priya, Marcus (core), Lina (UI — if archetype has UI) |
-| 3 - MVP | CTO, Riley (domain validation), Quinn (on-demand), Sam (VP Eng), Priya, Marcus, Lina (if applicable), Robin (QA), Kai (DevOps), Morgan (docs) |
+| 3 - MVP | CTO, Riley (domain validation), Sam (VP Eng), Priya, Marcus, Lina (if applicable), Robin (QA), Kai (DevOps), Morgan (docs) |
 | 4 - Production | All applicable roles active (Riley validates domain compliance), Quinn (production specialist assessment) |
+
+Quinn is available on-demand at Stages 2-3 for reactive talent gap requests.
 
 ## Role Activation by Archetype
 
