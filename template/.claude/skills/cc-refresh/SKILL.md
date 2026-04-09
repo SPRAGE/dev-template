@@ -222,13 +222,6 @@ Apply approved changes:
    [YYYY-MM-DD HH:MM] [cc-refresh] Refresh completed: N updates, N prunes, N archives, N superseded
    ```
 
-## Phase 6: Optional Ruflo Sync
-
-If ruflo is available (`command -v ruflo` succeeds):
-> "Ruflo detected. Sync updated knowledge store to ruflo memory?"
-
-If yes, run `.claude/hooks/ruflo-sync.sh push` or do it inline.
-
 ## Stale-Log Format
 
 Every removal/prune appends an entry:

@@ -1,19 +1,9 @@
 {
   "mcpServers": {
-    "ruflo": {
-      "type": "stdio",
-      "command": "ruflo",
-      "args": ["mcp", "start"]
-    },
     "context7": {
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
-    },
-    "sequential-thinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@anthropic/sequential-thinking-mcp@latest"]
     }
   }
 }

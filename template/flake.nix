@@ -4,12 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    ruflo-nix = {
-      # SECURITY: Pin to a specific rev for production use
-      # url = "github:SPRAGE/ruflo-nix/<rev>";
-      url = "github:SPRAGE/ruflo-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     claude-code = {
       # SECURITY: Pin to a specific rev for production use
       # url = "github:sadjow/claude-code-nix/<rev>";
@@ -22,7 +16,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ruflo-nix, claude-code, dev-template, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, dev-template, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -31,7 +25,6 @@
         devShells.default = pkgs.mkShell {
           packages = [
             claude-code.packages.${system}.default
-            ruflo-nix.packages.${system}.default
             pkgs.nodejs
             # TODO: add project dependencies
           ];

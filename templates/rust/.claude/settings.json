@@ -5,35 +5,13 @@
   },
   "permissions": {
     "allow": [
-      "Edit(/**)",
-      "Write(/**)",
-      "Read(/**)",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)",
-      "Bash(cp:*)",
-      "Bash(mv:*)",
-      "Bash(rm:*)",
-      "Bash(touch:*)",
-      "Bash(find:*)",
-      "Bash(wc:*)",
-      "Bash(diff:*)",
-      "Bash(zip:*)",
-      "Bash(echo:*)",
-      "Bash(for:*)",
-      "Bash(tail:*)",
       "Bash(git:*)",
       "Bash(nix:*)",
       "Bash(npx:*)",
-      "Bash(ruflo:*)",
       "Bash(cargo:*)",
       "Bash(uv:*)",
-      "mcp__ruflo__read_plan",
-      "mcp__ruflo__list_tasks",
-      "mcp__ruflo__get_task",
-      "mcp__ruflo__update_task",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs",
-      "mcp__sequential-thinking__sequentialthinking"
+      "mcp__context7__query-docs"
     ],
     "deny": [
       "Edit(//.env)",
@@ -57,37 +35,6 @@
           {
             "type": "command",
             "command": ".claude/hooks/session-start.sh"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [],
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/context-watchdog.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/post-commit-persist.sh"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/session-end.sh"
           }
         ]
       }

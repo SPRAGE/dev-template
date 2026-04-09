@@ -98,6 +98,11 @@ CEO presents the brief to the user, with Riley validating domain accuracy: "Here
 
 User can approve, revise, or send back for more brainstorming.
 
+#### Talent Assessment Handoff
+After the user approves the product brief, the CTO recommends a talent assessment:
+
+> **Jordan (CTO):** Good — the product brief is solid. Riley, any domain concerns before we move to architecture?
+
 ---
 
 ## Stage 1: Architecture
@@ -186,6 +191,11 @@ CTO presents to the user, with Riley validating domain alignment: "Here's how we
 
 If the user has strong tech opinions (like preferring one language over another), the CTO adjusts and explains any implications. If Riley flags a domain concern with a technical choice, the CTO explains the tradeoff.
 
+#### Talent Assessment Handoff
+After the user approves the architecture, the CTO recommends a tech-stack-informed talent assessment:
+
+> **Jordan (CTO):** Architecture is locked. Riley, validate the domain-specific technical choices before the team starts building.
+
 ---
 
 ## Stage 2: Prototype
@@ -193,10 +203,10 @@ If the user has strong tech opinions (like preferring one language over another)
 **Led by**: CTO (Jordan)
 **Team**: Architect (Priya), Core Dev (Marcus), UI/Client Dev (Lina — if archetype has UI)
 **Goal**: First working code — ugly but functional
-**Ruflo execution**: Yes — hive-mind swarm
+**Agent execution**: Yes — parallel Claude Code subagents
 
 ### What Happens
-This is where the rubber meets the road. The CTO spawns a small ruflo swarm to build a working prototype. Expectations are deliberately low — this is about proving the concept works, not about polish.
+This is where the rubber meets the road. The CTO dispatches Claude Code subagents to build a working prototype. Expectations are deliberately low — this is about proving the concept works, not about polish.
 
 ### Prototype Standards
 - Core feature works end-to-end
@@ -213,8 +223,8 @@ This is where the rubber meets the road. The CTO spawns a small ruflo swarm to b
 
 This makes the prototype→MVP transition explicit and plannable.
 
-### Ruflo Execution
-The CTO generates a Stage 2 workflow (see ruflo-config.md) and runs it. The swarm typically runs:
+### Agent Execution
+The CTO dispatches parallel subagents. The typical execution:
 1. Architect sets up project structure and scaffolding
 2. Core dev implements core logic
 3. UI/Client dev builds minimal interface (if applicable — parallel with core dev)
@@ -236,7 +246,7 @@ CTO demos to the user: "Here's the prototype. [Feature X] works — try it. It's
 **Led by**: CTO + VP Engineering (Sam)
 **Team**: Full engineering team minus Security and Performance (adjusted per archetype)
 **Goal**: Feature-complete for core use case, tested, deployable
-**Ruflo execution**: Yes — full hive-mind swarm
+**Agent execution**: Yes — full parallel Claude Code subagents
 
 ### What Happens
 The team takes the prototype and turns it into a real product. This is the biggest stage — multiple agents working in coordinated parallel/sequential stages. **From this stage onward, engineering standards are enforced.** All technical debt from Stage 2 must be resolved.
@@ -263,8 +273,8 @@ Each feature within the MVP follows a disciplined cycle:
 4. **Fix** — Developers address CRITICAL and HIGH findings
 5. **Ship** — Feature merged with conventional commit
 
-### Ruflo Execution
-The CTO generates a Stage 3 workflow (see ruflo-config.md). Typical execution:
+### Agent Execution
+The CTO dispatches parallel subagents. Typical execution:
 
 **Phase 1: Foundation** (parallel)
 - Architect refactors prototype into clean structure
@@ -299,7 +309,7 @@ CEO and CTO present together:
 **Led by**: CTO + VP Engineering
 **Team**: ALL applicable roles active
 **Goal**: Production-hardened, secure, performant, fully documented
-**Ruflo execution**: Yes — full swarm with security and performance agents
+**Agent execution**: Yes — full agent dispatch with security and performance roles
 
 ### What Happens
 The final stage adds the "ilities" — security, reliability, scalability, observability. This is where the full org earns its keep.
@@ -318,8 +328,8 @@ The final stage adds the "ilities" — security, reliability, scalability, obser
 - 80%+ test coverage maintained
 - Conventional commits throughout git history
 
-### Ruflo Execution
-The CTO generates a Stage 4 workflow (see ruflo-config.md). Typical execution:
+### Agent Execution
+The CTO dispatches parallel subagents. Typical execution:
 
 **Phase 1: Audit** (parallel)
 - Security engineer audits code + dependencies

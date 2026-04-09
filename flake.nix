@@ -1,35 +1,31 @@
 {
-  description = "dev-template — project scaffolding with Nix + Claude Code + Ruflo";
+  description = "dev-template — project scaffolding with Nix + Claude Code";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    ruflo-nix = {
-      url = "github:SPRAGE/ruflo-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     claude-code = {
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ruflo-nix, claude-code, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, ... }:
     {
       templates = {
         default = {
           path = ./template;
-          description = "Base project with Nix devShell, Claude Code, Ruflo, direnv";
+          description = "Base project with Nix devShell, Claude Code, direnv";
         };
 
         rust = {
           path = ./templates/rust;
-          description = "Rust project with rust-overlay, Claude Code, Ruflo, cargo tools";
+          description = "Rust project with rust-overlay, Claude Code, cargo tools";
         };
 
         python = {
           path = ./templates/python;
-          description = "Python project with uv, Claude Code, Ruflo";
+          description = "Python project with uv, Claude Code";
         };
       };
     }
@@ -43,7 +39,6 @@
           packages = [
             pkgs.git
             claude-code.packages.${system}.default
-            ruflo-nix.packages.${system}.default
           ];
 
           shellHook = ''
@@ -316,44 +311,11 @@
                 exit 1
               fi
 
-              # Detect state
-              if [ -d "$PWD/.claude/knowledge" ] && [ -f "$PWD/.claude/knowledge/active-context.md" ]; then
-                # Check if knowledge files have been populated (not just templates)
-                if grep -q "TEMPLATE" "$PWD/.claude/knowledge/active-context.md" 2>/dev/null; then
-                  echo "Knowledge store exists but is unpopulated. Proceeding with bootstrap..."
-                else
-                  echo "This project appears already onboarded (.claude/knowledge/ exists with content)."
-                  echo "Run /cc-refresh inside Claude Code to update existing configuration."
-                  exit 0
-                fi
-              fi
-
-              if [ -d "$PWD/.claude" ] && [ ! -d "$PWD/.claude/knowledge" ]; then
-                echo "onboard: .claude/ exists but no knowledge store. Adding knowledge store + hooks..."
-                echo ""
-
-                # Knowledge store only
-                mkdir -p "$PWD/.claude/knowledge"
-                for f in "${knowledge-src}"/*; do
-                  [ -f "$f" ] || continue
-                  fname=$(basename "$f")
-                  cp -L "$f" "$PWD/.claude/knowledge/$fname"
-                  chmod u+w "$PWD/.claude/knowledge/$fname"
-                done
-
-                # Hooks
-                mkdir -p "$PWD/.claude/hooks"
-                for f in "${hooks-src}"/*; do
-                  [ -f "$f" ] || continue
-                  fname=$(basename "$f")
-                  cp -L "$f" "$PWD/.claude/hooks/$fname"
-                  chmod u+w "$PWD/.claude/hooks/$fname"
-                  chmod +x "$PWD/.claude/hooks/$fname"
-                done
-
-                echo "Done. Knowledge store and hooks added."
-                echo ""
-                echo "Next: open Claude Code and run /cc-onboard to scan your codebase."
+              # Detect state — if already onboarded, suggest refresh instead
+              if [ -d "$PWD/.claude/skills" ] && [ -f "$PWD/CLAUDE.md" ]; then
+                echo "This project appears already onboarded (.claude/skills/ and CLAUDE.md exist)."
+                echo "Run /cc-refresh inside Claude Code to update existing configuration."
+                echo "Or run 'nix run .#fresh-start' to nuke and re-sync from template."
                 exit 0
               fi
 
@@ -403,7 +365,7 @@
               if [ ! -f "$PWD/CLAUDE.md" ]; then
                 cp -L "${claude-md-src}" "$PWD/CLAUDE.md"
                 chmod u+w "$PWD/CLAUDE.md"
-                echo "  + CLAUDE.md (stub — run /cc-onboard to populate)"
+                echo "  + CLAUDE.md (stub — run /cc-setup to populate)"
               else
                 echo "  = CLAUDE.md (already exists, skipped)"
               fi
@@ -414,7 +376,7 @@
               echo "Next steps:"
               echo "  1. direnv allow          (if using direnv)"
               echo "  2. Open Claude Code"
-              echo "  3. Run /cc-onboard       (scans codebase and generates tailored config)"
+              echo "  3. Run /cc-setup         (scans codebase and generates tailored config)"
             '';
           in
           {

@@ -57,24 +57,6 @@
         "type": "github"
       }
     },
-    "flake-utils_3": {
-      "inputs": {
-        "systems": "systems_3"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1773597492,
@@ -95,29 +77,7 @@
       "inputs": {
         "claude-code": "claude-code",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs",
-        "ruflo-nix": "ruflo-nix"
-      }
-    },
-    "ruflo-nix": {
-      "inputs": {
-        "flake-utils": "flake-utils_3",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1772964083,
-        "narHash": "sha256-dChvH4SOZrfOzNEsR9GjB/scRaEpBVzweJo4pZ8Qxgg=",
-        "owner": "SPRAGE",
-        "repo": "ruflo-nix",
-        "rev": "ec81494aa1f42db261e3c9adfb6f0b61687f232c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "SPRAGE",
-        "repo": "ruflo-nix",
-        "type": "github"
+        "nixpkgs": "nixpkgs"
       }
     },
     "systems": {
@@ -136,21 +96,6 @@
       }
     },
     "systems_2": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_3": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

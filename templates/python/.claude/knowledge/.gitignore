@@ -1,5 +1,2 @@
-# Ephemeral state files used by hooks — not tracked in git
-.watchdog-last-run
-.watchdog-last-size
-.needs-persist
+# Hook state files — not tracked in git
 .session-loaded

@@ -8,12 +8,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
-    ruflo-nix = {
-      # SECURITY: Pin to a specific rev for production use
-      # url = "github:SPRAGE/ruflo-nix/<rev>";
-      url = "github:SPRAGE/ruflo-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     claude-code = {
       # SECURITY: Pin to a specific rev for production use
       # url = "github:sadjow/claude-code-nix/<rev>";
@@ -26,7 +20,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, ruflo-nix, claude-code, dev-template, ... }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, claude-code, dev-template, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [ (import rust-overlay) ];
@@ -50,7 +44,6 @@
             pkgs.cargo-edit
             pkgs.cargo-watch
             claude-code.packages.${system}.default
-            ruflo-nix.packages.${system}.default
             pkgs.nodejs
           ];
 

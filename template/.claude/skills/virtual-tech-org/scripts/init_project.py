@@ -92,12 +92,8 @@ def init_project(project_name, archetype="web-app", project_dir="."):
             "stage_3": [],
             "stage_4": []
         },
-        "ruflo_sessions": [],
         "team_active": get_team_for_stage(0, archetype),
         "auto_pilot": False,
-        "talent_roster": [],
-        "talent_cap": 5,
-        "talent_assessments": [],
         "status": "discovery"
     }
 
