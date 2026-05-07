@@ -7,6 +7,22 @@ result-*
 .env
 .env.*
 
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# AI assistant runtime
+.codex/
+.agents/
+.ai/local/
+.ai/tmp/
+
+# Scratch archives
+files.zip
+
 # OS
 .DS_Store
 *~

@@ -1,5 +1,8 @@
-<!-- Architectural and design decisions still in effect.
-     Each entry follows this format:
+# Decisions
+
+<!-- TEMPLATE: Add decisions that are still in effect below.
+
+Entry format:
 
 ## [Decision Title]
 - **Date:** YYYY-MM-DD

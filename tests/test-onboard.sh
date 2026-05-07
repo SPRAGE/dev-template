@@ -15,15 +15,26 @@ touch flake.nix  # onboard checks for project root indicators
 "$1"
 
 # Verify all expected files exist
-for f in .claude/knowledge/active-context.md \
-         .claude/knowledge/decisions.md \
-         .claude/knowledge/architecture-snapshot.md \
-         .claude/knowledge/conventions.md \
-         .claude/knowledge/stale-log.md \
+for f in .ai/instructions.md \
+         .ai/context/active-context.md \
+         .ai/context/decisions.md \
+         .ai/context/architecture-snapshot.md \
+         .ai/context/conventions.md \
+         .ai/context/stale-log.md \
+         .ai/context/.gitignore \
          .claude/settings.json \
          .mcp.json \
-         CLAUDE.md; do
+         CLAUDE.md \
+         AGENTS.md; do
   [ -f "$f" ] || { echo "FAIL: $f not created"; exit 1; }
+done
+
+# Verify skills are installed, otherwise next-step commands like /cc-setup cannot work
+for d in .claude/skills/cc-setup \
+         .claude/skills/cc-refresh \
+         .claude/skills/fresh-start \
+         .claude/skills/virtual-tech-org; do
+  [ -d "$d" ] || { echo "FAIL: $d not created"; exit 1; }
 done
 
 # Verify hooks are executable (skip .gitkeep, only check .sh files)
@@ -35,7 +46,7 @@ done
 echo "PASS: Full bootstrap"
 
 echo ""
-echo "=== Test 2: Knowledge-only (has .claude/ but no knowledge/) ==="
+echo "=== Test 2: Context-only (has .claude/ but no .ai/) ==="
 cd "$TEST_DIR"
 mkdir -p partial-project/.claude && cd partial-project
 git init -q
@@ -43,8 +54,10 @@ touch flake.nix
 
 "$1"
 
-[ -d .claude/knowledge ] || { echo "FAIL: knowledge/ not created"; exit 1; }
-echo "PASS: Knowledge-only bootstrap"
+[ -d .ai/context ] || { echo "FAIL: .ai/context/ not created"; exit 1; }
+[ -f .ai/context/active-context.md ] || { echo "FAIL: active-context.md not created"; exit 1; }
+[ -d .claude/skills/cc-setup ] || { echo "FAIL: cc-setup skill not created"; exit 1; }
+echo "PASS: Context-only bootstrap"
 
 echo ""
 echo "=== Test 3: Already onboarded (has everything) ==="

@@ -27,7 +27,13 @@
           packages = [
             python
             pkgs.uv
+            pkgs.git
+            pkgs.ripgrep
+            pkgs.fd
+            pkgs.jq
+            pkgs.tree
             claude-code.packages.${system}.default
+            pkgs.codex
             pkgs.nodejs
           ];
 

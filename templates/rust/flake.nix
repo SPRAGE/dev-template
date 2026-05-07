@@ -43,7 +43,13 @@
             pkgs.openssl
             pkgs.cargo-edit
             pkgs.cargo-watch
+            pkgs.git
+            pkgs.ripgrep
+            pkgs.fd
+            pkgs.jq
+            pkgs.tree
             claude-code.packages.${system}.default
+            pkgs.codex
             pkgs.nodejs
           ];
 

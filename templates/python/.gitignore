@@ -26,6 +26,15 @@ result-*
 *.pem
 *.key
 
+# Claude Code local settings
+.claude/settings.local.json
+
+# AI assistant runtime
+.codex/
+.agents/
+.ai/local/
+.ai/tmp/
+
 # IDE
 .vscode/
 .idea/

@@ -38,8 +38,10 @@ def validate_skill(skill_path):
     except yaml.YAMLError as e:
         return False, f"Invalid YAML in frontmatter: {e}"
 
-    # Define allowed properties
-    ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata', 'compatibility'}
+    # Define allowed properties. Claude Code skill examples have used both
+    # `tools` and `allowed-tools`; accept both so validation matches existing
+    # skill sources and remains backward-compatible.
+    ALLOWED_PROPERTIES = {'name', 'description', 'license', 'tools', 'allowed-tools', 'metadata', 'compatibility'}
 
     # Check for unexpected properties (excluding nested keys under metadata)
     unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES

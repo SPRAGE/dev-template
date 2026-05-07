@@ -20,7 +20,7 @@ Set up Claude Code for any project — whether starting fresh, onboarding an exi
 codebase, or optimizing an existing configuration.
 
 **This skill writes files.** It generates CLAUDE.md, .mcp.json, .claude/rules/, and
-optionally populates .claude/knowledge/. All outputs require user approval.
+optionally populates .ai/context/. All outputs require user approval.
 
 ## Mode Detection
 
@@ -67,9 +67,9 @@ The user has an existing repository with code but no (or minimal) Claude Code se
 
 ### Prerequisites
 
-- If `.claude/knowledge/` exists with populated files → warn user this repo appears
+- If `.ai/context/` exists with populated files → warn user this repo appears
   already configured, suggest `/cc-refresh` instead. Proceed only if user confirms.
-- If `.claude/` doesn't exist → create `.claude/knowledge/` with empty templates, then
+- If `.ai/context/` doesn't exist → create it with empty templates, then
   proceed to scanning.
 
 ### Scanning Phase
@@ -106,14 +106,14 @@ Dispatch 4 parallel Agent tool subagents:
 
 After all agents return, synthesize findings into deliverables (see Shared Output Sections).
 
-### Knowledge Store Population (Brownfield only)
+### AI Context Population (Brownfield only)
 
-If `.claude/knowledge/` exists:
+If `.ai/context/` exists:
 - `architecture-snapshot.md` — fill from Agents 1 + 2
 - `conventions.md` — fill from Agent 3
 - `active-context.md` — set Current Focus to "Project just onboarded via /cc-setup"
 - `decisions.md` — leave empty
-- `stale-log.md` — append: `[YYYY-MM-DD HH:MM] [cc-setup] Knowledge store initialized`
+- `stale-log.md` — append: `[YYYY-MM-DD HH:MM] [cc-setup] AI context store initialized`
 
 ---
 

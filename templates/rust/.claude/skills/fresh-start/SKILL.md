@@ -1,9 +1,10 @@
 ---
 name: fresh-start
 description: >
-  Removes all Claude Code configuration and re-creates it from dev-template
-  defaults. Deletes .claude/, CLAUDE.md, .mcp.json, .claude.local.md — then
-  restores settings, hooks, knowledge (decisions.md), and MCP config. Preserves
+  Removes AI and Claude Code configuration and re-creates it from dev-template
+  defaults. Deletes .ai/, .claude/, AGENTS.md, CLAUDE.md, .mcp.json,
+  .claude.local.md — then restores shared AI context, provider adapters,
+  settings, hooks, skills, and MCP config. Preserves
   auto-memory. After reset, attempts nix-based skill sync; otherwise tells user
   to run direnv reload. Trigger when user says "fresh start", "reset claude
   code", "start fresh", "nuke claude config", "clean slate", "reset everything",
@@ -12,11 +13,11 @@ description: >
 
 # Fresh Start
 
-Removes all Claude Code configuration from the current project and re-creates it from dev-template defaults.
+Removes all shared AI and Claude Code configuration from the current project and re-creates it from dev-template defaults.
 
 **Preserves:** auto-memory (`~/.claude/projects/*/memory/`)
-**Deletes:** `.claude/`, `CLAUDE.md`, `.mcp.json`, `.claude.local.md`
-**Restores:** settings.json, hooks, decisions.md, .mcp.json, CLAUDE.md stub
+**Deletes:** `.ai/`, `.claude/`, `AGENTS.md`, `CLAUDE.md`, `.mcp.json`, `.claude.local.md`
+**Restores:** `.ai/`, provider adapters, settings.json, hooks, skills, .mcp.json
 
 ## Step 1: Scan
 
@@ -24,7 +25,9 @@ Run these commands to detect what exists:
 
 ```bash
 echo "=== Fresh Start: scanning current state ==="
+[ -d ".ai" ] && echo "  FOUND: .ai/" || echo "  MISSING: .ai/"
 [ -d ".claude" ] && echo "  FOUND: .claude/" || echo "  MISSING: .claude/"
+[ -f "AGENTS.md" ] && echo "  FOUND: AGENTS.md" || echo "  MISSING: AGENTS.md"
 [ -f "CLAUDE.md" ] && echo "  FOUND: CLAUDE.md" || echo "  MISSING: CLAUDE.md"
 [ -f ".mcp.json" ] && echo "  FOUND: .mcp.json" || echo "  MISSING: .mcp.json"
 [ -f ".claude.local.md" ] && echo "  FOUND: .claude.local.md" || echo "  MISSING: .claude.local.md"
@@ -42,9 +45,9 @@ Show the user what will be removed and ask for confirmation:
 After confirmation, remove everything:
 
 ```bash
-rm -rf .claude
-rm -f CLAUDE.md .mcp.json .claude.local.md
-echo "Removed all Claude Code configuration."
+rm -rf .ai .claude
+rm -f AGENTS.md CLAUDE.md .mcp.json .claude.local.md
+echo "Removed all AI and Claude Code configuration."
 ```
 
 ## Step 3: Re-create config from defaults
@@ -52,7 +55,7 @@ echo "Removed all Claude Code configuration."
 Create the directory structure:
 
 ```bash
-mkdir -p .claude/hooks .claude/knowledge .claude/skills
+mkdir -p .ai/context .claude/hooks .claude/skills
 ```
 
 Then use the Write tool to create each file with the content specified below.
@@ -116,7 +119,7 @@ Then use the Write tool to create each file with the content specified below.
 # session-start.sh — surfaces active architectural decisions at session start
 set -euo pipefail
 
-DECISIONS_FILE=".claude/knowledge/decisions.md"
+DECISIONS_FILE=".ai/context/decisions.md"
 
 [ -f "$DECISIONS_FILE" ] || exit 0
 grep -q "^## " "$DECISIONS_FILE" 2>/dev/null || exit 0
@@ -159,15 +162,161 @@ fi
 
 Make executable: `chmod +x .claude/hooks/statusline.sh`
 
-### .claude/knowledge/decisions.md
+### .ai/instructions.md
 
 ```markdown
-# Architectural Decisions
+# AI Instructions
 
-<!-- Format: ## Title | Date | Status: active | superseded by ... | Decision | Why | Alternatives -->
+## Project
+
+PROJECTNAME - TODO: replace with one-line description.
+
+## Read Order
+
+1. `.ai/instructions.md`
+2. `.ai/context/active-context.md`
+3. `.ai/context/architecture-snapshot.md`
+4. `.ai/context/conventions.md`
+5. `.ai/context/decisions.md`
+
+## Provider Adapters
+
+- `AGENTS.md` is the Codex-compatible entry point.
+- `CLAUDE.md` is the Claude Code entry point.
+- `.claude/` contains Claude Code settings, hooks, and skills.
+
+## Commands
+
+- `nix develop` - enter dev shell.
+- `nix run github:SPRAGE/dev-template#sync-skills` - pull latest skills, hooks, and AI context templates.
+- `nix run github:SPRAGE/dev-template#ai-doctor` - validate AI context files and provider-specific settings layout.
+
+## Rules
+
+- Treat `.ai/context/` as the shared project context source of truth.
+- Keep provider-specific runtime settings out of `.ai/`.
+- Do not edit permission or settings files unless the user explicitly asks for that settings change.
 ```
 
-### .claude/knowledge/.gitignore
+### .ai/context/active-context.md
+
+```markdown
+# Active Context
+
+<!-- TEMPLATE: Replace this with current in-progress project context. -->
+
+## Current Focus
+
+- TODO: What is being worked on right now?
+
+## Recent Decisions
+
+- TODO: Short-lived decisions that may later move to decisions.md.
+
+## Key Files in Play
+
+- TODO: Files, modules, or docs that matter to the current work.
+
+## Blockers / Questions
+
+- TODO: Open questions, blockers, or assumptions to verify.
+
+## Next Steps
+
+- TODO: Immediate next actions.
+```
+
+### .ai/context/architecture-snapshot.md
+
+```markdown
+# Architecture Snapshot
+
+<!-- TEMPLATE: Capture the current shape of the system. Refresh with /cc-refresh. -->
+
+## Stack
+
+- TODO: Languages, frameworks, tools, and runtime requirements.
+
+## Project Structure
+
+- TODO: Important directories and what they contain.
+
+## Entry Points
+
+- TODO: Main binaries, services, commands, pages, APIs, or jobs.
+
+## Data Flow
+
+- TODO: Key data paths, external systems, and persistence boundaries.
+
+## Deployment / Runtime
+
+- TODO: How the project runs locally and in production.
+
+## Known Gaps
+
+- TODO: Architectural unknowns or areas that need verification.
+```
+
+### .ai/context/conventions.md
+
+```markdown
+# Conventions
+
+<!-- TEMPLATE: Record coding, testing, review, and operational conventions. -->
+
+## Code Style
+
+- TODO: Naming, formatting, typing, and module organization conventions.
+
+## Testing
+
+- TODO: Test framework, test layout, required checks, and coverage expectations.
+
+## Commands
+
+- TODO: Build, test, lint, format, run, and deploy commands.
+
+## Git / Review
+
+- TODO: Branch, commit, pull request, and review expectations.
+
+## Security / Secrets
+
+- TODO: Secret handling, environment variables, and security review requirements.
+```
+
+### .ai/context/decisions.md
+
+```markdown
+# Decisions
+
+<!-- TEMPLATE: Add decisions that are still in effect below.
+
+Entry format:
+
+## [Decision Title]
+- **Date:** YYYY-MM-DD
+- **Status:** active | superseded by [other decision]
+- **Decision:** [What was decided]
+- **Why:** [Reasoning]
+- **Alternatives considered:** [What else was on the table]
+-->
+```
+
+### .ai/context/stale-log.md
+
+```markdown
+# Stale Log
+
+<!-- Entries appended by /cc-refresh or sync tooling before stale context is removed. -->
+
+## Log
+
+- No stale context recorded yet.
+```
+
+### .ai/context/.gitignore
 
 ```
 # Hook state files — not tracked in git
@@ -211,7 +360,7 @@ TODO: fill in after running `/cc-setup`.
 ## Commands
 
 - `nix develop` — enter dev shell
-- `nix run github:USER/dev-template#sync-skills` — pull latest skills from template
+- `nix run github:SPRAGE/dev-template#sync-skills` — pull latest skills, hooks, and AI context templates
 
 ## Architecture
 
@@ -221,9 +370,32 @@ TODO: fill in after running `/cc-setup` or manually.
 
 TODO: fill in after running `/cc-setup` or manually.
 
-## Decisions
+## AI Context
 
-Architectural decisions are tracked in `.claude/knowledge/decisions.md`.
+Project context is tracked in `.ai/`:
+
+- `instructions.md` — provider-neutral project instructions
+- `active-context.md` — current work and next steps
+- `architecture-snapshot.md` — stack, structure, and runtime map
+- `conventions.md` — coding, testing, and review conventions
+- `decisions.md` — active architectural decisions
+- `stale-log.md` — audit trail for removed or superseded context
+```
+
+### AGENTS.md
+
+```markdown
+# Agent Guide
+
+## Context
+
+Read these provider-neutral files before non-trivial work:
+
+1. `.ai/instructions.md`
+2. `.ai/context/active-context.md`
+3. `.ai/context/architecture-snapshot.md`
+4. `.ai/context/conventions.md`
+5. `.ai/context/decisions.md`
 ```
 
 ## Step 4: Attempt nix skill sync
@@ -271,11 +443,12 @@ After everything is done, tell the user:
 > **Fresh start complete.**
 >
 > Restored:
+> - `.ai/` (shared instructions and context)
+> - `AGENTS.md` (Codex-compatible adapter)
+> - `CLAUDE.md` (Claude Code adapter)
 > - `.claude/settings.json` (plugins, permissions, hooks)
 > - `.claude/hooks/` (session-start, statusline)
-> - `.claude/knowledge/decisions.md` (empty template)
 > - `.mcp.json` (context7)
-> - `CLAUDE.md` (stub)
 >
 > [If nix sync succeeded]: Skills synced: [count] skills from dev-template.
 > [If nix sync failed]: Run `direnv reload` or `nix develop` to sync skills from dev-template.

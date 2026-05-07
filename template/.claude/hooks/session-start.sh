@@ -3,7 +3,7 @@
 # Event: SessionStart
 set -euo pipefail
 
-DECISIONS_FILE=".claude/knowledge/decisions.md"
+DECISIONS_FILE=".ai/context/decisions.md"
 
 # Skip if no decisions file or it's empty/template
 [ -f "$DECISIONS_FILE" ] || exit 0

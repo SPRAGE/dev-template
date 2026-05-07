@@ -1,7 +1,7 @@
 ---
 name: cc-refresh
 description: >
-  Audit and refresh all Claude Code context — CLAUDE.md, knowledge store, auto-memory files,
+  Audit and refresh all Claude Code context — CLAUDE.md, AI context store, auto-memory files,
   session history, and rules. Scans for stale content, scores CLAUDE.md quality (A-F grades),
   proposes targeted fixes, and executes approved changes. Use when the user says "refresh
   claude context", "clean up claude memory", "prune stale context", "context cleanup",
@@ -18,17 +18,17 @@ tools: Read, Glob, Grep, Bash, Edit, Write, Agent
 Audit all Claude Code artifacts for staleness, score CLAUDE.md quality, report findings,
 propose fixes, and execute approved changes. This is the maintenance counterpart to `/cc-setup`.
 
-**This skill modifies files.** It updates CLAUDE.md, knowledge store, memory files,
+**This skill modifies files.** It updates CLAUDE.md, AI context store, memory files,
 and can archive old sessions. All changes require user approval.
 
 ## Modes
 
-**Full refresh** (default): Audit all targets — CLAUDE.md, knowledge store, memory, rules.
+**Full refresh** (default): Audit all targets — CLAUDE.md, AI context store, memory, rules.
 
 **Dry-run** (`--dry-run`): Audit and Report phases only. Skip Propose, Approve, Execute.
 
 **CLAUDE.md only** (`--claude-md-only`): Run only Agent 1 (CLAUDE.md Auditor) with full
-quality scoring. Skip knowledge store, memory, and rules agents. Use when you just want
+quality scoring. Skip AI context store, memory, and rules agents. Use when you just want
 to audit or improve CLAUDE.md files without touching anything else.
 
 ## Phase 1: Audit
@@ -103,10 +103,10 @@ Dispatch parallel Agent tool subagents, each auditing one target area:
 > - [flag]: [details]
 > ```
 
-### Agent 2: Knowledge Store Auditor
+### Agent 2: AI Context Auditor
 
 **Prompt for agent:**
-> Audit all files in `.claude/knowledge/` for accuracy:
+> Audit all files in `.ai/context/` for accuracy:
 > 1. `active-context.md` — does "Current Focus" reference real work? Do "Key Files in Play"
 >    exist? Are "Blockers" still relevant?
 > 2. `decisions.md` — for each decision marked "active", is it still reflected in the code?
@@ -170,7 +170,7 @@ Synthesize all agent findings into a structured report. Format:
 ### CLAUDE.md
 [Agent 1 findings]
 
-### Knowledge Store
+### AI Context
 [Agent 2 findings]
 
 ### Auto-Memory & Sessions
@@ -195,7 +195,7 @@ For each finding, propose a specific action:
 | **Add** | Add missing information discovered during audit |
 | **Skip** | Finding is informational, no action needed |
 
-Group proposals by target (CLAUDE.md, knowledge store, memory, sessions, rules).
+Group proposals by target (CLAUDE.md, AI context store, memory, sessions, rules).
 
 ## Phase 4: Approve
 

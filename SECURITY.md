@@ -13,36 +13,39 @@ Please include as much detail as possible: steps to reproduce, potential impact,
 
 ## AI Agent Safety Model
 
-This repository scaffolds projects that include [Claude Code](https://github.com/sadjow/claude-code-nix) and [Ruflo](https://github.com/SPRAGE/ruflo-nix) as AI coding assistants. The `.claude/settings.json` file in each template defines an **allow/deny permission model** to constrain what the AI agent may do autonomously.
+This repository scaffolds projects that include provider-neutral `.ai/` context, [Claude Code](https://github.com/sadjow/claude-code-nix), Codex-compatible `AGENTS.md` guidance, Claude Code skills, hooks, and a Context7 MCP server. The `.claude/settings.json` file in each template defines a starter **allow/deny permission model** to constrain what Claude Code may do autonomously. `.ai/`, `AGENTS.md`, and `CLAUDE.md` are shared guidance, not permission boundaries.
 
-### Allow List (what the agent CAN do)
+### Default Allow List
 
-Each template restricts the agent to a minimal set of safe commands:
+The templates currently allow broad project-development commands so `/cc-setup`, `/cc-refresh`, and stack-specific workflows can run without excessive prompts:
 
-| Template | Allowed commands |
-|----------|-----------------|
-| Base     | `nix develop/build/flake`, specific `ruflo mcp` subcommands |
-| Rust     | Above + `cargo build/test/check/clippy/fmt/doc` |
-| Python   | Above + `uv run pytest`, `uv run ruff`, `uv sync` |
+| Category | Allowed by default |
+|----------|--------------------|
+| Version control | `git:*` |
+| Nix | `nix:*` |
+| MCP/runtime helpers | `npx:*` |
+| Rust workflows | `cargo:*` |
+| Python workflows | `uv:*` |
+| Context7 MCP | `mcp__context7__resolve-library-id`, `mcp__context7__query-docs` |
 
-MCP tool access is scoped to read-only Ruflo plan/task tools: `mcp__ruflo__read_plan`, `mcp__ruflo__list_tasks`, `mcp__ruflo__get_task`, `mcp__ruflo__update_task`.
+Review and tighten this list for production or sensitive repositories. For example, replace broad `git:*`, `cargo:*`, or `uv:*` permissions with the exact commands your project needs.
 
-### Deny List (what the agent CANNOT do)
+### Default Deny List
 
-The deny list explicitly blocks high-risk operations regardless of the allow list:
+The deny list blocks several high-risk operations regardless of the allow list:
 
-- **Secret exfiltration**: `cat/head/tail/less/more/grep/sed/awk` on `.env*` files; `Read(.env*)`
-- **Arbitrary code execution**: `python`, `node`, `ruby`, `perl` invocations
-- **Destructive filesystem ops**: `rm -rf`, `rm -r`
-- **Unauthorized git ops**: `git push`, `git push --force`
-- **Network exfiltration**: `curl`, `wget`
-- **Remote access**: `ssh`, `scp`
-- **Privilege escalation**: `sudo`, `chmod`, `chown`
-- **Nix store manipulation**: `nix-store --delete`
+- **Secret files**: `Edit(//.env)`, `Edit(//.env.*)`, `Read(//.env)`, `Read(//.env.*)`
+- **Git internals**: `Edit(//.git/**)`
+- **Force push**: `Bash(git push --force:*)`
+- **Privilege escalation**: `Bash(sudo:*)`
+- **Network/file transfer**: `Bash(curl:*)`, `Bash(wget:*)`, `Bash(ssh:*)`, `Bash(scp:*)`
+- **Nix store deletion**: `Bash(nix-store --delete:*)`
 
-### Hooks (PreToolUse / PostToolUse)
+If your project should block all pushes, destructive filesystem operations, or additional network tools, add explicit deny rules in `.claude/settings.json`.
 
-The `hooks` section in `.claude/settings.json` provides placeholders for `PreToolUse` and `PostToolUse` hooks. It is strongly recommended to populate these with auditing or validation logic before deploying agents in production.
+### Hooks
+
+The default hooks include `SessionStart` for surfacing active decisions and a `statusLine` command for persistent context. For production agents, consider adding `PreToolUse` or `PostToolUse` hooks to log, audit, or validate sensitive tool calls.
 
 ---
 
@@ -62,7 +65,7 @@ Enable `web_commit_signoff_required` in your repository settings to ensure commi
 
 ### 3. Pin Flake Inputs for Production
 
-The template `flake.nix` files include comments showing how to pin `claude-code-nix` and `ruflo-nix` to a specific revision:
+The template `flake.nix` files include comments showing how to pin `claude-code-nix` to a specific revision:
 
 ```nix
 claude-code = {
@@ -77,8 +80,12 @@ For production environments, replace the `url` with a pinned revision to prevent
 
 ### 4. Review and Tighten the Allow List
 
-The default allow list is intentionally minimal. Review `.claude/settings.json` in your scaffolded project and remove any entries not needed for your specific workflow.
+The default allow list is intentionally broad enough for setup and common development workflows. Review `.claude/settings.json` in your scaffolded project and remove any entries not needed for your specific workflow.
 
-### 5. Populate Audit Hooks
+### 5. Review `.envrc` Secret Loading
+
+Generated templates load `.env.mcp` and `.env` through direnv when those files exist. This is convenient for local development, but Claude Code launched from that shell may inherit those variables. Remove or customize the dotenv lines in `.envrc` for sensitive projects.
+
+### 6. Populate Audit Hooks
 
 Add `PreToolUse` hooks to log or validate every tool call before the agent executes it. This creates an audit trail and can serve as a last line of defense against unexpected operations.

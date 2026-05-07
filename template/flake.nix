@@ -24,7 +24,13 @@
       {
         devShells.default = pkgs.mkShell {
           packages = [
+            pkgs.git
+            pkgs.ripgrep
+            pkgs.fd
+            pkgs.jq
+            pkgs.tree
             claude-code.packages.${system}.default
+            pkgs.codex
             pkgs.nodejs
             # TODO: add project dependencies
           ];
@@ -55,6 +61,7 @@
             fi
 
             echo "PROJECTNAME dev shell ready"
+            echo "Node: $(node --version)"
           '';
         };
       }
