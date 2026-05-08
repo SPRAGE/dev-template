@@ -13,7 +13,7 @@ Please include as much detail as possible: steps to reproduce, potential impact,
 
 ## AI Agent Safety Model
 
-This repository scaffolds projects that include provider-neutral `.ai/` context, [Claude Code](https://github.com/sadjow/claude-code-nix), Codex-compatible `AGENTS.md` guidance, Claude Code skills, hooks, and a Context7 MCP server. The `.claude/settings.json` file in each template defines a starter **allow/deny permission model** to constrain what Claude Code may do autonomously. `.ai/`, `AGENTS.md`, and `CLAUDE.md` are shared guidance, not permission boundaries.
+This repository scaffolds projects that include provider-neutral `AI.md` and `.ai/` context, shared `.ai/skills/`, official Codex repo skills under `.agents/skills/`, [Claude Code](https://github.com/sadjow/claude-code-nix), Codex-compatible `AGENTS.md` and `CODEX.md` guidance, Codex project config/custom agents, Claude Code skill links, hooks, and a Context7 MCP server. The `.claude/settings.json` file in each template defines a starter **allow/deny permission model** to constrain what Claude Code may do autonomously, while `.codex/config.toml` defines trusted project-scoped Codex defaults. `AI.md`, `.ai/`, `.ai/skills/`, `.agents/skills/`, `AGENTS.md`, `CODEX.md`, and `CLAUDE.md` are shared guidance, not permission boundaries.
 
 ### Default Allow List
 
@@ -80,7 +80,7 @@ For production environments, replace the `url` with a pinned revision to prevent
 
 ### 4. Review and Tighten the Allow List
 
-The default allow list is intentionally broad enough for setup and common development workflows. Review `.claude/settings.json` in your scaffolded project and remove any entries not needed for your specific workflow.
+The default allow list is intentionally broad enough for setup and common development workflows. Review `.claude/settings.json` and `.codex/config.toml` in your scaffolded project and remove any entries not needed for your specific workflow.
 
 ### 5. Review `.envrc` Secret Loading
 

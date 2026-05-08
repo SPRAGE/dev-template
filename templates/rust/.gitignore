@@ -28,10 +28,16 @@ __pycache__/
 .claude/settings.local.json
 
 # AI assistant runtime
-.codex/
-.agents/
+.agents/local/
+.agents/tmp/
+.agents/sessions/
+.agents/logs/
 .ai/local/
 .ai/tmp/
+.codex/local/
+.codex/tmp/
+.codex/sessions/
+.codex/logs/
 
 # IDE
 .vscode/

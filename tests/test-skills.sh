@@ -7,7 +7,7 @@ REPO=$(cd "$REPO" && pwd)
 export PYTHONDONTWRITEBYTECODE=1
 
 echo "=== Skill Test 1: validate source skills ==="
-cd "$REPO/template/.claude/skills/skill-creator"
+cd "$REPO/template/.ai/skills/skill-creator"
 for skill in ../*; do
   [ -d "$skill" ] || continue
   printf '%s: ' "${skill##*/}"
@@ -15,7 +15,36 @@ for skill in ../*; do
 done
 
 echo ""
-echo "=== Skill Test 2: archive freshness ==="
+echo "=== Skill Test 2: template skill links ==="
+for link in template/.agents/skills \
+            template/.claude/skills \
+            template/.codex/skills \
+            templates/python/.agents/skills \
+            templates/python/.claude/skills \
+            templates/python/.codex/skills \
+            templates/rust/.agents/skills \
+            templates/rust/.claude/skills \
+            templates/rust/.codex/skills; do
+  [ -L "$REPO/$link" ] || { echo "FAIL: $link should be a symlink to .ai/skills"; exit 1; }
+  target=$(readlink "$REPO/$link")
+  [ "$target" = "../.ai/skills" ] || { echo "FAIL: $link should point to ../.ai/skills, got $target"; exit 1; }
+  [ -d "$REPO/$link" ] || { echo "FAIL: $link should resolve to a directory"; exit 1; }
+  echo "PASS: $link links to shared skills"
+done
+
+for copy in templates/python/.ai/skills \
+            templates/rust/.ai/skills; do
+  if diff -rq "$REPO/template/.ai/skills" "$REPO/$copy" >/dev/null 2>&1; then
+    echo "PASS: $copy matches template/.ai/skills"
+  else
+    echo "FAIL: $copy differs from template/.ai/skills"
+    diff -rq "$REPO/template/.ai/skills" "$REPO/$copy" || true
+    exit 1
+  fi
+done
+
+echo ""
+echo "=== Skill Test 3: archive freshness ==="
 REPO="$REPO" python - <<'PY'
 import fnmatch
 import os
@@ -24,7 +53,7 @@ import zipfile
 from pathlib import Path
 
 root = Path(os.environ["REPO"])
-skills_root = root / "template" / ".claude" / "skills"
+skills_root = root / "template" / ".ai" / "skills"
 
 exclude_dirs = {"__pycache__", "node_modules"}
 exclude_globs = {"*.pyc"}
@@ -45,7 +74,7 @@ def should_exclude(rel_path: Path) -> bool:
 
 failures = []
 for skill_dir in sorted(p for p in skills_root.iterdir() if p.is_dir()):
-    archive = root / f"{skill_dir.name}.skill"
+    archive = root / "skills" / f"{skill_dir.name}.skill"
     if not archive.exists():
         failures.append(f"missing archive: {archive.name}")
         continue

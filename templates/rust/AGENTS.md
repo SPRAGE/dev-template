@@ -1,8 +1,8 @@
-# Agent Guide
+# Codex Adapter
 
-## Context
+Codex-compatible agents load `AGENTS.md` automatically, so this file stays as the Codex compatibility adapter.
 
-Read these provider-neutral files before non-trivial work:
+Read `AI.md` first. Then read the shared context files:
 
 1. `.ai/instructions.md`
 2. `.ai/context/active-context.md`
@@ -10,14 +10,4 @@ Read these provider-neutral files before non-trivial work:
 4. `.ai/context/conventions.md`
 5. `.ai/context/decisions.md`
 
-## Rust Workflow
-
-- Expected checks are usually `cargo fmt --check`, `cargo clippy -- -D warnings`, and `cargo test`; confirm the project has a `Cargo.toml` before relying on them.
-- Keep tests close to the code with `#[cfg(test)]` modules unless the project already uses integration tests.
-- Preserve the stable Rust toolchain and Nix devShell conventions unless the project needs otherwise.
-
-## Safety
-
-- Treat `.env*`, key files, tokens, and credentials as sensitive.
-- Do not overwrite local AI settings such as `.claude/settings.local.json`, `.codex/`, or `.agents/`.
-- Do not run destructive git or filesystem operations unless the user explicitly asks.
+Shared skills live in `.ai/skills/`. Codex discovers repo-scoped skills from `.agents/skills/`, a relative symlink to `.ai/skills/`; `.codex/skills/` is a compatibility link. When the user names a skill, with or without a leading slash, read `.ai/skills/<skill-name>/SKILL.md`; the provider paths resolve to the same shared files.

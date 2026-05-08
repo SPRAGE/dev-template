@@ -1,45 +1,13 @@
-# CLAUDE.md
+# Claude Code Adapter
 
-## Project
+Claude Code loads `CLAUDE.md` automatically, so this file stays as a compatibility adapter.
 
-PROJECTNAME — TODO: replace with one-line description.
+Read `AI.md` first. Then read the shared context files:
 
-## Getting Started
+1. `.ai/instructions.md`
+2. `.ai/context/active-context.md`
+3. `.ai/context/architecture-snapshot.md`
+4. `.ai/context/conventions.md`
+5. `.ai/context/decisions.md`
 
-1. Replace `PROJECTNAME` in `.ai/instructions.md`, this file, `AGENTS.md`, and `flake.nix`
-2. `direnv allow` to enter the dev shell
-3. Run `/planner` to brainstorm your project, then `/cc-setup` to generate config
-   - OR run `/virtual-tech-org` for full autonomous staged delivery (discovery -> production)
-
-## Stack
-
-TODO: fill in after running `/cc-setup`.
-
-## Commands
-
-- `nix develop` — enter dev shell
-- `nix run github:SPRAGE/dev-template#sync-skills` — pull latest skills, hooks, and AI context templates
-- `nix run github:SPRAGE/dev-template#ai-doctor` — validate AI context files and hooks
-
-## Architecture
-
-TODO: fill in after running `/cc-setup` or manually.
-
-## Conventions
-
-TODO: fill in after running `/cc-setup` or manually.
-
-## Shared AI Context
-
-Project context is tracked in `.ai/` so Claude Code and Codex read the same base files:
-
-- `instructions.md` — provider-neutral project instructions
-- `active-context.md` — current work and next steps
-- `architecture-snapshot.md` — stack, structure, and runtime map
-- `conventions.md` — coding, testing, and review conventions
-- `decisions.md` — active architectural decisions
-- `stale-log.md` — audit trail for removed or superseded context
-
-## Provider Adapters
-
-`CLAUDE.md` is the Claude Code adapter. `AGENTS.md` is the Codex-compatible adapter. Provider-specific settings remain in provider-specific folders such as `.claude/`.
+Shared skills live in `.ai/skills/`. Claude Code slash-command skills live at `.claude/skills/`; Codex repo-scoped skills live at `.agents/skills/`; Codex compatibility skills live at `.codex/skills/`. Those provider paths are relative symlinks to `.ai/skills/`, so additions through any provider path update the same shared catalog.
