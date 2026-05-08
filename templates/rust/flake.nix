@@ -48,6 +48,7 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
+            pkgs.bubblewrap
             claude-code.packages.${system}.default
             pkgs.codex
             pkgs.nodejs

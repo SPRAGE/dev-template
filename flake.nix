@@ -42,6 +42,7 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
+            pkgs.bubblewrap
             pkgs.zip
             pkgs.unzip
             (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
