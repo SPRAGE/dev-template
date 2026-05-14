@@ -10,17 +10,19 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    custom-codex-release.url = "git+ssh://git@github.com/SPRAGE/custom-codex-release.git?ref=latest";
     dev-template = {
       url = "github:SPRAGE/dev-template";
       flake = false;
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, claude-code, dev-template, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, custom-codex-release, dev-template, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
         python = pkgs.python313;
+        codexPackage = custom-codex-release.packages.${system}.codex;
       in
       {
         devShells.default = pkgs.mkShell {
@@ -32,10 +34,11 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
-            pkgs.bubblewrap
             claude-code.packages.${system}.default
-            pkgs.codex
+            codexPackage
             pkgs.nodejs
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            pkgs.bubblewrap
           ];
 
           shellHook = ''

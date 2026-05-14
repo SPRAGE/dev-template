@@ -21,6 +21,26 @@
         "type": "github"
       }
     },
+    "custom-codex-release": {
+      "inputs": {
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1778640778,
+        "narHash": "sha256-opIWzk6qOqgMUxf/a+mmxIZXvAnNP2zHo6q1FO7j3B8=",
+        "ref": "latest",
+        "rev": "5c5edf9545f5f1edfc8751211d8d0678ad98a33a",
+        "revCount": 8,
+        "type": "git",
+        "url": "ssh://git@github.com/SPRAGE/custom-codex-release.git"
+      },
+      "original": {
+        "ref": "latest",
+        "type": "git",
+        "url": "ssh://git@github.com/SPRAGE/custom-codex-release.git"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -57,7 +77,41 @@
         "type": "github"
       }
     },
+    "flake-utils_3": {
+      "inputs": {
+        "systems": "systems_3"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1778036283,
         "narHash": "sha256-62EWg6lI0qyzm7oAx5cAnGkLutvJsRBe0KkEW2JDZCE=",
@@ -76,8 +130,9 @@
     "root": {
       "inputs": {
         "claude-code": "claude-code",
-        "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs"
+        "custom-codex-release": "custom-codex-release",
+        "flake-utils": "flake-utils_3",
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "systems": {
@@ -96,6 +151,21 @@
       }
     },
     "systems_2": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_3": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

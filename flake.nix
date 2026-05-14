@@ -8,9 +8,10 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    custom-codex-release.url = "git+ssh://git@github.com/SPRAGE/custom-codex-release.git?ref=latest";
   };
 
-  outputs = { self, nixpkgs, flake-utils, claude-code, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, custom-codex-release, ... }:
     {
       templates = {
         default = {
@@ -33,6 +34,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        codexPackage = custom-codex-release.packages.${system}.codex;
       in
       rec {
         devShells.default = pkgs.mkShell {
@@ -42,12 +44,13 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
-            pkgs.bubblewrap
             pkgs.zip
             pkgs.unzip
             (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
             claude-code.packages.${system}.default
-            pkgs.codex
+            codexPackage
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            pkgs.bubblewrap
           ];
 
           shellHook = ''
@@ -1367,6 +1370,7 @@
           };
 
         packages = {
+          "codex-redesign" = codexPackage;
           "sync-skills" = pkgs.runCommand "sync-skills" { } ''
             mkdir -p $out/bin
             ln -s ${apps.sync-skills.program} $out/bin/sync-skills

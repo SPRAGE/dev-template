@@ -14,17 +14,19 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    custom-codex-release.url = "git+ssh://git@github.com/SPRAGE/custom-codex-release.git?ref=latest";
     dev-template = {
       url = "github:SPRAGE/dev-template";
       flake = false;
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, claude-code, dev-template, ... }:
+  outputs = { self, nixpkgs, rust-overlay, flake-utils, claude-code, custom-codex-release, dev-template, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
+        codexPackage = custom-codex-release.packages.${system}.codex;
 
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
           extensions = [
@@ -48,10 +50,11 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
-            pkgs.bubblewrap
             claude-code.packages.${system}.default
-            pkgs.codex
+            codexPackage
             pkgs.nodejs
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            pkgs.bubblewrap
           ];
 
           env = {
