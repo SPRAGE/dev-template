@@ -44,6 +44,7 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
+            pkgs.just
             pkgs.zip
             pkgs.unzip
             (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))

@@ -31,6 +31,7 @@
             pkgs.fd
             pkgs.jq
             pkgs.tree
+            pkgs.just
             claude-code.packages.${system}.default
             codexPackage
             pkgs.nodejs
