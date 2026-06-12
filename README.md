@@ -17,6 +17,12 @@ For an existing repository:
 nix run github:SPRAGE/dev-template#onboard
 ```
 
+To reset an existing repository back to current dev-template defaults, including replacing `flake.nix` and removing `flake.lock` so it can be regenerated:
+
+```bash
+nix run --refresh github:SPRAGE/dev-template#fresh-start
+```
+
 Then read `AI.md` and `.ai/instructions.md`. In Claude Code, run `/cc-setup` to scan the codebase and generate project-specific guidance. In Codex, request the same skills by name; Codex discovers checked-in skills from `.agents/skills/`, while `.ai/skills/` remains the provider-neutral source.
 
 ## Templates
@@ -49,7 +55,7 @@ Each template includes:
 - `nix flake init -t .#python` — test the Python template locally.
 - `nix run .#onboard` — bootstrap `AI.md`, shared AI context, shared skills, adapters, Codex repo skill links/config/custom agents, and Claude Code config into an existing project.
 - `nix run .#sync-skills` — pull latest shared skills, managed adapters, Codex skill links, Codex config/custom agents, Claude skill links, hooks, and missing AI context templates into any repo.
-- `nix run .#fresh-start` — reset `AI.md`, shared AI context, Codex skill links/config/custom agents, and Claude Code config from template defaults while preserving auto-memory and `.agents/local/`/`.codex/local/` runtime state.
+- `nix run .#fresh-start` — reset `flake.nix`, `AI.md`, shared AI context, Codex skill links/config/custom agents, and Claude Code config from template defaults; remove `flake.lock` for regeneration; preserve auto-memory and `.agents/local/`/`.codex/local/` runtime state.
 - `nix run .#ai-doctor` — validate AI context files, shared skills, provider skill links, hooks, and skill layout in the current project.
 - `nix develop -c bash tests/test-apps.sh` — smoke test flake apps.
 - `nix develop -c bash tests/test-skills.sh` — validate skills and `skills/*.skill` archives.

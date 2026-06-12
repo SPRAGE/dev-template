@@ -109,7 +109,8 @@ echo "=== App Test 3: fresh-start ==="
 mkdir -p "$TEST_DIR/fresh-project"
 cd "$TEST_DIR/fresh-project"
 git init -q
-touch flake.nix
+echo old > flake.nix
+echo old > flake.lock
 mkdir -p .claude/skills/old-skill .claude/knowledge
 echo old > .claude/skills/old-skill/SKILL.md
 echo old > .claude/knowledge/decisions.md
@@ -145,6 +146,8 @@ printf 'y\n' | HOME="$TEST_HOME" nix run "path:$REPO#fresh-start" --
 [ ! -d .ai/skills/old-skill ] || { echo "FAIL: old shared skill survived fresh-start"; exit 1; }
 [ ! -f .claude/knowledge/decisions.md ] || { echo "FAIL: legacy .claude/knowledge survived fresh-start"; exit 1; }
 [ ! -f .claude.local.md ] || { echo "FAIL: .claude.local.md survived fresh-start"; exit 1; }
+[ ! -f flake.lock ] || { echo "FAIL: stale flake.lock survived fresh-start"; exit 1; }
+cmp -s flake.nix "$REPO/template/flake.nix" || { echo "FAIL: flake.nix was not replaced from template"; exit 1; }
 [ -f .agents/local/state.json ] || { echo "FAIL: .agents/local was not preserved"; exit 1; }
 [ -f .codex/local/state.json ] || { echo "FAIL: .codex/local was not preserved"; exit 1; }
 
@@ -179,6 +182,7 @@ for f in .ai/instructions.md \
          .codex/agents/repo-explorer.toml \
          .claude/settings.json \
          .mcp.json \
+         flake.nix \
          AI.md \
          CLAUDE.md \
          CODEX.md \

@@ -72,7 +72,7 @@ Shared skills live under `.ai/skills/`; Codex discovers repo-scoped skills from 
 - `nix flake init -t .#python` - test python template
 - `nix run .#sync-skills` - sync latest shared skills, managed adapters, provider skill links, Codex config/custom agents, hooks, and missing AI context templates into the current project
 - `nix run .#onboard` - bootstrap shared AI context, shared skills, managed adapters, Codex repo skills/config/custom agents, and Claude Code onto an existing project
-- `nix run .#fresh-start` - reset AI, Codex, and Claude Code config from template defaults
+- `nix run .#fresh-start` - reset flake.nix, AI, Codex, and Claude Code config from template defaults; remove flake.lock for regeneration
 - `nix run .#ai-doctor` - validate AI context files, shared skills, provider skill links, hooks, and skill layout
 - `nix develop -c bash tests/test-apps.sh` - smoke test flake apps
 - `nix develop -c bash tests/test-skills.sh` - validate skills and distributable archives
@@ -86,7 +86,8 @@ Shared skills live under `.ai/skills/`; Codex discovers repo-scoped skills from 
    - Claude Code: use `/virtual-tech-org`, or `/planner` -> `/cc-setup` -> `/planner`.
    - Codex-compatible agents: ask to use the same skill by name; Codex discovers repo skills from `.agents/skills/`, while `AGENTS.md` points agents back to `.ai/skills/` as the provider-neutral source.
 5. For existing repos, run `nix run .#onboard`, then use `cc-setup` to scan and configure guidance.
-6. Use `cc-refresh` periodically to clean up stale context.
+6. To reset an old repo to current template defaults, run `nix run --refresh github:SPRAGE/dev-template#fresh-start`.
+7. Use `cc-refresh` periodically to clean up stale context.
 
 ## Conventions
 
