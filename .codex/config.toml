@@ -2,7 +2,7 @@
 # Codex loads this file only after the project is trusted.
 
 project_doc_max_bytes = 65536
-project_doc_fallback_filenames = ["AI.md", "CODEX.md", "CLAUDE.md"]
+project_doc_fallback_filenames = ["AI.md", "AGENTS.md", "CODEX.md"]
 model_reasoning_effort = "medium"
 web_search = "cached"
 personality = "pragmatic"
