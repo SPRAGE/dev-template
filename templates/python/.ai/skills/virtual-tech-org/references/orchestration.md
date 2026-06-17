@@ -2,7 +2,7 @@
 
 The org's **persona and process layers are provider-neutral**. Only the **execution layer** — how the CTO actually dispatches engineering work — differs by runtime. This file is the single place that difference lives.
 
-**How to use this map:** You know which runtime you are (Claude Code or Codex). Each role declares a neutral *capability* (see `org-roles.md`); look that capability up below and use **your runtime's column**. The engineering standard is identical across runtimes; only the mechanism changes.
+**How to use this map:** You know which runtime you are (Claude Code or Codex). The skill (`SKILL.md`) dispatches work as neutral *capabilities*; look each one up below and use **your runtime's column**. The engineering standard is identical across runtimes; only the mechanism changes.
 
 **Codex dispatch mechanism (read once):** The orchestrator delegates with Codex's multi-agent collaboration tools — `spawn_agent`, `wait_agent`, `send_input`, `resume_agent`, `close_agent` (stable, on by default under `features.multi_agent`). In this runtime they're exposed as `multi_agent_v1.spawn_agent` etc.; treat `multi_agent_v1` as the *current* namespace, not a durable public API name. The four shipped agents in `.codex/agents/*.toml` (`repo_explorer`, `reviewer`, `test_verifier`, `docs_researcher`) are agent **definitions** selected at spawn — not directly callable tools. Spawned subagents run in parallel, each in its own **forked workspace**; the parent `wait_agent`s and integrates their returned changes. `agents.max_depth = 1` → flat topology: workers cannot spawn further workers. (Refs: developers.openai.com/codex/config-reference, developers.openai.com/codex/subagents.)
 
@@ -20,7 +20,7 @@ The org's **persona and process layers are provider-neutral**. Only the **execut
 | `parallelize` — independent tasks at once | dispatch N `Agent` calls in one message | spawn independent subagents in parallel; bounded by `agents.max_threads` (6) and `agents.max_depth = 1` (flat — workers don't sub-spawn) |
 | `isolate` — conflict-free parallel writes | `Agent(isolation:"worktree", …)` | spawned subagents' native forked workspaces; keep write scopes disjoint and integrate at the gate |
 | `background` — non-blocking long work | `Agent(run_in_background:true, …)` | spawned subagents run asynchronously — continue local work, then `wait_agent` / `close_agent` when results are needed |
-| `track` — progress & project state | `TaskCreate` / `TaskUpdate` + `project-state.json` | `project-state.json` + an in-context checklist/plan |
+| `track` — progress & project state | `TaskCreate` / `TaskUpdate` + `.ai/context/` | `.ai/context/` (decisions, active-context) + an in-context checklist |
 
 **Dispatch profile:** read-only capabilities (`explore`, `research`, `review:*`) run sandboxed/read-only; `implement` and `test` need write access. On Codex this is each agent's `sandbox_mode = "read-only"` vs `"workspace-write"` — the shipped custom agents already set the right mode.
 
