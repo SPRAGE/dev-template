@@ -121,4 +121,44 @@ print("All skill archives match source directories.")
 PY
 
 echo ""
+echo "=== Skill Test 4: provider neutrality ==="
+REPO="$REPO" python - <<'PY'
+import os, re, sys
+from pathlib import Path
+
+root = Path(os.environ["REPO"])
+skills_root = root / "template" / ".ai" / "skills"
+
+# A shared skill must not frame itself around one provider. If its description or H1 title
+# names exactly one provider (Claude Code / Codex), that is a neutrality leak — name both
+# (balanced) or neither (neutral). Provider-specific guidance belongs in clearly marked
+# sections, tables, columns, or runtime notes inside the body, not in the framing.
+def skewed(text: str) -> bool:
+    has_claude = re.search(r"Claude Code|\bClaude\b", text) is not None
+    has_codex = re.search(r"\bCodex\b", text) is not None
+    return has_claude != has_codex
+
+failures = []
+for skill_dir in sorted(p for p in skills_root.iterdir() if p.is_dir()):
+    md = (skill_dir / "SKILL.md").read_text()
+    fm = re.match(r"^---\n(.*?)\n---\n(.*)$", md, re.DOTALL)
+    front = fm.group(1) if fm else ""
+    body = fm.group(2) if fm else md
+    dm = re.search(r"description:\s*>?-?\s*\n?(.*?)(?:\n[A-Za-z_-]+:\s|\Z)", front, re.DOTALL)
+    description = dm.group(1) if dm else front
+    if skewed(description):
+        failures.append(f"{skill_dir.name}: description names one provider but not the other")
+    h1 = re.search(r"(?m)^#\s+(.+)$", body)
+    if h1 and skewed(h1.group(1)):
+        failures.append(f"{skill_dir.name}: title '{h1.group(1).strip()}' is provider-skewed")
+
+if failures:
+    for f in failures:
+        print("FAIL:", f)
+    sys.exit(1)
+
+print("All shared skill descriptions/titles are provider-neutral (balanced or neutral).")
+PY
+
+echo ""
 echo "All skill tests passed."
