@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779229446,
-        "narHash": "sha256-39TUUX4+fOvSYUQwRxkn8RapjmPxm2o1qkx4J0sd/xw=",
+        "lastModified": 1781127495,
+        "narHash": "sha256-fzBtjzWtBC29kEU/QtmlgEG7RggUJnEpnX4NfaV4YFo=",
         "owner": "sadjow",
         "repo": "claude-code-nix",
-        "rev": "dbd319466590239687cb72ab003ba7d0854043ce",
+        "rev": "02567552d6c1cd7915a4bfad89209de1462af7e3",
         "type": "github"
       },
       "original": {
@@ -27,11 +27,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1779241323,
-        "narHash": "sha256-gN0Wyg37ce4eBn6VR/Igrk1Zqgf4qzy96xVlLR5Q+ss=",
+        "lastModified": 1780533758,
+        "narHash": "sha256-BPqLmQFK9+3oMcAj5679KXsQcaWubsRjeGvC1Ip0trU=",
         "ref": "latest",
-        "rev": "da1bbd378f19870c05b1dcf4bd312325b1c78ffd",
-        "revCount": 12,
+        "rev": "32071e5fde39743e7f61b2876409e445e1ad1504",
+        "revCount": 16,
         "type": "git",
         "url": "ssh://git@github.com/SPRAGE/custom-codex-release.git"
       },
@@ -113,11 +113,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1778869304,
-        "narHash": "sha256-30sZNZoA1cqF5JNO9fVX+wgiQYjB7HJqqJ4ztCDeBZE=",
+        "lastModified": 1780930886,
+        "narHash": "sha256-rppURzHviaQN131F+nLiLdGfcb0uCd9gGP0E5+iw9MI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d233902339c02a9c334e7e593de68855ad26c4cb",
+        "rev": "8c3cede7ddc26bd659d2d383b5610efbd2c7a16e",
         "type": "github"
       },
       "original": {
