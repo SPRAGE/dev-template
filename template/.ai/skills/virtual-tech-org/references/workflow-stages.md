@@ -98,11 +98,6 @@ CEO presents the brief to the user, with Riley validating domain accuracy: "Here
 
 User can approve, revise, or send back for more brainstorming.
 
-#### Talent Assessment Handoff
-After the user approves the product brief, the CTO recommends a talent assessment:
-
-> **Jordan (CTO):** Good — the product brief is solid. Riley, any domain concerns before we move to architecture?
-
 ---
 
 ## Stage 1: Architecture
@@ -191,11 +186,6 @@ CTO presents to the user, with Riley validating domain alignment: "Here's how we
 
 If the user has strong tech opinions (like preferring one language over another), the CTO adjusts and explains any implications. If Riley flags a domain concern with a technical choice, the CTO explains the tradeoff.
 
-#### Talent Assessment Handoff
-After the user approves the architecture, the CTO recommends a tech-stack-informed talent assessment:
-
-> **Jordan (CTO):** Architecture is locked. Riley, validate the domain-specific technical choices before the team starts building.
-
 ---
 
 ## Stage 2: Prototype
@@ -203,10 +193,10 @@ After the user approves the architecture, the CTO recommends a tech-stack-inform
 **Led by**: CTO (Jordan)
 **Team**: Architect (Priya), Core Dev (Marcus), UI/Client Dev (Lina — if archetype has UI)
 **Goal**: First working code — ugly but functional
-**Agent execution**: Yes — parallel Claude Code subagents
+**Agent execution**: Yes — parallel subagents (resolve via `orchestration.md`)
 
 ### What Happens
-This is where the rubber meets the road. The CTO dispatches Claude Code subagents to build a working prototype. Expectations are deliberately low — this is about proving the concept works, not about polish.
+This is where the rubber meets the road. The CTO dispatches subagents to build a working prototype. Expectations are deliberately low — this is about proving the concept works, not about polish.
 
 ### Prototype Standards
 - Core feature works end-to-end
@@ -246,7 +236,7 @@ CTO demos to the user: "Here's the prototype. [Feature X] works — try it. It's
 **Led by**: CTO + VP Engineering (Sam)
 **Team**: Full engineering team minus Security and Performance (adjusted per archetype)
 **Goal**: Feature-complete for core use case, tested, deployable
-**Agent execution**: Yes — full parallel Claude Code subagents
+**Agent execution**: Yes — full parallel subagents
 
 ### What Happens
 The team takes the prototype and turns it into a real product. This is the biggest stage — multiple agents working in coordinated parallel/sequential stages. **From this stage onward, engineering standards are enforced.** All technical debt from Stage 2 must be resolved.
