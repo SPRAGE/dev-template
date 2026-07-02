@@ -50,3 +50,11 @@ PROJECTNAME - TODO: replace with one-line description.
 ## Shared AI Context & Skills
 
 Provider-neutral context and skills live in `.ai/`. Read order, response style, rules, and the provider-adapter map are in `.ai/instructions.md`. Shared skills are in `.ai/skills/`; `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` are symlinks to it — read `.ai/skills/<name>/SKILL.md` for a skill's source.
+
+## Knowledge base (RAG)
+
+This environment provides a shared, system-wide `kb` CLI (the `rag-kb` tool) — a project-agnostic semantic knowledge base backed by Qdrant + Ollama on the dataserver. A project opts in with a `.kb.toml` (its own Qdrant collection) plus a `knowledge/` folder for source material.
+
+- If this project has a `.kb.toml` and a `knowledge` MCP server (in `.mcp.json`), use `kb_search(query, source_type?, top_k?)` and `kb_list_sources()` to ground answers on ingested research, notes, and API/vendor docs — prefer it over guessing when the answer may live in ingested material. `source_type` is one of `research | notes | api | data`.
+- Numeric/tabular data does NOT belong in the KB (semantic search over number grids is weak) — keep that in a database.
+- To add a KB to this project: create `.kb.toml` (`collection = "kb_<project>"`, `sources = ["knowledge/sources"]`), add a stdio `knowledge` server to `.mcp.json` (`command = "kb"`, `args = ["mcp"]`), then drop files in `knowledge/sources/` and run `kb ingest`. See `kb --help`.
