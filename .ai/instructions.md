@@ -15,6 +15,12 @@
 - For change, build, or fix requests, make in-scope local changes and run non-destructive validation without repeated confirmation.
 - Confirm immediately before destructive action, external write, purchase, permission expansion, or material scope expansion. Ask a question only when repository evidence cannot resolve a material choice, irreversible choice, or high risk choice.
 
+## Repository Boundary
+
+- Limit repository search, file reads, and version-control inspection to the current Git root.
+- Inspect another repository only when the user explicitly names its path or explicitly authorizes cross-repository work. Limit access to the named or authorized repositories.
+- If requested code is absent, report that it is outside the current repository boundary and request a path or authorization. Do not discover or search sibling directories.
+
 ## Delivery
 
 1. Inspect the working state, relevant code, documented commands, and generated/source boundaries.

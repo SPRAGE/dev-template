@@ -57,6 +57,7 @@ Model identity and reasoning effort are separate runtime controls. Change bindin
 - A worker handoff carries its task mode, current layer, step scope, success criteria, preserved invariants, required evidence, and stop conditions.
 - Reports return `complete`, `partial`, or `blocked` with evidence and a next action. A completion claim without required evidence is invalid.
 - Destructive actions, external writes or deployments, purchases, permission expansion, and material scope expansion require confirmation.
+- Repository inspection stays inside the current Git root unless the user names another path or explicitly authorizes cross-repository work. Missing code is reported rather than searched for in sibling directories.
 
 ## Templates
 

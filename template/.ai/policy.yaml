@@ -16,6 +16,14 @@ authorization:
     - irreversible_choice
     - high_risk_choice
 
+repository_scope:
+  default_boundary: current_git_root
+  allow_cross_repository_when:
+    - explicit_external_path
+    - explicit_cross_repository_authorization
+  authorized_action: inspect_authorized_repository
+  absent_code_action: report_repository_boundary
+
 delivery:
   direct:
     when_all: [bounded_scope, reversible, low_risk, no_unresolved_dependency]

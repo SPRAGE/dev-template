@@ -42,6 +42,22 @@ def words(values: list[str], conjunction: str = "or") -> str:
     return f"{', '.join(rendered[:-1])}, {conjunction} {rendered[-1]}"
 
 
+def repository_scope_phrase(value: str) -> str:
+    phrases = {
+        "current_git_root": "current Git root",
+        "explicit_external_path": "the user explicitly names its path",
+        "explicit_cross_repository_authorization": "explicitly authorizes cross-repository work",
+        "inspect_authorized_repository": "Limit access to the named or authorized repositories.",
+        "report_repository_boundary": (
+            "report that it is outside the current repository boundary and request a path or authorization"
+        ),
+    }
+    try:
+        return phrases[value]
+    except KeyError as error:
+        raise ValueError(f"repository scope uses unknown value: {value}") from error
+
+
 def unique(values: list[str]) -> list[str]:
     return list(dict.fromkeys(values))
 
@@ -170,6 +186,7 @@ def render_adapter(runtime: str, runtime_spec: dict) -> str:
 
 def render_instructions(policy: dict, project: dict) -> str:
     authorization = policy["authorization"]
+    repository_scope = policy["repository_scope"]
     delivery = policy["delivery"]
     completion = policy["completion"]
     context = project["context"]
@@ -181,6 +198,12 @@ def render_instructions(policy: dict, project: dict) -> str:
     prohibited = words(completion["prohibited_shortcuts"])
     planned_triggers = words(delivery["planned"]["when_any"])
     hard_triggers = words(delivery["hard"]["when_any"])
+    scope_boundary = repository_scope_phrase(repository_scope["default_boundary"])
+    scope_authorization = words(
+        [repository_scope_phrase(value) for value in repository_scope["allow_cross_repository_when"]]
+    )
+    scope_action = repository_scope_phrase(repository_scope["authorized_action"])
+    absent_scope_action = repository_scope_phrase(repository_scope["absent_code_action"])
     return f"""# Agent Instructions
 
 <!-- {GENERATED_MARKER} -->
@@ -197,6 +220,12 @@ def render_instructions(policy: dict, project: dict) -> str:
 - For {inspect_intents} requests, inspect and report only. Do not edit or advance into implementation unless asked.
 - For {change_intents} requests, make in-scope local changes and run non-destructive validation without repeated confirmation.
 - Confirm immediately before {confirm_before}. Ask a question only when repository evidence cannot resolve a {question_trigger}.
+
+## Repository Boundary
+
+- Limit repository search, file reads, and version-control inspection to the {scope_boundary}.
+- Inspect another repository only when {scope_authorization}. {scope_action}
+- If requested code is absent, {absent_scope_action}. Do not discover or search sibling directories.
 
 ## Delivery
 
@@ -276,7 +305,19 @@ def exact_keys(data: dict, expected: set[str], label: str) -> None:
 
 
 def validate_policy(policy: dict, capability_map: dict) -> None:
-    exact_keys(policy, {"version", "authorization", "delivery", "routing", "handoff", "completion"}, "policy")
+    exact_keys(
+        policy,
+        {
+            "version",
+            "authorization",
+            "repository_scope",
+            "delivery",
+            "routing",
+            "handoff",
+            "completion",
+        },
+        "policy",
+    )
     for section in ("authorization", "delivery", "routing", "handoff", "completion"):
         if section not in policy:
             raise ValueError(f"policy is missing {section}")
@@ -288,6 +329,16 @@ def validate_policy(policy: dict, capability_map: dict) -> None:
     )
     if set(authorization["inspect_intents"]) & set(authorization["change_intents"]):
         raise ValueError("inspect and change intents must not overlap")
+    exact_keys(
+        policy["repository_scope"],
+        {
+            "default_boundary",
+            "allow_cross_repository_when",
+            "authorized_action",
+            "absent_code_action",
+        },
+        "repository scope policy",
+    )
     delivery = policy["delivery"]
     if set(delivery) != {"direct", "planned", "hard"}:
         raise ValueError("delivery routes must be direct, planned, and hard")
@@ -372,6 +423,19 @@ def evaluate_route(policy: dict, case: dict) -> dict:
     }
 
 
+def evaluate_repository_scope(policy: dict, case: dict) -> str:
+    repository_scope = policy["repository_scope"]
+    flags = set(case["input"].get("authorization_flags", []))
+    allowed_flags = set(repository_scope["allow_cross_repository_when"])
+    if flags - allowed_flags:
+        raise ValueError(
+            f"repository-scope scenario {case['id']} uses unknown flags: {sorted(flags - allowed_flags)}"
+        )
+    if flags & allowed_flags:
+        return repository_scope["authorized_action"]
+    return repository_scope["absent_code_action"]
+
+
 def validate_report(policy: dict, capability_map: dict, case: dict) -> bool:
     report = case["report"]
     completion = policy["completion"]
@@ -408,6 +472,24 @@ def validate_scenarios(policy: dict, capability_map: dict, scenarios: dict) -> N
         actual = evaluate_route(policy, case)
         if actual != case["expect"]:
             raise ValueError(f"routing scenario {case['id']} expected {case['expect']}, got {actual}")
+
+    required_scope_cases = {
+        "code_absent_from_current_repo",
+        "user_names_external_repo",
+        "user_authorizes_cross_repo_search",
+    }
+    scope_cases = scenarios.get("repository_scope", [])
+    scope_case_ids = {case["id"] for case in scope_cases}
+    if required_scope_cases - scope_case_ids:
+        raise ValueError(
+            f"contract evals missing repository-scope cases: {sorted(required_scope_cases - scope_case_ids)}"
+        )
+    for case in scope_cases:
+        actual = evaluate_repository_scope(policy, case)
+        if actual != case["expect"]:
+            raise ValueError(
+                f"repository-scope scenario {case['id']} expected {case['expect']}, got {actual}"
+            )
 
     report_cases = scenarios.get("reports", [])
     required_reports = {
