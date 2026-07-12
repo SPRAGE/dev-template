@@ -2,48 +2,32 @@
 
 ## Stack
 
-- Nix flakes for template and app packaging.
-- Bash for app smoke tests and generated app scripts.
-- Markdown skill files and AI guidance files.
-- Python helpers inside the skill-creator skill.
+- Nix flakes package templates, development shells, and lifecycle apps.
+- Bash implements app orchestration and integration tests.
+- Python/PyYAML validates the neutral agent specification and generates provider artifacts.
 
-## Project Structure
+## Structure
 
-- `template/` - base scaffold for generic projects.
-- `templates/python/` - Python-specific scaffold.
-- `templates/rust/` - Rust-specific scaffold.
-- `.ai/` - shared provider-neutral context for this repository.
-- `template/.ai/` - shared provider-neutral context seeded into generated projects.
-- `template/.ai/skills/` - shared skill catalog seeded into generated projects.
-- `template/.agents/` - official Codex repo-scoped skill link seeded into generated projects.
-- `template/.claude/` - Claude Code-specific settings, hooks, and skill link.
-- `template/.codex/` - Codex project config, custom agents, compatibility skill link, and README seeded into generated projects.
-- `template/AI.md` - shared top-level agent guide seeded into generated projects.
-- `tests/` - smoke tests for apps, onboarding, and skill archives.
-
-## Entry Points
-
-- `nix flake check --all-systems`
-- `nix run .#onboard`
-- `nix run .#sync-skills`
-- `nix run .#fresh-start`
-- `nix run .#ai-doctor`
+- `template/.ai/` contains authored policy, capabilities, profiles, model bindings, agents, context, skills, eval fixtures, and compiler; instructions and methodology are compiled readable views.
+- `template/.codex/agents/`, `template/.claude/agents/`, and top-level adapters are generated.
+- `templates/python` and `templates/rust` mirror the base except for four explicit overlays.
+- `flake.nix` exposes templates plus `onboard`, `sync-skills`, `fresh-start`, and `ai-doctor`.
+- `skills/*.skill` are deterministic archives of `template/.ai/skills/*`.
 
 ## Data Flow
 
-- Template files are copied by `nix flake init`.
-- Flake apps seed or refresh AI context, shared skills, provider skill links, Codex config/custom agents, Claude Code settings, and hooks.
-- `skills/*.skill` archives are generated from `template/.ai/skills/`.
+1. Edit neutral source or a language overlay.
+2. Compile provider artifacts.
+3. Generate language mirrors.
+4. Package changed skills.
+5. CI compares sources, generated files, budgets, archives, and lifecycle behavior.
 
-## Deployment / Runtime
+## Runtime
 
-- Consumers initialize projects through Nix flake templates.
-- All agents read `AI.md` and `.ai/` shared context.
-- Claude Code reads `CLAUDE.md` and `.claude/` runtime files as a compatibility layer.
-- Codex reads `AGENTS.md` as an auto-load compatibility layer; `CODEX.md` is a named adapter alias for humans and tools.
-- Codex discovers repo-scoped skills from `.agents/skills/`; `.ai/skills/` remains the shared source and `.codex/skills/` remains a compatibility link.
-- Both provider adapters point agents to `.ai/`.
+- Codex: Sol deep, Terra balanced, Luna fast.
+- Claude: Opus deep, Sonnet balanced, Haiku fast.
+- The primary retains requirements and integration state; flat subagents execute bounded work and return structured reports.
 
-## Known Gaps
+## Known Constraint
 
-- Some shared skills still reference Claude Code-only features; non-Claude agents should adapt the workflow where possible and state limitations.
+- The user-selected private Codex input currently replaces the public GitHub source. Unsupported systems fall back to `nixpkgs#codex`, but external consumers still need access to evaluate the private input URL.

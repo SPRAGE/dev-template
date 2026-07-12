@@ -5,13 +5,18 @@ Takes eval results (from run_eval.py) and generates an improved description
 using Claude with extended thinking.
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import re
 import sys
 from pathlib import Path
 
-import anthropic
+try:
+    import anthropic
+except ModuleNotFoundError:
+    anthropic = None
 
 from scripts.utils import parse_skill_md
 
@@ -198,6 +203,9 @@ def main():
     parser.add_argument("--model", required=True, help="Model for improvement")
     parser.add_argument("--verbose", action="store_true", help="Print thinking to stderr")
     args = parser.parse_args()
+
+    if anthropic is None:
+        parser.error("the optional 'anthropic' package is required to improve descriptions")
 
     skill_path = Path(args.skill_path)
     if not (skill_path / "SKILL.md").exists():

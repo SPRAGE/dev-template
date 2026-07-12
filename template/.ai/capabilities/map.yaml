@@ -1,0 +1,56 @@
+version: 1
+capabilities:
+  explore:
+    profile: read_only
+    inputs: [objective, scope, repository_facts, required_evidence, stop_conditions]
+    output: exploration_report
+  research:
+    profile: read_network
+    inputs: [objective, source_constraints, required_evidence, stop_conditions]
+    output: research_report
+  plan:
+    profile: read_only
+    inputs: [objective, task_mode, repository_facts, constraints, preserved_invariants]
+    output: plan
+  implement:
+    profile: workspace_write
+    inputs: [objective, task_mode, current_layer, plan_step, repository_facts, file_scope, success_criteria, preserved_invariants, required_evidence, stop_conditions]
+    output: change_report
+  test:
+    profile: verify
+    inputs: [objective, current_layer, change_scope, success_criteria, required_evidence, stop_conditions]
+    output: test_report
+  review.code:
+    profile: read_only
+    inputs: [objective, current_layer, diff, success_criteria, preserved_invariants, required_evidence]
+    output: review_report
+  review.security:
+    profile: read_only
+    inputs: [objective, current_layer, diff, threat_scope, success_criteria, required_evidence]
+    output: review_report
+  document:
+    profile: workspace_write
+    inputs: [objective, current_layer, change_scope, audience, verified_behavior, file_scope]
+    output: change_report
+  integrate:
+    profile: workspace_write
+    inputs: [objective, current_layer, plan, worker_reports, current_diff, success_criteria, preserved_invariants, required_evidence, stop_conditions]
+    output: integration_report
+
+output_contracts:
+  common:
+    fields: [status, current_layer, summary, evidence, blockers, stop_reason, next_action]
+  exploration_report:
+    fields: [repository_facts, relevant_paths, commands, risks, open_questions]
+  research_report:
+    fields: [sourced_facts, sources, inferences, version_risk]
+  plan:
+    fields: [objective, task_mode, assumptions, success_criteria, preserved_invariants, steps, dependencies, risks, verification, stop_conditions]
+  change_report:
+    fields: [step_id, files_changed, preserved_invariants, verification, deviations]
+  test_report:
+    fields: [scope, commands, results, failures, coverage_gaps, residual_risk]
+  review_report:
+    fields: [findings, severity, preserved_invariants, missing_tests, residual_risk, recommendation]
+  integration_report:
+    fields: [integrated_steps, conflicts, preserved_invariants, verification, residual_risk]

@@ -1,13 +1,5 @@
 # Codex Adapter
 
-`CODEX.md` is a named Codex adapter for humans and tools. Codex-compatible agents usually auto-load `AGENTS.md`, which contains the same compatibility guidance.
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-Read `AI.md` first. Then read the shared context files:
-
-1. `.ai/instructions.md`
-2. `.ai/context/active-context.md`
-3. `.ai/context/architecture-snapshot.md`
-4. `.ai/context/conventions.md`
-5. `.ai/context/decisions.md`
-
-Shared skills live in `.ai/skills/`. Codex discovers repo-scoped skills from `.agents/skills/`, which links to `.ai/skills/`; `.codex/skills/` is a compatibility link. When the user names a skill, with or without a leading slash, read `.ai/skills/<skill-name>/SKILL.md` and follow it.
+Codex auto-loads `AGENTS.md`; use it as the runtime entry point.

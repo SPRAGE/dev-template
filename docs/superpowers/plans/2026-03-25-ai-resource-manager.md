@@ -1,6 +1,10 @@
 # AI Resource Manager (Quinn) Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Superseded on 2026-07-12; do not execute
+
+> Retained for design history. The named-persona staffing system was not adopted by the current capability-driven runtime. See `docs/agent-runtime.md` for the active architecture.
+
+> Historical note: the original plan required superpowers task-execution skills. That requirement no longer applies.
 
 **Goal:** Add Quinn, an AI Resource Manager persona, as a standalone skill that dynamically hires domain expert personas and integrates with the virtual-tech-org via handoff protocol.
 

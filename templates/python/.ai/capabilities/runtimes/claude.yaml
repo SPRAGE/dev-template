@@ -1,0 +1,26 @@
+version: 1
+runtime: claude
+models:
+  deep:
+    id: opus
+  balanced:
+    id: sonnet
+  fast:
+    id: haiku
+profiles:
+  read_only:
+    permission_mode: plan
+    tools: [Read, Grep, Glob, Bash]
+  read_network:
+    permission_mode: plan
+    tools: [Read, Grep, Glob, WebFetch, WebSearch]
+  workspace_write:
+    permission_mode: acceptEdits
+    tools: [Read, Edit, Write, Grep, Glob, Bash]
+  verify:
+    permission_mode: default
+    tools: [Read, Grep, Glob, Bash]
+  privileged:
+    permission_mode: default
+    tools: [Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch]
+fallback: inline_and_report_limitation

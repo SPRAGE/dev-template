@@ -1,15 +1,6 @@
 ---
 name: knowledge-base
-description: >
-  How to use and set up the shared `kb` semantic knowledge base (RAG) in a project.
-  Use this skill whenever you need to ground an answer on ingested material — research
-  papers, personal notes and decisions, or external API/vendor docs — or when the user
-  mentions the knowledge base, `kb_search`, RAG, "search my notes/research/docs", "what
-  does the paper/research say", "check the ingested docs", or wants to add/ingest documents
-  or set up a knowledge base for a project. Covers querying an existing project's KB via the
-  `kb_search` / `kb_list_sources` MCP tools, and wiring a new project's KB (`.kb.toml`,
-  `knowledge/`, the `knowledge` MCP server, and `kb ingest`). Prefer this over guessing
-  whenever the answer might live in ingested documents rather than in the code itself.
+description: Query, ingest, or configure the shared `kb` semantic knowledge base. Use for RAG, ingested research/notes/docs, or requests to search the project knowledge base.
 ---
 
 # Knowledge base (RAG)

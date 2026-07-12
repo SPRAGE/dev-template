@@ -4,7 +4,8 @@
 # genuinely per-language overlays may differ. Everything else must be byte-identical, so a
 # fix made once in template/ cannot silently drift across the language variants.
 #
-# .ai/skills/ parity is enforced separately in tests/test-skills.sh (Test 2).
+# Generated copies are committed because Nix templates are static paths. This test makes
+# template/ the only authored source for all non-overlay files.
 set -euo pipefail
 
 REPO=${1:-$(git rev-parse --show-toplevel)}
@@ -19,14 +20,14 @@ root = Path(os.environ["REPO"])
 base = root / "template"
 
 # Per-language overlays (allowed to differ between template/ and templates/<lang>/).
-overlays = {"AI.md", ".ai/instructions.md", "flake.nix", ".gitignore"}
+overlays = {"AI.md", ".ai/project.yaml", "flake.nix", ".gitignore"}
 
 def shared_files(d: Path):
     for p in d.rglob("*"):
         if not p.is_file():            # skips dirs and symlinks (provider skill links)
             continue
         rel = p.relative_to(d).as_posix()
-        if rel.startswith(".ai/skills/") or rel in overlays:
+        if rel in overlays:
             continue
         yield rel
 
@@ -55,6 +56,10 @@ if failures:
 print("PASS: shared files identical across template/, templates/python, templates/rust")
 print("      per-language overlays:", ", ".join(sorted(overlays)))
 PY
+
+for language in python rust; do
+  python "$REPO/templates/$language/.ai/generators/compile.py" --root "$REPO/templates/$language" --check
+done
 
 echo ""
 echo "Template-sync checks passed."

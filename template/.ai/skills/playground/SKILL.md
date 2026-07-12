@@ -1,19 +1,19 @@
 ---
 name: playground
-description: Creates interactive HTML playgrounds — self-contained single-file explorers that let users configure something visually through controls, see a live preview, and copy out a prompt. Use when the user asks to make a playground, explorer, or interactive tool for a topic.
+description: Build a self-contained interactive HTML playground with controls, live preview, and generated prompt output.
 ---
 
 # Playground Builder
 
-A playground is a self-contained HTML file with interactive controls on one side, a live preview on the other, and a prompt output at the bottom with a copy button. The user adjusts controls, explores visually, then copies the generated prompt back into Claude.
+A playground is a self-contained HTML file with interactive controls, a live preview, and generated prompt output. The user explores visually, then passes the prompt to an agent without requiring the agent to see the playground.
 
-## When to use this skill
+## Use When
 
 When the user asks for an interactive playground, explorer, or visual tool for a topic — especially when the input space is large, visual, or structural and hard to express as plain text.
 
-## How to use this skill
+## Workflow
 
-1. **Identify the playground type** from the user's request
+1. **Identify the playground type** from the user's request.
 2. **Load the matching template** from `templates/`:
    - `templates/design-playground.md` — Visual design decisions (components, layouts, spacing, color, typography)
    - `templates/data-explorer.md` — Data and query building (SQL, APIs, pipelines, regex)
@@ -21,19 +21,19 @@ When the user asks for an interactive playground, explorer, or visual tool for a
    - `templates/document-critique.md` — Document review (suggestions with approve/reject/comment workflow)
    - `templates/diff-review.md` — Code review (git diffs, commits, PRs with line-by-line commenting)
    - `templates/code-map.md` — Codebase architecture (component relationships, data flow, layer diagrams)
-3. **Follow the template** to build the playground. If the topic doesn't fit any template cleanly, use the one closest and adapt.
-4. **Open in browser.** After writing the HTML file, run `open <filename>.html` to launch it in the user's default browser.
+3. **Follow the template.** Adapt the closest one when no exact type fits.
+4. **Verify behavior.** Open the file with an available browser tool when practical; otherwise report its local path. Check initial render, controls, presets, prompt updates, copy feedback, and narrow viewport layout.
 
-## Core requirements (every playground)
+## Required Behavior
 
 - **Single HTML file.** Inline all CSS and JS. No external dependencies.
 - **Live preview.** Updates instantly on every control change. No "Apply" button.
 - **Prompt output.** Natural language, not a value dump. Only mentions non-default choices. Includes enough context to act on without seeing the playground. Updates live.
 - **Copy button.** Clipboard copy with brief "Copied!" feedback.
 - **Sensible defaults + presets.** Looks good on first load. Include 3-5 named presets that snap all controls to a cohesive combination.
-- **Dark theme.** System font for UI, monospace for code/values. Minimal chrome.
+- **Coherent theme.** Match the domain and repository design conventions; use system UI fonts and monospace for code/values unless the project says otherwise.
 
-## State management pattern
+## State Pattern
 
 Keep a single state object. Every control writes to it, every render reads from it.
 
@@ -47,7 +47,7 @@ function updateAll() {
 // Every control calls updateAll() on change
 ```
 
-## Prompt output pattern
+## Prompt Pattern
 
 ```javascript
 function updatePrompt() {
@@ -66,11 +66,11 @@ function updatePrompt() {
 }
 ```
 
-## Common mistakes to avoid
+## Avoid
 
-- Prompt output is just a value dump → write it as a natural instruction
-- Too many controls at once → group by concern, hide advanced in a collapsible section
-- Preview doesn't update instantly → every control change must trigger immediate re-render
-- No defaults or presets → starts empty or broken on load
-- External dependencies → if CDN is down, playground is dead
-- Prompt lacks context → include enough that it's actionable without the playground
+- Value-dump prompts; write a natural, standalone instruction.
+- Too many visible controls; group concerns and collapse advanced options.
+- Stale previews; every change must re-render immediately.
+- Empty initial state; provide useful defaults and presets.
+- External dependencies; the file must work offline.
+- Context-dependent output; include enough for an agent to act without the playground.

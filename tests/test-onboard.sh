@@ -30,7 +30,12 @@ touch flake.nix  # onboard checks for project root indicators
 
 # Verify all expected files exist
 for f in .ai/instructions.md \
-         .ai/context/active-context.md \
+         .ai/project.yaml \
+         .ai/policy.yaml \
+         .ai/methodology.md \
+         .ai/capabilities/map.yaml \
+         .ai/agents/architecture_planner.yaml \
+         .ai/evals/contract-scenarios.yaml \
          .ai/context/decisions.md \
          .ai/context/architecture-snapshot.md \
          .ai/context/conventions.md \
@@ -39,6 +44,7 @@ for f in .ai/instructions.md \
          .agents/README.md \
          .codex/README.md \
          .codex/config.toml \
+         .claude/agents/architecture-planner.md \
          .codex/agents/repo-explorer.toml \
          .claude/settings.json \
          .mcp.json \
@@ -48,6 +54,7 @@ for f in .ai/instructions.md \
          AGENTS.md; do
   [ -f "$f" ] || { echo "FAIL: $f not created"; exit 1; }
 done
+[ ! -f .ai/context/active-context.md ] || { echo "FAIL: onboarding should not seed placeholder active context"; exit 1; }
 
 # Verify skills are installed, otherwise next-step commands like /cc-setup cannot work
 for d in .claude/skills/cc-setup \
@@ -96,7 +103,10 @@ touch flake.nix
 "$1"
 
 [ -d .ai/context ] || { echo "FAIL: .ai/context/ not created"; exit 1; }
-[ -f .ai/context/active-context.md ] || { echo "FAIL: active-context.md not created"; exit 1; }
+[ -f .ai/project.yaml ] || { echo "FAIL: project.yaml not created"; exit 1; }
+[ -f .ai/policy.yaml ] || { echo "FAIL: policy.yaml not created"; exit 1; }
+[ -f .ai/capabilities/map.yaml ] || { echo "FAIL: capability map not created"; exit 1; }
+[ -f .ai/evals/contract-scenarios.yaml ] || { echo "FAIL: contract evals not created"; exit 1; }
 [ -d .ai/skills/cc-setup ] || { echo "FAIL: shared cc-setup skill not created"; exit 1; }
 [ -d .claude/skills/cc-setup ] || { echo "FAIL: cc-setup skill not created"; exit 1; }
 [ -d .agents/skills/cc-setup ] || { echo "FAIL: .agents cc-setup skill not created"; exit 1; }
@@ -105,6 +115,7 @@ touch flake.nix
 [ -f .codex/README.md ] || { echo "FAIL: .codex/README.md not created"; exit 1; }
 [ -f .codex/config.toml ] || { echo "FAIL: .codex/config.toml not created"; exit 1; }
 [ -f .codex/agents/repo-explorer.toml ] || { echo "FAIL: .codex custom agents not created"; exit 1; }
+[ -f .claude/agents/repo-explorer.md ] || { echo "FAIL: .claude custom agents not created"; exit 1; }
 assert_skill_link .ai/skills .claude/skills
 assert_skill_link .ai/skills .agents/skills
 assert_skill_link .ai/skills .codex/skills

@@ -73,6 +73,10 @@ def should_exclude(rel_path: Path) -> bool:
 
 
 failures = []
+expected_archives = {f"{path.name}.skill" for path in skills_root.iterdir() if path.is_dir()}
+actual_archives = {path.name for path in (root / "skills").glob("*.skill")}
+for archive_name in sorted(actual_archives - expected_archives):
+    failures.append(f"stale extra archive: {archive_name}")
 for skill_dir in sorted(p for p in skills_root.iterdir() if p.is_dir()):
     archive = root / "skills" / f"{skill_dir.name}.skill"
     if not archive.exists():
@@ -88,21 +92,25 @@ for skill_dir in sorted(p for p in skills_root.iterdir() if p.is_dir()):
             expected[str(rel)] = path.read_bytes()
 
     with zipfile.ZipFile(archive) as zf:
+        infos = [info for info in zf.infolist() if not info.is_dir() and not should_exclude(Path(info.filename))]
         archived_names = {
             info.filename
-            for info in zf.infolist()
-            if not info.is_dir() and not should_exclude(Path(info.filename))
+            for info in infos
         }
         expected_names = set(expected)
 
         missing = sorted(expected_names - archived_names)
         extra = sorted(archived_names - expected_names)
         changed = []
+        metadata = []
         for name in sorted(expected_names & archived_names):
             if zf.read(name) != expected[name]:
                 changed.append(name)
+        for info in infos:
+            if info.date_time != (1980, 1, 1, 0, 0, 0):
+                metadata.append(info.filename)
 
-    if missing or extra or changed:
+    if missing or extra or changed or metadata:
         details = []
         if missing:
             details.append("missing " + ", ".join(missing[:5]))
@@ -110,6 +118,8 @@ for skill_dir in sorted(p for p in skills_root.iterdir() if p.is_dir()):
             details.append("extra " + ", ".join(extra[:5]))
         if changed:
             details.append("changed " + ", ".join(changed[:5]))
+        if metadata:
+            details.append("non-deterministic metadata " + ", ".join(metadata[:5]))
         failures.append(f"{archive.name}: {'; '.join(details)}")
 
 if failures:

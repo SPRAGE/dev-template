@@ -1,0 +1,155 @@
+version: 1
+
+routing:
+  - id: explain_code
+    input:
+      intent: explain
+      action_flags: []
+      delivery_flags: []
+    expect:
+      authorization: inspect_and_report
+      delivery: direct
+      planner_tier: none
+      worker_tier: none
+      review_tier: none
+
+  - id: plan_dependent_feature
+    input:
+      intent: plan
+      action_flags: []
+      delivery_flags: [dependent_steps]
+    expect:
+      authorization: inspect_and_report
+      delivery: planned
+      planner_tier: deep
+      worker_tier: none
+      review_tier: none
+
+  - id: fix_local_bug
+    input:
+      intent: fix
+      action_flags: []
+      delivery_flags: []
+    expect:
+      authorization: edit_and_validate
+      delivery: direct
+      planner_tier: none
+      worker_tier: primary
+      review_tier: none
+
+  - id: mechanical_cross_file_change
+    input:
+      intent: change
+      action_flags: []
+      delivery_flags: []
+    expect:
+      authorization: edit_and_validate
+      delivery: direct
+      planner_tier: none
+      worker_tier: primary
+      review_tier: none
+
+  - id: build_dependent_feature
+    input:
+      intent: build
+      action_flags: []
+      delivery_flags: [dependent_steps, cross_boundary_coordination]
+    expect:
+      authorization: edit_and_validate
+      delivery: planned
+      planner_tier: deep
+      worker_tier: balanced
+      review_tier: balanced
+
+  - id: fix_security_migration
+    input:
+      intent: fix
+      action_flags: []
+      delivery_flags: [security_sensitive, data_migration]
+    expect:
+      authorization: edit_and_validate
+      delivery: hard
+      planner_tier: deep
+      worker_tier: balanced
+      review_tier: deep
+
+  - id: delete_data
+    input:
+      intent: change
+      action_flags: [destructive_action]
+      delivery_flags: [destructive]
+    expect:
+      authorization: confirm_before_action
+      delivery: hard
+      planner_tier: deep
+      worker_tier: none
+      review_tier: none
+
+  - id: publish_release
+    input:
+      intent: change
+      action_flags: [external_write]
+      delivery_flags: []
+    expect:
+      authorization: confirm_before_action
+      delivery: direct
+      planner_tier: none
+      worker_tier: none
+      review_tier: none
+
+reports:
+  - id: complete_with_evidence
+    contract: change_report
+    report:
+      status: complete
+      current_layer: implementation
+      summary: Implemented the assigned step.
+      evidence: [focused test passed]
+      blockers: []
+      stop_reason: null
+      next_action: integrate
+      step_id: step-1
+      files_changed: [src/example.py]
+      preserved_invariants: [existing CLI output]
+      verification: [focused test passed]
+      deviations: []
+    valid: true
+
+  - id: complete_without_evidence
+    contract: change_report
+    report:
+      status: complete
+      evidence: []
+    valid: false
+
+  - id: blocked_with_stop_reason
+    contract: change_report
+    report:
+      status: blocked
+      current_layer: implementation
+      summary: The assigned dependency is absent.
+      evidence: [dependency path does not exist]
+      blockers: [missing dependency]
+      stop_reason: missing_dependency
+      next_action: revise the plan
+    valid: true
+
+  - id: scope_conflict_blocks
+    contract: change_report
+    report:
+      status: blocked
+      current_layer: implementation
+      summary: The requested file is outside the assigned write scope.
+      evidence: [assigned scope excludes the requested path]
+      blockers: [scope conflict]
+      stop_reason: scope_conflict
+      next_action: ask the parent to revise the handoff
+    valid: true
+
+  - id: blocked_without_stop_reason
+    contract: change_report
+    report:
+      status: blocked
+      blockers: []
+      next_action: null
+    valid: false

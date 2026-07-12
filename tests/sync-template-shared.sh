@@ -1,30 +1,45 @@
 #!/usr/bin/env bash
-# tests/sync-template-shared.sh — mirror shared files from the canonical template/ into
-# templates/python and templates/rust. template/ is the single source of truth; the language
-# variants are mirrors plus a few per-language overlays.
-#
-# Left untouched:
-#   - per-language overlays: AI.md, .ai/instructions.md, flake.nix, .gitignore
-#   - .ai/skills/ (kept in sync by the skill tooling; archives rebuilt separately)
-#
-# Run after editing any shared file in template/, then verify with tests/test-template-sync.sh.
+# Regenerate language templates from template/ plus their explicit overlays.
 set -euo pipefail
 
 REPO=${1:-$(git rev-parse --show-toplevel)}
 REPO=$(cd "$REPO" && pwd)
 
-overlays=(AI.md .ai/instructions.md flake.nix .gitignore)
-is_overlay() { local r="$1"; for o in "${overlays[@]}"; do [ "$r" = "$o" ] && return 0; done; return 1; }
+REPO="$REPO" python - <<'PY'
+import os
+import shutil
+from pathlib import Path
 
-for lang in python rust; do
-  variant="$REPO/templates/$lang"
-  while IFS= read -r rel; do
-    case "$rel" in .ai/skills/*) continue ;; esac
-    is_overlay "$rel" && continue
-    mkdir -p "$variant/$(dirname "$rel")"
-    command cp -f "$REPO/template/$rel" "$variant/$rel"
-  done < <(cd "$REPO/template" && find . -type f -not -path './.ai/skills/*' | sed 's#^\./##')
-  echo "synced shared files -> templates/$lang"
+root = Path(os.environ["REPO"])
+base = root / "template"
+overlays = {"AI.md", ".ai/project.yaml", "flake.nix", ".gitignore"}
+
+def managed_files(directory: Path) -> set[str]:
+    return {
+        path.relative_to(directory).as_posix()
+        for path in directory.rglob("*")
+        if path.is_file() and path.relative_to(directory).as_posix() not in overlays
+    }
+
+base_files = managed_files(base)
+for language in ("python", "rust"):
+    variant = root / "templates" / language
+    variant_files = managed_files(variant)
+    for relative in sorted(variant_files - base_files):
+        (variant / relative).unlink()
+    for relative in sorted(base_files):
+        source = base / relative
+        target = variant / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+    for relative in overlays:
+        if not (variant / relative).exists():
+            raise SystemExit(f"templates/{language} is missing overlay {relative}")
+    print(f"generated shared files -> templates/{language}")
+PY
+
+for language in python rust; do
+  python "$REPO/templates/$language/.ai/generators/compile.py" --root "$REPO/templates/$language"
 done
 
 echo "Done. Verify with: bash tests/test-template-sync.sh"

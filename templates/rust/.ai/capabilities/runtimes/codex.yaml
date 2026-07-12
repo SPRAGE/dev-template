@@ -1,0 +1,50 @@
+version: 1
+runtime: codex
+models:
+  deep:
+    id: gpt-5.6-sol
+  balanced:
+    id: gpt-5.6-terra
+  fast:
+    id: gpt-5.6-luna
+profiles:
+  read_only:
+    sandbox_mode: read-only
+    web_search: disabled
+  read_network:
+    sandbox_mode: read-only
+    web_search: live
+  workspace_write:
+    sandbox_mode: workspace-write
+    web_search: disabled
+  verify:
+    sandbox_mode: workspace-write
+    web_search: disabled
+  privileged:
+    sandbox_mode: workspace-write
+    web_search: live
+    requires_human: true
+orchestration:
+  main_model_tier: deep
+  main_reasoning_effort: medium
+  review_model_tier: balanced
+  max_threads: 4
+  max_depth: 1
+  plan_mode_reasoning_effort: high
+  personality: pragmatic
+reasoning_effort:
+  architecture_planner: high
+  docs_researcher: low
+  documenter: low
+  implementation_worker: medium
+  integrator: medium
+  repo_explorer: low
+  reviewer: medium
+  risk_reviewer: high
+  test_verifier: low
+agent_extensions:
+  docs_researcher:
+    mcp_servers:
+      openaiDeveloperDocs:
+        url: https://developers.openai.com/mcp
+fallback: inline_and_report_limitation

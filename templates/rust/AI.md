@@ -1,60 +1,35 @@
-# AI.md
+# PROJECTNAME
 
-## Project
+TODO replace this line with a one-sentence description of the Rust application or library and its users.
 
-PROJECTNAME - TODO: replace with one-line description.
+## Start
 
-## Getting Started
-
-1. Replace `PROJECTNAME` in `.ai/instructions.md`, `AI.md`, `AGENTS.md`, `CODEX.md`, and `flake.nix`
-2. `cargo init` or `cargo new . --name your-crate`
-3. `direnv allow` to enter the dev shell
-4. Use `planner` to brainstorm, then `cc-setup` to generate config
-   - OR use `virtual-tech-org` for autonomous staged delivery
+1. Run `cargo init` and replace `PROJECTNAME` in `AI.md`, `.ai/project.yaml`, and `flake.nix`.
+2. Run `direnv allow` or `nix develop`.
+3. Ask for the first outcome in plain language; the agent workflow plans, delegates, integrates, and verifies automatically.
+4. Run `cc-setup` after code exists to capture the real architecture and commands.
 
 ## Stack
 
-- Rust (stable via rust-overlay)
-- Nix flake devShell
+- Stable Rust toolchain.
+- Cargo for build, dependency, test, lint, and format workflows.
+- Nix development shell.
 
 ## Commands
 
-- `cargo build` - build
-- `cargo test` - test
-- `cargo clippy -- -D warnings` - lint
-- `cargo fmt --check` - check formatting
-- `nix develop` - enter dev shell
-- `nix run github:SPRAGE/dev-template#sync-skills` - pull latest shared skills, managed adapters, provider skill links, Codex config/custom agents, hooks, and AI context templates
-- `nix run github:SPRAGE/dev-template#ai-doctor` - validate AI context files, shared skills, provider skill links, Codex config/custom agents, and hooks
+- `nix develop` - enter the development environment.
+- `cargo check` - validate code after `Cargo.toml` exists.
+- `cargo test` - run tests after the crate is initialized.
+- `cargo clippy -- -D warnings` - lint after the crate is initialized.
+- `cargo fmt --check` - check formatting after the crate is initialized.
+- `nix run github:SPRAGE/dev-template#ai-doctor` - validate agent assets.
 
-## Conventions
+## Layout
 
-- Error handling: `thiserror` for library errors, `anyhow` for binaries
-- snake_case for functions, PascalCase for types
-- Tests in `#[cfg(test)]` modules alongside the code
+- `.ai/` - neutral agent specification, project context, and shared skills.
+- `.agents/skills/` - Codex skill discovery link.
+- `.claude/` and `.codex/` - generated provider agents plus native settings.
 
-## Agent Workflow
+## Project Facts
 
-- Start by inspecting the current tree and git status.
-- Expected checks are usually `cargo fmt --check`, `cargo clippy -- -D warnings`, and `cargo test`; confirm the project has a `Cargo.toml` before relying on them.
-- Keep tests close to the code with `#[cfg(test)]` modules unless the project already uses integration tests.
-- Preserve the stable Rust toolchain and Nix devShell conventions unless the project needs otherwise.
-- Update `.ai/context/active-context.md` when work spans sessions or changes project direction.
-
-## Safety
-
-- Treat `.env*`, key files, tokens, and credentials as sensitive.
-- Do not overwrite local AI settings such as `.claude/settings.local.json`, `.agents/local/`, `.agents/tmp/`, `.codex/local/`, or `.codex/tmp/`.
-- Do not run destructive git or filesystem operations unless the user explicitly asks.
-
-## Shared AI Context & Skills
-
-Provider-neutral context and skills live in `.ai/`. Read order, response style, rules, and the provider-adapter map are in `.ai/instructions.md`. Shared skills are in `.ai/skills/`; `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` are symlinks to it — read `.ai/skills/<name>/SKILL.md` for a skill's source.
-
-## Knowledge base (RAG)
-
-This environment provides a shared, system-wide `kb` CLI (the `rag-kb` tool) — a project-agnostic semantic knowledge base backed by Qdrant + Ollama on the dataserver. A project opts in with a `.kb.toml` (its own Qdrant collection) plus a `knowledge/` folder for source material.
-
-- If this project has a `.kb.toml` and a `knowledge` MCP server (in `.mcp.json`), use `kb_search(query, source_type?, top_k?)` and `kb_list_sources()` to ground answers on ingested research, notes, and API/vendor docs — prefer it over guessing when the answer may live in ingested material. `source_type` is one of `research | notes | api | data`.
-- Numeric/tabular data does NOT belong in the KB (semantic search over number grids is weak) — keep that in a database.
-- To add a KB to this project: create `.kb.toml` (`collection = "kb_<project>"`, `sources = ["knowledge/sources"]`), add a stdio `knowledge` server to `.mcp.json` (`command = "kb"`, `args = ["mcp"]`), then drop files in `knowledge/sources/` and run `kb ingest`. See `kb --help`.
+- Add crate entry points, workspace boundaries, error strategy, and non-obvious constraints here.

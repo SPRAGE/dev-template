@@ -1,0 +1,7 @@
+version: 1
+name: knowledge-base
+managed_by: dev-template
+layer: work
+requires_capabilities: [research, document]
+budgets: {entry_tokens: 1200, total_warn: 3000}
+references: []

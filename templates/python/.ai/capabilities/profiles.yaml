@@ -1,0 +1,23 @@
+version: 1
+profiles:
+  read_only:
+    filesystem: read
+    write: false
+    network: false
+  read_network:
+    filesystem: read
+    write: false
+    network: true
+  workspace_write:
+    filesystem: workspace
+    write: true
+    network: false
+  verify:
+    filesystem: workspace
+    write: tests_and_diagnostics
+    network: false
+  privileged:
+    filesystem: workspace
+    write: true
+    network: true
+    requires_human: true

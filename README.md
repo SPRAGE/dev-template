@@ -1,15 +1,17 @@
 # dev-template
 
-Nix flake templates for scaffolding projects with provider-neutral AI context, shared skills, Claude Code settings/hooks, Codex repo skills, and Codex-compatible guidance baked in.
-Generated projects include `AI.md` and `.ai/` as the shared guidance base, `.agents/skills/` for official Codex skill discovery, and `AGENTS.md`, `CODEX.md`, and `CLAUDE.md` as provider-specific compatibility adapters.
+Nix project templates with a provider-neutral agent specification compiled into Codex and Claude runtimes.
 
-## Quick start
+The default workflow is inference-first: a small request supplies the outcome while the runtime inspects the repository, infers reversible details, and selects the smallest verified delivery loop. Routine implementation, integration, and review stay on the balanced tier. The deep tier is reserved for genuinely coordinated or high-risk planning and specialist review. Project facts, skill bodies, and tool schemas load only when the task needs them.
+
+## Quick Start
 
 ```bash
-nix flake init -t github:SPRAGE/dev-template#rust    # or #python, or omit suffix for base
-# Replace PROJECTNAME in .ai/instructions.md, AI.md, AGENTS.md, CODEX.md, and flake.nix
-direnv allow                                           # optional, if using direnv
+nix flake init -t github:SPRAGE/dev-template#rust  # or #python, or omit for base
+direnv allow                                        # optional
 ```
+
+Initialize the language project (`cargo init` or `uv init`), replace `PROJECTNAME`, then ask for an outcome in plain language. Run `cc-setup` once real code exists to capture exact commands and architecture.
 
 For an existing repository:
 
@@ -17,63 +19,84 @@ For an existing repository:
 nix run github:SPRAGE/dev-template#onboard
 ```
 
-To reset an existing repository back to current dev-template defaults, including replacing `flake.nix` and removing `flake.lock` so it can be regenerated:
+## Agent Architecture
 
-```bash
-nix run --refresh github:SPRAGE/dev-template#fresh-start
-```
+`.ai/` is the source specification:
 
-Then read `AI.md` and `.ai/instructions.md`. In Claude Code, run `/cc-setup` to scan the codebase and generate project-specific guidance. In Codex, request the same skills by name; Codex discovers checked-in skills from `.agents/skills/`, while `.ai/skills/` remains the provider-neutral source.
+- `project.yaml` - project identity, context routes, compiled-spec paths, and token budgets.
+- `policy.yaml` - authorization, delivery routing, handoffs, preservation, and completion rules.
+- `capabilities/` - runtime-neutral inputs, outputs, profiles, and provider/model bindings.
+- `agents/` - role, permission, model-tier, and output contracts.
+- `instructions.md` and `methodology.md` - generated readable policy views.
+- `context/` - project facts loaded only when relevant.
+- `skills/` - task procedures loaded on demand.
+- `evals/` - deterministic authorization, routing, and report-contract fixtures.
+- `generators/compile.py` - validates policy and produces pointer-only adapters plus provider-native agents.
+
+Generated views:
+
+- `AGENTS.md`, `CODEX.md`, and `CLAUDE.md` are small runtime pointers; workflow policy remains in `.ai/`.
+- `.codex/agents/*.toml` and `.claude/agents/*.md` bind neutral roles to provider models, tools, and permissions.
+- `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` link to `.ai/skills/`.
+
+The model tiers are explicit and centralized:
+
+| Work | Codex | Claude |
+|---|---|---|
+| Coordinated/Hard planning and risk or security review | `gpt-5.6-sol` | `opus` |
+| Routine implementation, integration, and code review | `gpt-5.6-terra` | `sonnet` |
+| Focused exploration, documentation, and bounded verification | `gpt-5.6-luna` | `haiku` |
+
+Model identity and reasoning effort are separate runtime controls. Change bindings or role effort in `.ai/capabilities/runtimes/`, then regenerate; do not edit generated agents directly.
+
+## Delivery Contract
+
+- Explain, review, diagnose, and plan requests inspect and report; they do not silently become implementation work.
+- Build, change, and fix requests authorize in-scope local edits and non-destructive validation.
+- Direct, routine work executes without a formal plan. Use a deep plan when work has real coordination, architectural coupling, material ambiguity, or elevated risk.
+- A worker handoff carries its task mode, current layer, step scope, success criteria, preserved invariants, required evidence, and stop conditions.
+- Reports return `complete`, `partial`, or `blocked` with evidence and a next action. A completion claim without required evidence is invalid.
+- Destructive actions, external writes or deployments, purchases, permission expansion, and material scope expansion require confirmation.
 
 ## Templates
 
-- `default` — language-agnostic Nix devShell with Claude Code, Codex, and Node.js for MCP servers.
-- `rust` — Rust stable toolchain via rust-overlay, cargo tools, OpenSSL/pkg-config, Claude Code, and Codex.
-- `python` — Python 3.13, uv, Claude Code, and Codex.
+- `default` - language-neutral shell.
+- `python` - Python 3.13 and `uv`.
+- `rust` - stable Rust, Cargo tooling, OpenSSL, and `pkg-config`.
 
-Each template includes:
+`template/` is the authored base. Language variants are generated copies with only `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore` as overlays.
 
-- `.claude/settings.json` — default plugins, permissions, hooks, and status line.
-- `.claude/hooks/` — session-start and statusline scripts.
-- `.ai/` — provider-neutral instructions, active context, architecture snapshot, conventions, decisions, and stale-log templates.
-- `.ai/skills/` — shared skill catalog for Codex-compatible agents, Claude Code, and future agents.
-- `.agents/skills/` — official Codex repo-scoped skill path, symlinked to `.ai/skills/`.
-- `.claude/skills/` — Claude Code slash-command skill path, symlinked to `.ai/skills/`.
-- `.codex/config.toml` and `.codex/agents/` — trusted Codex project defaults and custom subagents.
-- `.codex/skills/` — compatibility skill path symlinked to `.ai/skills/`, for tools that still look under `.codex/`.
-- `AI.md` — provider-agnostic top-level project guide for all agents.
-- `AGENTS.md` — Codex-compatible auto-load adapter.
-- `CODEX.md` — named Codex adapter alias for humans and tools.
-- `CLAUDE.md` — Claude Code compatibility adapter that points to `AI.md` and `.ai/`.
-- `.mcp.json` — Context7 MCP server configuration.
-
-## Repository commands
-
-- `nix flake check --all-systems` — validate flake outputs.
-- `nix flake init -t .` — test the default template locally.
-- `nix flake init -t .#rust` — test the Rust template locally.
-- `nix flake init -t .#python` — test the Python template locally.
-- `nix run .#onboard` — bootstrap `AI.md`, shared AI context, shared skills, adapters, Codex repo skill links/config/custom agents, and Claude Code config into an existing project.
-- `nix run .#sync-skills` — pull latest shared skills, managed adapters, Codex skill links, Codex config/custom agents, Claude skill links, hooks, and missing AI context templates into any repo.
-- `nix run .#fresh-start` — reset `flake.nix`, `AI.md`, shared AI context, Codex skill links/config/custom agents, and Claude Code config from template defaults; remove `flake.lock` for regeneration; preserve auto-memory and `.agents/local/`/`.codex/local/` runtime state.
-- `nix run .#ai-doctor` — validate AI context files, shared skills, provider skill links, hooks, and skill layout in the current project.
-- `nix develop -c bash tests/test-apps.sh` — smoke test flake apps.
-- `nix develop -c bash tests/test-skills.sh` — validate skills and `skills/*.skill` archives.
-
-## Skill archives
-
-Distributable `skills/*.skill` files are generated from `template/.ai/skills/`. Treat the shared skill catalog as the source of truth, keep `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` linked to `.ai/skills/`, regenerate archives after changing skills, and run `tests/test-skills.sh` before committing.
-
-## Refreshing Existing Repos
-
-Run this from any project root to pull the latest dev-template-managed assets:
+## Commands
 
 ```bash
-nix run github:SPRAGE/dev-template#sync-skills
+python template/.ai/generators/compile.py --root template
+bash tests/sync-template-shared.sh
+bash tests/test-agent-system.sh
+bash tests/test-template-sync.sh
+nix develop -c bash tests/test-skills.sh
+nix develop -c bash tests/test-apps.sh
+nix flake check --all-systems
 ```
 
-The sync updates shared skills, provider skill links, Codex config/custom agents, hooks, and managed provider adapters. It adds missing `AI.md`, `.ai/` templates, `.agents/README.md`, `.codex/README.md`, `.codex/config.toml`, `.codex/agents/`, `AGENTS.md`, `CODEX.md`, and `CLAUDE.md`, but preserves customized project guidance and populated `.ai/context/` files. Existing skills found under provider-specific skill directories are migrated into `.ai/skills/` before replacing provider skill directories with links.
+Lifecycle apps:
 
-## Security
+- `nix run .#onboard` - add missing managed assets without replacing project guidance.
+- `nix run .#sync-skills` - refresh managed skills, generated adapters, and provider agents.
+- `nix run .#ai-doctor` - validate layout, contracts, budgets, and generated freshness.
+- `nix run .#fresh-start` - destructively reset managed assets after confirmation while preserving local runtime state and language flavor.
 
-Review [SECURITY.md](SECURITY.md) before using these templates in production. Pin upstream flake inputs and tighten Claude Code permissions for sensitive projects.
+## Cost And Context
+
+- Always-loaded guidance is budgeted in `.ai/project.yaml`.
+- Provider adapters point to shared guidance instead of repeating its workflow policy.
+- Skill descriptions have a combined discovery budget; entry files have individual budgets.
+- Placeholder `active-context.md` is not seeded. Create it only for real cross-session work.
+- No global MCP server, web catalog, or optional Claude plugin is enabled by default. Documentation and browser tools belong on the research role that needs them.
+- Delegation depth stays at one. Parallelize independent work only, and do not delegate merely to satisfy a process template.
+- Deterministic policy fixtures test authorization, tier selection, provider parity, and evidence/stop invariants without pretending to measure live-model judgment.
+
+## Skill Archives
+
+`template/.ai/skills/` is the source. After a change, regenerate archives with the skill packager and run `tests/test-skills.sh`. CI rejects source/archive drift and template-generation drift.
+
+Review [SECURITY.md](SECURITY.md) before using the defaults in sensitive or production repositories.

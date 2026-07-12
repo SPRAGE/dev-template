@@ -1,109 +1,37 @@
-# CLAUDE.md Quality Criteria
+# Shared Guidance Quality Criteria
 
 ## Scoring Rubric
 
-### 1. Commands/Workflows (20 points)
+Score the authoritative shared guidance (`AI.md`, `.ai/`, and generated adapters) against repository evidence. Runtime-native files are checked for faithful bindings, not treated as additional policy sources.
 
-**20 points**: All essential commands documented with context
-- Build, test, lint, deploy commands present
-- Development workflow clear
-- Common operations documented
+| Criterion | Points | Full-credit evidence |
+|---|---:|---|
+| Commands and workflows | 20 | Essential setup, build, test, lint, and delivery commands are exact, contextualized, and verified. |
+| Architecture clarity | 20 | Entry points, meaningful directories, module boundaries, and relevant data flow are clear. |
+| Non-obvious patterns | 15 | Recurring gotchas, ordering constraints, workarounds, and unusual rationale are captured. |
+| Concision | 15 | Every loaded line changes a decision or saves repeated discovery; no obvious or duplicated content. |
+| Currency | 15 | Commands, paths, stack facts, decisions, and generated outputs match the current repository. |
+| Actionability | 15 | Instructions have concrete paths, scopes, success criteria, and runnable validation. |
 
-**15 points**: Most commands present, some missing context
-
-**10 points**: Basic commands only, no workflow
-
-**5 points**: Few commands, many missing
-
-**0 points**: No commands documented
-
-### 2. Architecture Clarity (20 points)
-
-**20 points**: Clear codebase map
-- Key directories explained
-- Module relationships documented
-- Entry points identified
-- Data flow described where relevant
-
-**15 points**: Good structure overview, minor gaps
-
-**10 points**: Basic directory listing only
-
-**5 points**: Vague or incomplete
-
-**0 points**: No architecture info
-
-### 3. Non-Obvious Patterns (15 points)
-
-**15 points**: Gotchas and quirks captured
-- Known issues documented
-- Workarounds explained
-- Edge cases noted
-- "Why we do it this way" for unusual patterns
-
-**10 points**: Some patterns documented
-
-**5 points**: Minimal pattern documentation
-
-**0 points**: No patterns or gotchas
-
-### 4. Conciseness (15 points)
-
-**15 points**: Dense, valuable content
-- No filler or obvious info
-- Each line adds value
-- No redundancy with code comments
-
-**10 points**: Mostly concise, some padding
-
-**5 points**: Verbose in places
-
-**0 points**: Mostly filler or restates obvious code
-
-### 5. Currency (15 points)
-
-**15 points**: Reflects current codebase
-- Commands work as documented
-- File references accurate
-- Tech stack current
-
-**10 points**: Mostly current, minor staleness
-
-**5 points**: Several outdated references
-
-**0 points**: Severely outdated
-
-### 6. Actionability (15 points)
-
-**15 points**: Instructions are executable
-- Commands can be copy-pasted
-- Steps are concrete
-- Paths are real
-
-**10 points**: Mostly actionable
-
-**5 points**: Some vague instructions
-
-**0 points**: Vague or theoretical
+Award full points when all material signals are proven, half when guidance is useful but incomplete, and zero when absent or misleading. Use an intermediate score only with cited evidence.
 
 ## Assessment Process
 
-1. Read the CLAUDE.md file completely
-2. Cross-reference with actual codebase:
-   - Run documented commands (mentally or actually)
-   - Check if referenced files exist
-   - Verify architecture descriptions
-3. Score each criterion
-4. Calculate total and assign grade
-5. List specific issues found
-6. Propose concrete improvements
+1. Identify always-loaded, conditional, generated, and local-only layers.
+2. Cross-reference claims with manifests, source, CI, and working commands.
+3. Score each criterion; do not reward repeated content in multiple layers.
+4. Report each issue with severity, evidence, owner file, and action.
+5. Recompile and verify runtime outputs after neutral sources change.
 
 ## Red Flags
 
-- Commands that would fail (wrong paths, missing deps)
+- Commands that fail or require undocumented prerequisites
 - References to deleted files/folders
 - Outdated tech versions
 - Copy-paste from templates without customization
 - Generic advice not specific to the project
-- "TODO" items never completed
-- Duplicate info across multiple CLAUDE.md files
+- Abandoned TODO items presented as active work
+- Duplicate policy across shared sources and generated adapters
+- Placeholder or stale rolling context loaded every session
+- Provider-native syntax in neutral source files
+- Secrets, personal permissions, or local state in checked-in guidance

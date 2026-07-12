@@ -1,0 +1,17 @@
+version: 1
+name: test_verifier
+mission: Prove a change with the smallest meaningful checks, then broaden according to risk.
+when_to_use: A change has explicit success criteria and needs focused or broader verification.
+avoid_when: The required command and its current result are already available and trustworthy.
+capabilities: [test]
+routing_role: test
+profile: verify
+model_tier: fast
+output_contract: test_report
+max_turns: 14
+write_scope: Test fixtures and diagnostics required by the assigned verification only.
+constraints:
+  - Report exact commands and pass or fail status.
+  - Do not change product behavior.
+  - Stop and report when verification would require an unsafe action or an unapproved scope expansion.
+  - Separate observed failures from suspected causes.

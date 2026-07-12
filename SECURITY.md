@@ -13,22 +13,25 @@ Please include as much detail as possible: steps to reproduce, potential impact,
 
 ## AI Agent Safety Model
 
-This repository scaffolds projects that include provider-neutral `AI.md` and `.ai/` context, shared `.ai/skills/`, official Codex repo skills under `.agents/skills/`, [Claude Code](https://github.com/sadjow/claude-code-nix), Codex-compatible `AGENTS.md` and `CODEX.md` guidance, Codex project config/custom agents, Claude Code skill links, hooks, and a Context7 MCP server. The `.claude/settings.json` file in each template defines a starter **allow/deny permission model** to constrain what Claude Code may do autonomously, while `.codex/config.toml` defines trusted project-scoped Codex defaults. `AI.md`, `.ai/`, `.ai/skills/`, `.agents/skills/`, `AGENTS.md`, `CODEX.md`, and `CLAUDE.md` are shared guidance, not permission boundaries.
+This repository scaffolds projects with a provider-neutral specification under `.ai/`, generated Codex and Claude subagents, shared skills, and provider-native settings. Neutral profiles and task contracts state intended access, but only each runtime's sandbox and permission system is an enforcement boundary. Guidance, generated prompts, and deterministic policy fixtures are not security boundaries.
 
-### Default Allow List
+No global MCP server, web catalog, or optional Claude plugin is enabled by default. Add external tools only when a project needs them, and scope them to the specialized role that uses them so unrelated sessions do not inherit their permissions or schemas.
 
-The templates currently allow broad project-development commands so `/cc-setup`, `/cc-refresh`, and stack-specific workflows can run without excessive prompts:
+### Authorization Boundary
 
-| Category | Allowed by default |
-|----------|--------------------|
-| Version control | `git:*` |
-| Nix | `nix:*` |
-| MCP/runtime helpers | `npx:*` |
-| Rust workflows | `cargo:*` |
-| Python workflows | `uv:*` |
-| Context7 MCP | `mcp__context7__resolve-library-id`, `mcp__context7__query-docs` |
+The shared policy distinguishes intent before acting:
 
-Review and tighten this list for production or sensitive repositories. For example, replace broad `git:*`, `cargo:*`, or `uv:*` permissions with the exact commands your project needs.
+- **Explain, review, diagnose, or plan:** inspect and report without editing.
+- **Build, change, or fix:** make in-scope local edits and run non-destructive validation without repeated confirmation.
+- **Confirm first:** destructive operations, external writes or deployments, purchases, permission expansion, and material scope expansion.
+
+Repository instructions may narrow these boundaries but must not silently broaden them. Worker write access is bounded by an assigned file scope, success criteria, preserved invariants, and stop conditions. A worker stops and reports when a dependency or required change would exceed that contract.
+
+### Runtime Permissions
+
+The template does not treat a blanket command allow list as an authorization policy. Add project-specific allowances only after identifying the exact command family and its external or destructive variants. In particular, do not broadly preauthorize version-control pushes, package publication, deployment commands, arbitrary package runners, or destructive cleanup.
+
+Read-only, network-read, workspace-write, verification, and privileged profiles map separately into each provider. Privileged access always requires a human decision; it must never degrade to an unrestricted runtime merely because a capability is unavailable.
 
 ### Default Deny List
 
@@ -41,11 +44,11 @@ The deny list blocks several high-risk operations regardless of the allow list:
 - **Network/file transfer**: `Bash(curl:*)`, `Bash(wget:*)`, `Bash(ssh:*)`, `Bash(scp:*)`
 - **Nix store deletion**: `Bash(nix-store --delete:*)`
 
-If your project should block all pushes, destructive filesystem operations, or additional network tools, add explicit deny rules in `.claude/settings.json`.
+If your project should block all pushes, destructive filesystem operations, or additional network tools, add explicit provider-native deny rules as defense in depth.
 
 ### Hooks
 
-The default hooks include `SessionStart` for surfacing active decisions and a `statusLine` command for persistent context. For production agents, consider adding `PreToolUse` or `PostToolUse` hooks to log, audit, or validate sensitive tool calls.
+The default hook is a display-only status line. For sensitive projects, add narrow `PreToolUse` or `PostToolUse` validation around the specific commands or paths that need enforcement. Avoid hooks that inject broad project context into every session.
 
 ---
 
@@ -78,9 +81,9 @@ claude-code = {
 
 For production environments, replace the `url` with a pinned revision to prevent supply chain attacks from upstream changes.
 
-### 4. Review and Tighten the Allow List
+### 4. Review Provider Permissions
 
-The default allow list is intentionally broad enough for setup and common development workflows. Review `.claude/settings.json` and `.codex/config.toml` in your scaffolded project and remove any entries not needed for your specific workflow.
+Review `.claude/settings.json`, `.codex/config.toml`, generated agent profiles, and any local overrides. Remove tools and command patterns that the project does not need, and keep external-write commands behind confirmation.
 
 ### 5. Review `.envrc` Secret Loading
 
@@ -88,4 +91,4 @@ Generated templates load `.env.mcp` and `.env` through direnv when those files e
 
 ### 6. Populate Audit Hooks
 
-Add `PreToolUse` hooks to log or validate every tool call before the agent executes it. This creates an audit trail and can serve as a last line of defense against unexpected operations.
+Add narrow `PreToolUse` hooks around the commands or paths that carry material risk. Logging every harmless read can create noise and false confidence; audit external writes, privilege changes, secret access, and destructive operations first.

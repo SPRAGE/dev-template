@@ -15,7 +15,10 @@ import time
 import webbrowser
 from pathlib import Path
 
-import anthropic
+try:
+    import anthropic
+except ModuleNotFoundError:
+    anthropic = None
 
 from scripts.generate_report import generate_html
 from scripts.improve_description import improve_description
@@ -261,6 +264,9 @@ def main():
     parser.add_argument("--report", default="auto", help="Generate HTML report at this path (default: 'auto' for temp file, 'none' to disable)")
     parser.add_argument("--results-dir", default=None, help="Save all outputs (results.json, report.html, log.txt) to a timestamped subdirectory here")
     args = parser.parse_args()
+
+    if anthropic is None:
+        parser.error("the optional 'anthropic' package is required to run the optimization loop")
 
     eval_set = json.loads(Path(args.eval_set).read_text())
     skill_path = Path(args.skill_path)

@@ -1,13 +1,7 @@
 # Claude Code Adapter
 
-Claude Code loads `CLAUDE.md` automatically, so this file stays as a compatibility adapter.
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-Read `AI.md` first. Then read the shared context files:
+Read `AI.md` and `.ai/instructions.md`. For work that is not Direct, also read `.ai/methodology.md`. Load `.ai/context/` files only through the routes in the shared instructions.
 
-1. `.ai/instructions.md`
-2. `.ai/context/active-context.md`
-3. `.ai/context/architecture-snapshot.md`
-4. `.ai/context/conventions.md`
-5. `.ai/context/decisions.md`
-
-Shared skills live in `.ai/skills/`. Claude Code slash-command skills live at `.claude/skills/`; Codex repo-scoped skills live at `.agents/skills/`; Codex compatibility skills live at `.codex/skills/`. Those provider paths link back to `.ai/skills/`.
+Claude Code discovers skills through `.claude/skills/` and project subagents through `.claude/agents/`. If a mapped runtime capability is unavailable, execute it inline and state the limitation.

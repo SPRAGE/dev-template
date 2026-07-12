@@ -1,0 +1,7 @@
+version: 1
+name: cc-refresh
+managed_by: dev-template
+layer: setup
+requires_capabilities: [explore, plan, implement, test, review.code]
+budgets: {entry_tokens: 1200, total_warn: 5000}
+references: [references/quality-criteria.md, references/update-guidelines.md]

@@ -1,60 +1,34 @@
-# AI.md
+# PROJECTNAME
 
-## Project
+TODO replace this line with a one-sentence description of the Python application and its users.
 
-PROJECTNAME - TODO: replace with one-line description.
+## Start
 
-## Getting Started
-
-1. Replace `PROJECTNAME` in `.ai/instructions.md`, `AI.md`, `AGENTS.md`, `CODEX.md`, and `flake.nix`
-2. `uv init` to set up the Python project
-3. `direnv allow` to enter the dev shell
-4. Use `planner` to brainstorm, then `cc-setup` to generate config
-   - OR use `virtual-tech-org` for autonomous staged delivery
+1. Run `uv init` to create the Python package, then replace `PROJECTNAME` in `AI.md`, `.ai/project.yaml`, and `flake.nix`.
+2. Run `direnv allow` or `nix develop`.
+3. Ask for the first outcome in plain language; the agent workflow plans, delegates, integrates, and verifies automatically.
+4. Run `cc-setup` after code exists to capture the real architecture and commands.
 
 ## Stack
 
-- Python 3.13
-- uv (package manager)
+- Python 3.13.
+- `uv` for environments, dependencies, and command execution.
+- Nix development shell.
 
 ## Commands
 
-- `uv run python main.py` - run
-- `uv run pytest` - test
-- `uv run ruff check .` - lint
-- `uv run ruff format .` - format
-- `nix develop` - enter dev shell
-- `nix run github:SPRAGE/dev-template#sync-skills` - pull latest shared skills, managed adapters, provider skill links, Codex config/custom agents, hooks, and AI context templates
-- `nix run github:SPRAGE/dev-template#ai-doctor` - validate AI context files, shared skills, provider skill links, Codex config/custom agents, and hooks
+- `nix develop` - enter the development environment.
+- `uv sync` - install dependencies after `pyproject.toml` exists.
+- `uv run python --version` - verify the Python environment.
+- No application test or lint command exists until the project declares its tools; do not guess one.
+- `nix run github:SPRAGE/dev-template#ai-doctor` - validate agent assets.
 
-## Conventions
+## Layout
 
-- Type hints on all function signatures
-- snake_case for functions/variables, PascalCase for classes
-- Tests in `tests/` mirroring `src/` structure
+- `.ai/` - neutral agent specification, project context, and shared skills.
+- `.agents/skills/` - Codex skill discovery link.
+- `.claude/` and `.codex/` - generated provider agents plus native settings.
 
-## Agent Workflow
+## Project Facts
 
-- Start by inspecting the current tree and git status.
-- Use `uv` for package and command execution.
-- Confirm `pytest` and `ruff` are installed before relying on their commands.
-- Keep edits scoped to the requested behavior and existing project style.
-- Update `.ai/context/active-context.md` when work spans sessions or changes project direction.
-
-## Safety
-
-- Treat `.env*`, key files, tokens, and credentials as sensitive.
-- Do not overwrite local AI settings such as `.claude/settings.local.json`, `.agents/local/`, `.agents/tmp/`, `.codex/local/`, or `.codex/tmp/`.
-- Do not run destructive git or filesystem operations unless the user explicitly asks.
-
-## Shared AI Context & Skills
-
-Provider-neutral context and skills live in `.ai/`. Read order, response style, rules, and the provider-adapter map are in `.ai/instructions.md`. Shared skills are in `.ai/skills/`; `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` are symlinks to it — read `.ai/skills/<name>/SKILL.md` for a skill's source.
-
-## Knowledge base (RAG)
-
-This environment provides a shared, system-wide `kb` CLI (the `rag-kb` tool) — a project-agnostic semantic knowledge base backed by Qdrant + Ollama on the dataserver. A project opts in with a `.kb.toml` (its own Qdrant collection) plus a `knowledge/` folder for source material.
-
-- If this project has a `.kb.toml` and a `knowledge` MCP server (in `.mcp.json`), use `kb_search(query, source_type?, top_k?)` and `kb_list_sources()` to ground answers on ingested research, notes, and API/vendor docs — prefer it over guessing when the answer may live in ingested material. `source_type` is one of `research | notes | api | data`.
-- Numeric/tabular data does NOT belong in the KB (semantic search over number grids is weak) — keep that in a database.
-- To add a KB to this project: create `.kb.toml` (`collection = "kb_<project>"`, `sources = ["knowledge/sources"]`), add a stdio `knowledge` server to `.mcp.json` (`command = "kb"`, `args = ["mcp"]`), then drop files in `knowledge/sources/` and run `kb ingest`. See `kb --help`.
+- Add package entry points, exact test/lint/type-check commands, and project-specific conventions here.

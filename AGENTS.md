@@ -1,13 +1,7 @@
 # Codex Adapter
 
-Codex-compatible agents load `AGENTS.md` automatically, so this file stays as the Codex compatibility adapter.
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-Read `AI.md` first. Then read the shared context files:
+Read `AI.md` and `.ai/instructions.md`. For work that is not Direct, also read `.ai/methodology.md`. Load `.ai/context/` files only through the routes in the shared instructions.
 
-1. `.ai/instructions.md`
-2. `.ai/context/active-context.md`
-3. `.ai/context/architecture-snapshot.md`
-4. `.ai/context/conventions.md`
-5. `.ai/context/decisions.md`
-
-Shared skills live in `.ai/skills/`. Codex discovers repo-scoped skills from `.agents/skills/`, which links to `.ai/skills/`; `.codex/skills/` is a compatibility link. When the user names a skill, with or without a leading slash, read `.ai/skills/<skill-name>/SKILL.md` and follow it.
+Codex discovers skills through `.agents/skills/` and custom agents through `.codex/agents/`. Preserve `.codex/local/` and `.codex/tmp/`. If a mapped runtime capability is unavailable, execute it inline and state the limitation.

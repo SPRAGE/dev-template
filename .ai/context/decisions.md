@@ -39,3 +39,17 @@ Entry format:
 - **Decision:** Generated projects include `.codex/config.toml` and `.codex/agents/*.toml` for trusted Codex project defaults and reusable custom subagents.
 - **Why:** Codex supports project-scoped config after trust and custom agents under `.codex/agents/`, so templates can provide a consistent multi-agent baseline without making provider-neutral `.ai/` carry Codex-specific settings.
 - **Alternatives considered:** Keep Codex config entirely user-global; document custom agents without seeding them.
+
+## Compiled Agent Specification And Tiered Execution
+- **Date:** 2026-07-12
+- **Status:** active
+- **Decision:** `.ai/` is a validated source specification. Provider adapters and agents are generated from neutral policy, capability, and agent contracts. Coordinated or high-risk work is planned on the deep tier, bounded implementation and routine review run on the balanced tier, and read-heavy/support work runs on the fast tier.
+- **Why:** Minimal prompts should trigger deep analysis while execution cost scales with task complexity; generated views and CI budgets prevent provider drift and context bloat.
+- **Alternatives considered:** Keep handwritten provider agents; run every subagent on the parent model; encode orchestration only in an optional skill.
+
+## Conditional Context And Tools
+- **Date:** 2026-07-12
+- **Status:** active
+- **Decision:** Do not seed placeholder active context, global MCP servers, or optional Claude plugins. Load architecture, conventions, decisions, skills, references, and external tools only when the task needs them.
+- **Why:** Empty context and global tool schemas impose recurring token cost without improving most tasks.
+- **Alternatives considered:** Session-start decision injection; Context7 in every session; always-loaded full project context.

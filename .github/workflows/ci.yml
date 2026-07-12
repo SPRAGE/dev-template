@@ -63,3 +63,5 @@ jobs:
         run: nix develop -c bash tests/test-skills.sh "$GITHUB_WORKSPACE"
       - name: Enforce template sync (no drift across language variants)
         run: nix develop -c bash tests/test-template-sync.sh "$GITHUB_WORKSPACE"
+      - name: Validate neutral agent contracts, token budgets, and generated runtimes
+        run: nix develop -c bash tests/test-agent-system.sh "$GITHUB_WORKSPACE"

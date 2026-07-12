@@ -1,5 +1,9 @@
 # Design: `nix run .#fresh-start`
 
+**Status:** Superseded on 2026-07-12
+
+> Historical design only. The current provider-neutral reset contract is defined by the `fresh-start` skill and tested flake app; it preserves designated local runtime state and restores compiled Codex and Claude assets. Do not implement this document as current guidance.
+
 ## Goal
 
 A flake app that nukes all Claude Code configuration and re-syncs the template scaffolding, leaving the project ready for `/cc-setup` brownfield onboarding. Ensures zero contamination from stale config.

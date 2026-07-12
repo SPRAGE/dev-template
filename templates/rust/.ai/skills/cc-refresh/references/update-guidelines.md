@@ -1,142 +1,39 @@
-# CLAUDE.md Update Guidelines
+# Shared Guidance Update Guidelines
 
 ## Core Principle
 
-Only add information that will genuinely help future Claude sessions. The context window is precious - every line must earn its place.
+Only add verified information that changes a future agent's decisions. Every always-loaded line must earn its context cost.
 
-## What TO Add
+## Choose The Cheapest Correct Layer
 
-### 1. Commands/Workflows Discovered
+| Content | Owner |
+|---|---|
+| Project purpose, exact commands, architecture map, non-obvious facts | `AI.md` |
+| Durable cross-task execution policy | `.ai/instructions.md` or `.ai/methodology.md` |
+| Architecture detail, conventions, decisions, real active work | `.ai/context/` |
+| Reusable on-demand procedure | `.ai/skills/` |
+| Neutral capability, tier, or role contract | `.ai/capabilities/` or `.ai/agents/` |
+| Native tools, permissions, model aliases, and local preferences | Generated or local runtime settings |
 
-```markdown
-## Build
+## Keep Or Prune
 
-`npm run build:prod` - Full production build with optimization
-`npm run build:dev` - Fast dev build (no minification)
-```
+Keep verified commands, recurring gotchas, package relationships, working test patterns, configuration constraints, durable decisions, and architecture facts that are expensive to rediscover.
 
-Why: Saves future sessions from discovering these again.
+Prune or relocate:
 
-### 2. Gotchas and Non-Obvious Patterns
+- facts obvious from names or a nearby manifest;
+- generic engineering advice;
+- one-off fixes and narrative session history;
+- examples that restate an instruction;
+- stale active work and abandoned TODOs;
+- repeated policy in generated adapters;
+- secrets, personal preferences, and runtime state.
 
-```markdown
-## Gotchas
+Prefer one dense statement over background explanation. For example: `API tests use factories from tests/factories/; inline mocks miss shared defaults.`
 
-- Tests must run sequentially (`--runInBand`) due to shared DB state
-- `yarn.lock` is authoritative; delete `node_modules` if deps mismatch
-```
+## Change Contract
 
-Why: Prevents repeating debugging sessions.
-
-### 3. Package Relationships
-
-```markdown
-## Dependencies
-
-The `auth` module depends on `crypto` being initialized first.
-Import order matters in `src/bootstrap.ts`.
-```
-
-Why: Architecture knowledge that isn't obvious from code.
-
-### 4. Testing Approaches That Worked
-
-```markdown
-## Testing
-
-For API endpoints: Use `supertest` with the test helper in `tests/setup.ts`
-Mocking: Factory functions in `tests/factories/` (not inline mocks)
-```
-
-Why: Establishes patterns that work.
-
-### 5. Configuration Quirks
-
-```markdown
-## Config
-
-- `NEXT_PUBLIC_*` vars must be set at build time, not runtime
-- Redis connection requires `?family=0` suffix for IPv6
-```
-
-Why: Environment-specific knowledge.
-
-## What NOT to Add
-
-### 1. Obvious Code Info
-
-Bad:
-```markdown
-The `UserService` class handles user operations.
-```
-
-The class name already tells us this.
-
-### 2. Generic Best Practices
-
-Bad:
-```markdown
-Always write tests for new features.
-Use meaningful variable names.
-```
-
-This is universal advice, not project-specific.
-
-### 3. One-Off Fixes
-
-Bad:
-```markdown
-We fixed a bug in commit abc123 where the login button didn't work.
-```
-
-Won't recur; clutters the file.
-
-### 4. Verbose Explanations
-
-Bad:
-```markdown
-The authentication system uses JWT tokens. JWT (JSON Web Tokens) are
-an open standard (RFC 7519) that defines a compact and self-contained
-way for securely transmitting information between parties as a JSON
-object. In our implementation, we use the HS256 algorithm which...
-```
-
-Good:
-```markdown
-Auth: JWT with HS256, tokens in `Authorization: Bearer <token>` header.
-```
-
-## Diff Format for Updates
-
-For each suggested change:
-
-### 1. Identify the File
-
-```
-File: ./CLAUDE.md
-Section: Commands (new section after ## Architecture)
-```
-
-### 2. Show the Change
-
-```diff
- ## Architecture
- ...
-
-+## Commands
-+
-+| Command | Purpose |
-+|---------|---------|
-+| `npm run dev` | Dev server with HMR |
-+| `npm run build` | Production build |
-+| `npm test` | Run test suite |
-```
-
-### 3. Explain Why
-
-> **Why this helps:** The build commands weren't documented, causing
-> confusion about how to run the project. This saves future sessions
-> from needing to inspect `package.json`.
+For each suggested change, identify the owner file and section, show the concise diff, cite repository evidence, and state the decision or repeated discovery it improves. If content moves, remove the old copy in the same change. Log pruned durable information in the stale log before deletion.
 
 ## Validation Checklist
 
@@ -146,5 +43,7 @@ Before finalizing an update, verify:
 - [ ] No generic advice or obvious info
 - [ ] Commands are tested and work
 - [ ] File paths are accurate
-- [ ] Would a new Claude session find this helpful?
+- [ ] Does this change a future agent's decision or save repeated discovery?
 - [ ] Is this the most concise way to express the info?
+- [ ] Is it in the authoritative layer rather than duplicated in an adapter?
+- [ ] Were neutral changes compiled and generated outputs checked?

@@ -1,8 +1,10 @@
 # Claude Code Knowledge Management System
 
 **Date:** 2026-03-21
-**Status:** Approved
+**Status:** Superseded on 2026-07-12
 **Approach:** Layered Architecture (Approach C)
+
+> Historical design only. The current architecture uses provider-neutral context under `.ai/`, conditional active context, pointer-only adapters, and no session-start context injection. See `docs/agent-runtime.md`. Do not implement this document as current guidance.
 
 ## Problem Statement
 

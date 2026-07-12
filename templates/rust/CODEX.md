@@ -1,5 +1,5 @@
 # Codex Adapter
 
-`CODEX.md` is a named Codex adapter for humans and tools; Codex usually auto-loads `AGENTS.md`, which carries the same guidance.
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-Read `AI.md`, then `.ai/instructions.md` (tiered read-order, response style, skills, rules). See `AGENTS.md` for Codex runtime notes — custom agents, `spawn_agent`, and skill discovery.
+Codex auto-loads `AGENTS.md`; use it as the runtime entry point.

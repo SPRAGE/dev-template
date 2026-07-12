@@ -1,8 +1,10 @@
 # Default Plugins, MCP Servers, and Statusline
 
 **Date:** 2026-03-21
-**Status:** Approved
+**Status:** Superseded on 2026-07-12
 **Approach:** Template-Only (Approach A)
+
+> Historical design only. Current templates do not enable global MCP servers or optional plugins by default; tools are scoped to the role that needs them. See `docs/agent-runtime.md`. Do not implement this document as current guidance.
 
 ## Problem Statement
 

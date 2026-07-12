@@ -1,5 +1,9 @@
 # AI Resource Manager — Design Spec
 
+**Status:** Superseded on 2026-07-12; proposal not part of the current runtime
+
+> Historical design only. Current orchestration uses bounded capability and agent contracts rather than persistent named-persona staffing. See `docs/agent-runtime.md`. Do not implement this document as current guidance.
+
 ## Overview
 
 Add "Quinn," an AI Resource Manager, to the virtual-tech-organization skill's leadership layer. Quinn proactively assesses talent gaps and collaboratively hires domain expert personas on-the-fly, enabling the org to adapt its expertise to any project's unique domain, regulatory, and technical requirements.

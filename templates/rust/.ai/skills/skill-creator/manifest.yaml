@@ -1,0 +1,7 @@
+version: 1
+name: skill-creator
+managed_by: dev-template
+layer: meta
+requires_capabilities: [research, plan, implement, test, review.code]
+budgets: {entry_tokens: 1200, total_warn: 6000}
+references: [references/schemas.md]

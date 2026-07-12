@@ -1,43 +1,28 @@
 {
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true
-  },
   "permissions": {
     "allow": [
-      "Bash(git:*)",
-      "Bash(nix:*)",
-      "Bash(npx:*)",
-      "Bash(cargo:*)",
-      "Bash(uv:*)",
-      "mcp__context7__resolve-library-id",
-      "mcp__context7__query-docs"
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-files:*)",
+      "Bash(nix flake check:*)",
+      "Bash(nix flake show:*)",
+      "Bash(nix eval:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo fmt --check:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv lock --check:*)"
     ],
     "deny": [
       "Edit(//.env)",
       "Edit(//.env.*)",
       "Read(//.env)",
       "Read(//.env.*)",
-      "Edit(//.git/**)",
-      "Bash(git push --force:*)",
-      "Bash(sudo:*)",
-      "Bash(curl:*)",
-      "Bash(wget:*)",
-      "Bash(ssh:*)",
-      "Bash(scp:*)",
-      "Bash(nix-store --delete:*)"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/session-start.sh"
-          }
-        ]
-      }
+      "Edit(//.git/**)"
     ]
   },
   "statusLine": {

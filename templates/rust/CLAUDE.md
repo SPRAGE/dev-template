@@ -1,5 +1,7 @@
 # Claude Code Adapter
 
-Claude Code auto-loads `CLAUDE.md`. Read `AI.md`, then `.ai/instructions.md` — it owns the tiered read-order, response style, skill locations, and rules.
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-Shared skills live in `.ai/skills/`; `.claude/skills/` is a relative symlink to it (Claude Code slash-command path).
+Read `AI.md` and `.ai/instructions.md`. For work that is not Direct, also read `.ai/methodology.md`. Load `.ai/context/` files only through the routes in the shared instructions.
+
+Claude Code discovers skills through `.claude/skills/` and project subagents through `.claude/agents/`. If a mapped runtime capability is unavailable, execute it inline and state the limitation.

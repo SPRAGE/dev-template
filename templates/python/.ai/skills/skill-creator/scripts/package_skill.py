@@ -96,14 +96,18 @@ def package_skill(skill_path, output_dir=None):
     try:
         with zipfile.ZipFile(skill_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
             # Walk through the skill directory, excluding build artifacts
-            for file_path in skill_path.rglob('*'):
+            for file_path in sorted(skill_path.rglob('*')):
                 if not file_path.is_file():
                     continue
                 arcname = file_path.relative_to(skill_path.parent)
                 if should_exclude(arcname):
                     print(f"  Skipped: {arcname}")
                     continue
-                zipf.write(file_path, arcname)
+                info = zipfile.ZipInfo(str(arcname), date_time=(1980, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                info.create_system = 3
+                info.external_attr = (file_path.stat().st_mode & 0xFFFF) << 16
+                zipf.writestr(info, file_path.read_bytes())
                 print(f"  Added: {arcname}")
 
         print(f"\n✅ Successfully packaged skill to: {skill_filename}")

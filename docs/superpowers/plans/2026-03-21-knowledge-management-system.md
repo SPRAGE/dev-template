@@ -1,6 +1,10 @@
 # Knowledge Management System Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Status:** Superseded on 2026-07-12; do not execute
+
+> Retained for implementation history. Its `.claude/knowledge`, ruflo, session-injection, and provider-specific skill paths have been replaced by the compiled provider-neutral architecture in `docs/agent-runtime.md`.
+
+> Historical note: the original plan required superpowers task-execution skills. That requirement no longer applies.
 
 **Goal:** Add a 4-layer knowledge management system (knowledge store, skills, hooks, ruflo bridge) to the dev-template so Claude Code can onboard existing repos, refresh stale context, survive context compression, and share memory with ruflo agents.
 

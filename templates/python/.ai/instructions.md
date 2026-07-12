@@ -1,47 +1,32 @@
-# AI Instructions
+# Agent Instructions
 
-## Project
+<!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-PROJECTNAME - TODO: replace with one-line description.
+## Context Routing
 
-## Read Order
+- Always read `AI.md`, `.ai/instructions.md`.
+- Read `.ai/context/architecture-snapshot.md` before architectural or cross-boundary work and `.ai/context/conventions.md` before edits or review.
+- Read `.ai/context/decisions.md` only when the task touches a recorded choice; read `.ai/context/active-context.md` only when it exists and contains current work.
+- Load a skill body only when its description matches the task or the user names it.
 
-- Always: `AI.md`, `.ai/instructions.md`.
-- Before code or design work: `.ai/context/architecture-snapshot.md`, `.ai/context/conventions.md`.
-- When relevant: `.ai/context/decisions.md` (architectural decisions); `.ai/context/active-context.md` (only when it holds real rolling state).
+## Authorization
 
-## Response Style
+- For explain, review, diagnose, or plan requests, inspect and report only. Do not edit or advance into implementation unless asked.
+- For change, build, or fix requests, make in-scope local changes and run non-destructive validation without repeated confirmation.
+- Confirm immediately before destructive action, external write, purchase, permission expansion, or material scope expansion. Ask a question only when repository evidence cannot resolve a material choice, irreversible choice, or high risk choice.
 
-- Answer first; no preamble or filler.
-- Cite evidence (file:line, command output) for repo claims; don't assert from memory.
-- Prefer concise diffs and summaries; don't restate context already loaded.
+## Delivery
 
-## Provider Adapters
+1. Inspect the working state, relevant code, documented commands, and generated/source boundaries.
+2. Execute a bounded, reversible, low-risk task directly with focused verification, even when the mechanical edit spans files.
+3. Read `.ai/methodology.md` and use one deep plan when work involves dependent steps, architecture choice, material ambiguity, or cross boundary coordination.
+4. Use the Hard route when work involves security sensitive, destructive, regulated, data migration, broadly ambiguous, or high consequence. Require deep planning, staged evidence, and independent deep risk review.
+5. Reuse and update the accepted plan; do not restart discovery or silently change layers. Delegate only ready, bounded steps and parallelize only independent work.
 
-- `AI.md` is the shared top-level guide for all agents.
-- `AGENTS.md` is the Codex-compatible entry point.
-- `CODEX.md` is a named Codex adapter alias for humans and tools.
-- `CLAUDE.md` is the Claude Code compatibility entry point.
-- `.ai/skills/` contains shared skills for all agents.
-- `.agents/skills/` is the official Codex repo-scoped skill link.
-- `.claude/` contains Claude Code settings, hooks, and the Claude skill link.
-- `.codex/` contains Codex project config, custom agents, the compatibility skill link, and local Codex runtime state.
+## Preservation
 
-## Python Commands
+Treat user-stated values and existing in-scope behavior as acceptance criteria. Preserve user provided values, unrelated changes, local runtime state, existing behavior not in scope, and routes schemas and outputs not in scope. Never remove behavior to make checks pass, weaken tests to hide a regression, or silently expand scope.
 
-- `uv run python main.py` - run.
-- `uv run pytest` - test.
-- `uv run ruff check .` - lint.
-- `uv run ruff format .` - format.
-- `nix develop` - enter dev shell.
-- `nix run github:SPRAGE/dev-template#sync-skills` - pull latest skills, Codex repo skills/config/custom agents, provider links, hooks, and AI context templates.
-- `nix run github:SPRAGE/dev-template#ai-doctor` - validate AI context files, shared skills, provider links, Codex config/custom agents, and provider-specific settings layout.
+## Completion
 
-## Rules
-
-- Treat `.ai/context/` as the shared project context source of truth.
-- Treat `.ai/skills/` as the shared skill source of truth.
-- Keep `.agents/skills/`, `.claude/skills/`, and `.codex/skills/` linked to `.ai/skills/`, preserving local provider-specific skills.
-- Use `uv` for package and command execution.
-- Prefer type hints on function signatures and tests under `tests/`.
-- Keep provider-specific runtime settings out of `.ai/`.
+Use lifecycle status complete, partial, or blocked. Complete requires evidence; partial requires blockers and next action; blocked requires blockers, stop reason, and next action. Report the outcome, evidence, material caveat, and next action. Never claim completion without evidence or an explicit verification limitation.

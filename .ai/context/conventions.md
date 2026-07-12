@@ -1,34 +1,22 @@
 # Conventions
 
-## Code Style
+## Authoring
 
-- Keep template files concise and explicit.
-- Prefer exact commands over prose descriptions.
-- Keep shared top-level guidance in `AI.md`.
-- Keep provider-neutral context under `.ai/`.
-- Keep provider adapters thin and pointed at `AI.md` plus `.ai/`.
-- Keep shared skill sources under `template/.ai/skills/`.
-- Keep Codex repo skills available under `template/.agents/skills/` as a link to `template/.ai/skills/`.
-- Keep Claude Code runtime files under `.claude/`.
-- Keep Codex project config and custom agents under `.codex/`.
+- Edit neutral agent behavior under `template/.ai/`; never hand-edit generated provider agents or adapters.
+- Keep language differences to `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`.
+- Keep always-loaded guidance factual and short; move procedures to skills and optional detail to references.
+- Give every writable agent an explicit file scope and every agent a structured output contract.
 
-## Testing
+## Verification
 
-- Run `nix flake check --all-systems` for flake output changes.
-- Run `nix develop -c bash tests/test-apps.sh` for app behavior changes.
-- Run `nix develop -c bash tests/test-skills.sh` after changing skill source files.
+- Neutral/runtime changes: `bash tests/test-agent-system.sh`.
+- Shared template changes: `bash tests/test-template-sync.sh`.
+- Skill changes: regenerate archives, then `bash tests/test-skills.sh`.
+- Lifecycle changes: `nix develop path:. -c bash tests/test-apps.sh`.
+- Flake changes: `nix flake check path:. --all-systems --no-update-lock-file`.
 
-## Commands
+## Safety
 
-- `nix flake check --all-systems` - validate flake outputs.
-- `nix run .#ai-doctor` - validate AI context files and provider-specific settings layout.
-
-## Git / Review
-
-- Do not overwrite user-local settings or runtime files.
-- Regenerate `skills/*.skill` archives and keep `.agents`, `.claude`, and `.codex` skill links intact whenever `template/.ai/skills/` changes.
-
-## Security / Secrets
-
-- Never commit `.env*`, tokens, private keys, or local credentials.
-- Agents may recommend permission changes, but humans should own permission changes.
+- Preserve local runtime state, customized project guidance, and unrelated worktree changes.
+- Permission changes and destructive reset behavior require explicit user intent.
+- Never put secrets or private credentials in generated guidance.
