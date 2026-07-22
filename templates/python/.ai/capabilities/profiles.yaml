@@ -1,4 +1,4 @@
-version: 1
+version: 2
 profiles:
   read_only:
     filesystem: read
@@ -12,12 +12,3 @@ profiles:
     filesystem: workspace
     write: true
     network: false
-  verify:
-    filesystem: workspace
-    write: tests_and_diagnostics
-    network: false
-  privileged:
-    filesystem: workspace
-    write: true
-    network: true
-    requires_human: true

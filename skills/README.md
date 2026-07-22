@@ -1,13 +1,18 @@
 # Skill Archives
 
-This folder contains distributable `.skill` archives generated from `template/.ai/skills/`.
+Deterministic `.skill` archives are built from the one default skill under `template/.ai/skills/` and the opt-in skills under `skill-catalog/`.
 
-- Source of truth: `template/.ai/skills/<skill-name>/`
-- Archive output: `skills/<skill-name>.skill`
-- Validation: `nix develop -c bash tests/test-skills.sh`
+The manifest `package` allowlist is authoritative. Packaging fixes timestamps and file order; `tests/test-skills.sh` rejects missing, stale, or drifted archives.
 
-Regenerate an archive after changing a skill source:
+Run the packager from the repository root:
 
 ```bash
-python template/.ai/skills/skill-creator/scripts/package_skill.py template/.ai/skills/<skill-name> skills
+export PYTHONPATH="$PWD/template/.ai/catalog/skill-authoring"
+python -m scripts.package_skill template/.ai/skills/agent-context skills
+for skill in template/.ai/catalog/*/; do
+  [ -f "$skill/SKILL.md" ] || continue
+  python -m scripts.package_skill "$skill" skills
+done
 ```
+
+Then run `nix develop path:. -c bash tests/test-skills.sh` from the repository root.

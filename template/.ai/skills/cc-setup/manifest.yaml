@@ -1,7 +1,0 @@
-version: 1
-name: cc-setup
-managed_by: dev-template
-layer: setup
-requires_capabilities: [explore, research, plan, implement, test]
-budgets: {entry_tokens: 1200, total_warn: 5000}
-references: [references/mcp-catalog.md, references/subagent-templates.md]

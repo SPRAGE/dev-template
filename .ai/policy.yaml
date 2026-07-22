@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 authorization:
   inspect_intents: [explain, review, diagnose, plan]
@@ -36,9 +36,9 @@ delivery:
       - architecture_choice
       - material_ambiguity
       - cross_boundary_coordination
-    planner_tier: deep
+    planner_tier: primary
     worker_tier: balanced
-    review_tier: balanced
+    review_tier: deep
   hard:
     when_any:
       - security_sensitive
@@ -47,7 +47,7 @@ delivery:
       - data_migration
       - broadly_ambiguous
       - high_consequence
-    planner_tier: deep
+    planner_tier: primary
     worker_tier: balanced
     review_tier: deep
 
@@ -56,24 +56,19 @@ routing:
   research: fast
   plan: deep
   implement: balanced
-  test: fast
-  document: fast
-  integrate: balanced
-  review: balanced
+  test: balanced
+  document: balanced
+  integrate: deep
+  review: deep
   risk_review: deep
 
 handoff:
   required:
     - objective
-    - task_mode
-    - current_layer
-    - plan_step
-    - repository_facts
     - file_scope
     - success_criteria
     - preserved_invariants
     - required_evidence
-    - stop_conditions
   stop_on:
     - scope_conflict
     - missing_dependency
@@ -84,13 +79,12 @@ completion:
   statuses: [complete, partial, blocked]
   complete_requires: [evidence]
   partial_requires: [blockers, next_action]
-  blocked_requires: [blockers, stop_reason, next_action]
+  blocked_requires: [blockers, next_action]
   preserve:
     - user_provided_values
     - unrelated_changes
     - local_runtime_state
     - existing_behavior_not_in_scope
-    - routes_schemas_and_outputs_not_in_scope
   prohibited_shortcuts:
     - remove_behavior_to_make_checks_pass
     - weaken_tests_to_hide_a_regression

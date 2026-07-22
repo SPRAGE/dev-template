@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # tests/test-onboard.sh — validates nix run .#onboard behavior
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 TEST_DIR=$(mktemp -d)
 trap 'rm -rf "$TEST_DIR"' EXIT
@@ -34,18 +35,16 @@ for f in .ai/instructions.md \
          .ai/policy.yaml \
          .ai/methodology.md \
          .ai/capabilities/map.yaml \
-         .ai/agents/architecture_planner.yaml \
+         .ai/agents/scout.yaml \
          .ai/evals/contract-scenarios.yaml \
-         .ai/context/decisions.md \
-         .ai/context/architecture-snapshot.md \
-         .ai/context/conventions.md \
-         .ai/context/stale-log.md \
+         .ai/catalog/index.yaml \
+         .ai/tools/skillctl.py \
          .ai/context/.gitignore \
          .agents/README.md \
          .codex/README.md \
          .codex/config.toml \
-         .claude/agents/architecture-planner.md \
-         .codex/agents/repo-explorer.toml \
+         .claude/agents/scout.md \
+         .codex/agents/scout.toml \
          .claude/settings.json \
          .mcp.json \
          AI.md \
@@ -55,24 +54,14 @@ for f in .ai/instructions.md \
   [ -f "$f" ] || { echo "FAIL: $f not created"; exit 1; }
 done
 [ ! -f .ai/context/active-context.md ] || { echo "FAIL: onboarding should not seed placeholder active context"; exit 1; }
+context_files=$(find .ai/context -maxdepth 1 -type f ! -name .gitignore -print)
+[ -z "$context_files" ] || { echo "FAIL: onboarding should not seed placeholder project facts: $context_files"; exit 1; }
 
-# Verify skills are installed, otherwise next-step commands like /cc-setup cannot work
-for d in .claude/skills/cc-setup \
-         .claude/skills/cc-refresh \
-         .claude/skills/fresh-start \
-         .claude/skills/virtual-tech-org \
-         .agents/skills/cc-setup \
-         .agents/skills/cc-refresh \
-         .agents/skills/fresh-start \
-         .agents/skills/virtual-tech-org \
-         .codex/skills/cc-setup \
-         .codex/skills/cc-refresh \
-         .codex/skills/fresh-start \
-         .codex/skills/virtual-tech-org \
-         .ai/skills/cc-setup \
-         .ai/skills/cc-refresh \
-         .ai/skills/fresh-start \
-         .ai/skills/virtual-tech-org; do
+# Verify the single default skill is installed through each runtime view.
+for d in .claude/skills/agent-context \
+         .agents/skills/agent-context \
+         .codex/skills/agent-context \
+         .ai/skills/agent-context; do
   [ -d "$d" ] || { echo "FAIL: $d not created"; exit 1; }
 done
 assert_skill_link .ai/skills .claude/skills
@@ -107,15 +96,17 @@ touch flake.nix
 [ -f .ai/policy.yaml ] || { echo "FAIL: policy.yaml not created"; exit 1; }
 [ -f .ai/capabilities/map.yaml ] || { echo "FAIL: capability map not created"; exit 1; }
 [ -f .ai/evals/contract-scenarios.yaml ] || { echo "FAIL: contract evals not created"; exit 1; }
-[ -d .ai/skills/cc-setup ] || { echo "FAIL: shared cc-setup skill not created"; exit 1; }
-[ -d .claude/skills/cc-setup ] || { echo "FAIL: cc-setup skill not created"; exit 1; }
-[ -d .agents/skills/cc-setup ] || { echo "FAIL: .agents cc-setup skill not created"; exit 1; }
+[ -f .ai/catalog/index.yaml ] || { echo "FAIL: conditional skill catalog not created"; exit 1; }
+[ -f .ai/tools/skillctl.py ] || { echo "FAIL: skill activation tool not created"; exit 1; }
+[ -d .ai/skills/agent-context ] || { echo "FAIL: shared agent-context skill not created"; exit 1; }
+[ -d .claude/skills/agent-context ] || { echo "FAIL: Claude agent-context skill not created"; exit 1; }
+[ -d .agents/skills/agent-context ] || { echo "FAIL: .agents agent-context skill not created"; exit 1; }
 [ -f .agents/README.md ] || { echo "FAIL: .agents/README.md not created"; exit 1; }
-[ -d .codex/skills/cc-setup ] || { echo "FAIL: codex cc-setup skill not created"; exit 1; }
+[ -d .codex/skills/agent-context ] || { echo "FAIL: Codex agent-context skill not created"; exit 1; }
 [ -f .codex/README.md ] || { echo "FAIL: .codex/README.md not created"; exit 1; }
 [ -f .codex/config.toml ] || { echo "FAIL: .codex/config.toml not created"; exit 1; }
-[ -f .codex/agents/repo-explorer.toml ] || { echo "FAIL: .codex custom agents not created"; exit 1; }
-[ -f .claude/agents/repo-explorer.md ] || { echo "FAIL: .claude custom agents not created"; exit 1; }
+[ -f .codex/agents/scout.toml ] || { echo "FAIL: .codex runtime roles not created"; exit 1; }
+[ -f .claude/agents/scout.md ] || { echo "FAIL: .claude runtime roles not created"; exit 1; }
 assert_skill_link .ai/skills .claude/skills
 assert_skill_link .ai/skills .agents/skills
 assert_skill_link .ai/skills .codex/skills

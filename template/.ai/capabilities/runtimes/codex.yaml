@@ -1,4 +1,4 @@
-version: 1
+version: 2
 runtime: codex
 models:
   deep:
@@ -17,34 +17,15 @@ profiles:
   workspace_write:
     sandbox_mode: workspace-write
     web_search: disabled
-  verify:
-    sandbox_mode: workspace-write
-    web_search: disabled
-  privileged:
-    sandbox_mode: workspace-write
-    web_search: live
-    requires_human: true
 orchestration:
-  main_model_tier: deep
   main_reasoning_effort: medium
-  review_model_tier: balanced
   max_threads: 4
   max_depth: 1
   plan_mode_reasoning_effort: high
-  personality: pragmatic
 reasoning_effort:
-  architecture_planner: high
-  docs_researcher: low
-  documenter: low
-  implementation_worker: medium
-  integrator: medium
-  repo_explorer: low
-  reviewer: medium
-  risk_reviewer: high
-  test_verifier: low
-agent_extensions:
-  docs_researcher:
-    mcp_servers:
-      openaiDeveloperDocs:
-        url: https://developers.openai.com/mcp
+  researcher: low
+  reviewer: high
+  scout: low
+  worker: medium
+agent_extensions: {}
 fallback: inline_and_report_limitation

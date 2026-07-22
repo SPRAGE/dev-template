@@ -1,33 +1,22 @@
 # Architecture Snapshot
 
-## Stack
+## Source and generation
 
-- Nix flakes package templates, development shells, and lifecycle apps.
-- Bash implements app orchestration and integration tests.
-- Python/PyYAML validates the neutral agent specification and generates provider artifacts.
+- `template/` is the authored language-neutral project; Python and Rust variants mirror it except for `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`.
+- `.ai/policy.yaml`, capabilities, four role contracts, and runtime maps are neutral sources. The compiler validates schema version 2, budgets the common routes, and emits readable guidance plus runtime adapters.
+- The primary owns planning, integration, routine testing, and documentation. `scout`, `researcher`, `worker`, and `reviewer` provide context isolation or independent work.
+- One default `agent-context` skill is discovered in generated projects. Twelve dormant specialist skills live under `template/.ai/catalog/`; its 699-token index routes at most two procedures per task, and `skillctl.py` safely activates recurring ones.
 
-## Structure
+## Packaging
 
-- `template/.ai/` contains authored policy, capabilities, profiles, model bindings, agents, context, skills, eval fixtures, and compiler; instructions and methodology are compiled readable views.
-- `template/.codex/agents/`, `template/.claude/agents/`, and top-level adapters are generated.
-- `templates/python` and `templates/rust` mirror the base except for four explicit overlays.
-- `flake.nix` exposes templates plus `onboard`, `sync-skills`, `fresh-start`, and `ai-doctor`.
-- `skills/*.skill` are deterministic archives of `template/.ai/skills/*`.
+- The root flake emits `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin`; the locked unstable nixpkgs supplies Codex directly.
+- Lifecycle apps onboard, sync, reset, and diagnose managed assets, including the dormant catalog and activation tool. Sync preserves existing compilers and provider outputs; schema upgrades require an explicit migration.
+- Skill archives contain only manifest allowlisted files with deterministic metadata.
 
-## Data Flow
+## Flow
 
-1. Edit neutral source or a language overlay.
-2. Compile provider artifacts.
-3. Generate language mirrors.
-4. Package changed skills.
-5. CI compares sources, generated files, budgets, archives, and lifecycle behavior.
-
-## Runtime
-
-- Codex: Sol deep, Terra balanced, Luna fast.
-- Claude: Opus deep, Sonnet balanced, Haiku fast.
-- The primary retains requirements and integration state; flat subagents execute bounded work and return structured reports.
-
-## Known Constraint
-
-- The user-selected private Codex input currently replaces the public GitHub source. Unsupported systems fall back to `nixpkgs#codex`, but external consumers still need access to evaluate the private input URL.
+1. Edit neutral sources or an explicit language overlay.
+2. Compile the base and maintainer runtime.
+3. Generate language mirrors and compile each variant.
+4. Package default and optional skills.
+5. Run contract, template, skill, lifecycle, and flake checks.

@@ -28,17 +28,17 @@ jobs:
         run: |
           mkdir -p /tmp/test-default && cd /tmp/test-default
           nix flake init -t path:$GITHUB_WORKSPACE
-          nix flake check
+          nix flake check --all-systems --no-build
       - name: Validate rust template
         run: |
           mkdir -p /tmp/test-rust && cd /tmp/test-rust
           nix flake init -t path:$GITHUB_WORKSPACE#rust
-          nix flake check
+          nix flake check --all-systems --no-build
       - name: Validate python template
         run: |
           mkdir -p /tmp/test-python && cd /tmp/test-python
           nix flake init -t path:$GITHUB_WORKSPACE#python
-          nix flake check
+          nix flake check --all-systems --no-build
 
   test-apps:
     runs-on: ubuntu-latest

@@ -6,8 +6,8 @@ TODO replace this line with a one-sentence description of the Python application
 
 1. Run `uv init` to create the Python package, then replace `PROJECTNAME` in `AI.md`, `.ai/project.yaml`, and `flake.nix`.
 2. Run `direnv allow` or `nix develop`.
-3. Ask for the first outcome in plain language; the agent workflow plans, delegates, integrates, and verifies automatically.
-4. Run `cc-setup` after code exists to capture the real architecture and commands.
+3. Ask for the first outcome in plain language; the primary agent plans and verifies, delegating only when isolation or parallelism helps.
+4. Invoke `agent-context` after code exists to capture the real architecture and commands.
 
 ## Stack
 
@@ -25,7 +25,7 @@ TODO replace this line with a one-sentence description of the Python application
 
 ## Layout
 
-- `.ai/` - neutral agent specification, project context, and shared skills.
+- `.ai/` - neutral agent specification, project context, and the default shared skill.
 - `.agents/skills/` - Codex skill discovery link.
 - `.claude/` and `.codex/` - generated provider agents plus native settings.
 

@@ -1,15 +1,9 @@
 # Generated from .ai/ by .ai/generators/compile.py. Do not edit directly.
 project_doc_max_bytes = 16384
 project_doc_fallback_filenames = ["AI.md"]
-model = "gpt-5.6-sol"
 model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
-review_model = "gpt-5.6-terra"
 web_search = "disabled"
-personality = "pragmatic"
-
-[features]
-multi_agent = true
 
 [agents]
 max_threads = 4

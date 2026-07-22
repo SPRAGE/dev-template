@@ -1,11 +1,8 @@
-version: 1
+version: 2
 
 routing:
   - id: explain_code
-    input:
-      intent: explain
-      action_flags: []
-      delivery_flags: []
+    input: {intent: explain, action_flags: [], delivery_flags: []}
     expect:
       authorization: inspect_and_report
       delivery: direct
@@ -14,22 +11,16 @@ routing:
       review_tier: none
 
   - id: plan_dependent_feature
-    input:
-      intent: plan
-      action_flags: []
-      delivery_flags: [dependent_steps]
+    input: {intent: plan, action_flags: [], delivery_flags: [dependent_steps]}
     expect:
       authorization: inspect_and_report
       delivery: planned
-      planner_tier: deep
+      planner_tier: primary
       worker_tier: none
       review_tier: none
 
   - id: fix_local_bug
-    input:
-      intent: fix
-      action_flags: []
-      delivery_flags: []
+    input: {intent: fix, action_flags: [], delivery_flags: []}
     expect:
       authorization: edit_and_validate
       delivery: direct
@@ -38,10 +29,7 @@ routing:
       review_tier: none
 
   - id: mechanical_cross_file_change
-    input:
-      intent: change
-      action_flags: []
-      delivery_flags: []
+    input: {intent: change, action_flags: [], delivery_flags: []}
     expect:
       authorization: edit_and_validate
       delivery: direct
@@ -50,46 +38,34 @@ routing:
       review_tier: none
 
   - id: build_dependent_feature
-    input:
-      intent: build
-      action_flags: []
-      delivery_flags: [dependent_steps, cross_boundary_coordination]
+    input: {intent: build, action_flags: [], delivery_flags: [dependent_steps, cross_boundary_coordination]}
     expect:
       authorization: edit_and_validate
       delivery: planned
-      planner_tier: deep
+      planner_tier: primary
       worker_tier: balanced
-      review_tier: balanced
+      review_tier: deep
 
   - id: fix_security_migration
-    input:
-      intent: fix
-      action_flags: []
-      delivery_flags: [security_sensitive, data_migration]
+    input: {intent: fix, action_flags: [], delivery_flags: [security_sensitive, data_migration]}
     expect:
       authorization: edit_and_validate
       delivery: hard
-      planner_tier: deep
+      planner_tier: primary
       worker_tier: balanced
       review_tier: deep
 
   - id: delete_data
-    input:
-      intent: change
-      action_flags: [destructive_action]
-      delivery_flags: [destructive]
+    input: {intent: change, action_flags: [destructive_action], delivery_flags: [destructive]}
     expect:
       authorization: confirm_before_action
       delivery: hard
-      planner_tier: deep
+      planner_tier: primary
       worker_tier: none
       review_tier: none
 
   - id: publish_release
-    input:
-      intent: change
-      action_flags: [external_write]
-      delivery_flags: []
+    input: {intent: change, action_flags: [external_write], delivery_flags: []}
     expect:
       authorization: confirm_before_action
       delivery: direct
@@ -99,18 +75,13 @@ routing:
 
 repository_scope:
   - id: code_absent_from_current_repo
-    input:
-      authorization_flags: []
+    input: {authorization_flags: []}
     expect: report_repository_boundary
-
   - id: user_names_external_repo
-    input:
-      authorization_flags: [explicit_external_path]
+    input: {authorization_flags: [explicit_external_path]}
     expect: inspect_authorized_repository
-
   - id: user_authorizes_cross_repo_search
-    input:
-      authorization_flags: [explicit_cross_repository_authorization]
+    input: {authorization_flags: [explicit_cross_repository_authorization]}
     expect: inspect_authorized_repository
 
 reports:
@@ -118,35 +89,26 @@ reports:
     contract: change_report
     report:
       status: complete
-      current_layer: implementation
-      summary: Implemented the assigned step.
+      summary: Implemented the assigned change.
       evidence: [focused test passed]
       blockers: []
-      stop_reason: null
-      next_action: integrate
-      step_id: step-1
+      next_action: null
       files_changed: [src/example.py]
-      preserved_invariants: [existing CLI output]
       verification: [focused test passed]
       deviations: []
     valid: true
 
   - id: complete_without_evidence
     contract: change_report
-    report:
-      status: complete
-      evidence: []
+    report: {status: complete, evidence: []}
     valid: false
-
-  - id: blocked_with_stop_reason
+  - id: blocked_with_next_action
     contract: change_report
     report:
       status: blocked
-      current_layer: implementation
-      summary: The assigned dependency is absent.
+      summary: A required dependency is absent.
       evidence: [dependency path does not exist]
       blockers: [missing dependency]
-      stop_reason: missing_dependency
       next_action: revise the plan
     valid: true
 
@@ -154,18 +116,16 @@ reports:
     contract: change_report
     report:
       status: blocked
-      current_layer: implementation
-      summary: The requested file is outside the assigned write scope.
-      evidence: [assigned scope excludes the requested path]
+      summary: The requested file is outside the assigned scope.
+      evidence: [assigned scope excludes the path]
       blockers: [scope conflict]
-      stop_reason: scope_conflict
-      next_action: ask the parent to revise the handoff
+      next_action: revise the handoff
     valid: true
 
-  - id: blocked_without_stop_reason
+  - id: blocked_without_next_action
     contract: change_report
     report:
       status: blocked
-      blockers: []
+      blockers: [missing dependency]
       next_action: null
     valid: false

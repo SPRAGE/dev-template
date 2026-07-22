@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Regenerate language templates from template/ plus their explicit overlays.
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 REPO=${1:-$(git rev-parse --show-toplevel)}
 REPO=$(cd "$REPO" && pwd)

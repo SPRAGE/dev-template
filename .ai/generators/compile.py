@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import json
 import math
 import re
@@ -72,25 +73,18 @@ def agent_prompt(agent: dict, capability_map: dict, policy: dict, requires_human
     )
     outputs = capability_map["output_contracts"]
     fields = unique(outputs["common"]["fields"] + outputs[agent["output_contract"]]["fields"])
-    completion = policy["completion"]
     constraints = "\n".join(f"- {item}" for item in agent.get("constraints", []))
     if requires_human:
         constraints += "\n- Obtain explicit approval before any privileged, destructive, or external action."
     write_scope = agent.get("write_scope")
     scope_line = f"\nWrite scope: {write_scope}" if write_scope else ""
     return (
-        f"Mission: {agent['mission']}{scope_line}\n\n"
-        f"Use when: {agent['when_to_use']}\n"
-        f"Avoid when: {agent['avoid_when']}\n\n"
-        f"Task context: {', '.join(inputs)}. Derive only reversible missing facts from repository evidence; "
-        "otherwise return blocked instead of expanding scope.\n\n"
-        f"Constraints:\n{constraints}\n\n"
-        f"Return a structured report with these fields: {', '.join(fields)}. Lead with status and the decision, "
-        "then evidence and material caveats; omit raw logs and repeated background. "
-        f"Status is one of {', '.join(completion['statuses'])}. Complete requires "
-        f"{', '.join(completion['complete_requires'])}; partial requires "
-        f"{', '.join(completion['partial_requires'])}; blocked requires "
-        f"{', '.join(completion['blocked_requires'])}."
+        f"Mission: {agent['mission']}{scope_line}\n"
+        f"Use when: {agent['when_to_use']} Avoid when: {agent['avoid_when']}\n"
+        f"Inputs: {', '.join(inputs)}. Infer only reversible missing facts; otherwise stop and report the blocker.\n"
+        f"Rules:\n{constraints}\n"
+        f"Return only a concise report with: {', '.join(fields)}. Complete requires evidence. "
+        "Partial or blocked reports require blockers and a next action. Omit raw logs and empty optional fields."
     )
 
 
@@ -98,7 +92,7 @@ def render_codex_agent(agent: dict, runtime: dict, capability_map: dict, policy:
     model = runtime["models"][agent["model_tier"]]
     profile = runtime["profiles"][agent["profile"]]
     prompt = agent_prompt(agent, capability_map, policy, neutral_profile.get("requires_human", False))
-    description = f"{agent['mission']} Use when: {agent['when_to_use']} Avoid when: {agent['avoid_when']}"
+    description = f"{agent['mission']} Use when: {agent['when_to_use']}"
     lines = [
         f"# {GENERATED_MARKER}",
         f"name = {toml_string(agent['name'])}",
@@ -107,7 +101,6 @@ def render_codex_agent(agent: dict, runtime: dict, capability_map: dict, policy:
         f"model_reasoning_effort = {toml_string(runtime['reasoning_effort'][agent['name']])}",
         f"sandbox_mode = {toml_string(profile['sandbox_mode'])}",
         f"web_search = {toml_string(profile['web_search'])}",
-        f"nickname_candidates = [{toml_string(agent['name'].replace('_', ' ').title())}]",
         'developer_instructions = """',
         prompt,
         '"""',
@@ -125,7 +118,7 @@ def render_claude_agent(agent: dict, runtime: dict, capability_map: dict, policy
     name = agent["name"].replace("_", "-")
     tools = ", ".join(profile["tools"])
     prompt = agent_prompt(agent, capability_map, policy, neutral_profile.get("requires_human", False))
-    description = f"{agent['mission']} Use when: {agent['when_to_use']} Avoid when: {agent['avoid_when']}"
+    description = f"{agent['mission']} Use when: {agent['when_to_use']}"
     return (
         "---\n"
         f"name: {name}\n"
@@ -133,7 +126,7 @@ def render_claude_agent(agent: dict, runtime: dict, capability_map: dict, policy
         f"tools: {tools}\n"
         f"model: {model['id']}\n"
         f"permissionMode: {profile['permission_mode']}\n"
-        f"maxTurns: {agent['max_turns']}\n"
+        f"maxTurns: {runtime['max_turns'][agent['name']]}\n"
         "---\n\n"
         f"<!-- {GENERATED_MARKER} -->\n\n"
         f"{prompt}\n"
@@ -142,20 +135,12 @@ def render_claude_agent(agent: dict, runtime: dict, capability_map: dict, policy
 
 def render_codex_config(runtime: dict) -> str:
     orch = runtime["orchestration"]
-    main = runtime["models"][orch["main_model_tier"]]
-    review = runtime["models"][orch["review_model_tier"]]
     return f"""# {GENERATED_MARKER}
 project_doc_max_bytes = 16384
 project_doc_fallback_filenames = ["AI.md"]
-model = "{main['id']}"
 model_reasoning_effort = "{orch['main_reasoning_effort']}"
 plan_mode_reasoning_effort = "{orch['plan_mode_reasoning_effort']}"
-review_model = "{review['id']}"
 web_search = "disabled"
-personality = "{orch['personality']}"
-
-[features]
-multi_agent = true
 
 [agents]
 max_threads = {orch['max_threads']}
@@ -165,8 +150,8 @@ max_depth = {orch['max_depth']}
 
 def render_adapter(runtime: str, runtime_spec: dict) -> str:
     shared = (
-        "Read `AI.md` and `.ai/instructions.md`. For work that is not Direct, also read ".strip()
-        + " `.ai/methodology.md`. Load `.ai/context/` files only through the routes in the shared instructions."
+        "Read `AI.md` and `.ai/instructions.md`. Read `.ai/methodology.md` only for Planned or Hard work; "
+        "load other `.ai/context/` files only through those instructions."
     )
     fallback = runtime_spec["fallback"]
     if fallback != "inline_and_report_limitation":
@@ -174,12 +159,12 @@ def render_adapter(runtime: str, runtime_spec: dict) -> str:
     fallback_note = "If a mapped runtime capability is unavailable, execute it inline and state the limitation."
     if runtime == "codex":
         notes = (
-            "Codex discovers skills through `.agents/skills/` and custom agents through `.codex/agents/`. "
+            "Skills live in `.agents/skills/`; runtime roles live in `.codex/agents/`. "
             "Preserve `.codex/local/` and `.codex/tmp/`."
         )
         return f"# Codex Adapter\n\n<!-- {GENERATED_MARKER} -->\n\n{shared}\n\n{notes} {fallback_note}\n"
     notes = (
-        "Claude Code discovers skills through `.claude/skills/` and project subagents through `.claude/agents/`. "
+        "Skills live in `.claude/skills/`; runtime roles live in `.claude/agents/`. "
     )
     return f"# Claude Code Adapter\n\n<!-- {GENERATED_MARKER} -->\n\n{shared}\n\n{notes}{fallback_note}\n"
 
@@ -195,7 +180,6 @@ def render_instructions(policy: dict, project: dict) -> str:
     confirm_before = words(authorization["confirm_before"])
     question_trigger = words(authorization["question_trigger"])
     preserve = words(completion["preserve"], "and")
-    prohibited = words(completion["prohibited_shortcuts"])
     planned_triggers = words(delivery["planned"]["when_any"])
     hard_triggers = words(delivery["hard"]["when_any"])
     scope_boundary = repository_scope_phrase(repository_scope["default_boundary"])
@@ -208,40 +192,15 @@ def render_instructions(policy: dict, project: dict) -> str:
 
 <!-- {GENERATED_MARKER} -->
 
-## Context Routing
+When present, read `{context['conditional']['architecture']}` for architecture or cross-boundary work and `{context['conditional']['conventions']}` before edits or review. Read decisions and active context only when relevant. Load skill bodies on demand.
 
-- Always read {', '.join(f'`{path}`' for path in context['always'])}.
-- Read `{context['conditional']['architecture']}` before architectural or cross-boundary work and `{context['conditional']['conventions']}` before edits or review.
-- Read `{context['conditional']['decisions']}` only when the task touches a recorded choice; read `{context['conditional']['active']}` only when it exists and contains current work.
-- Load a skill body only when its description matches the task or the user names it.
+For {inspect_intents}, inspect and report only. For {change_intents}, edit in scope and validate. Confirm immediately before {confirm_before}; ask only when evidence cannot resolve a {question_trigger}.
 
-## Authorization
+Stay inside the {scope_boundary}. Cross it only when {scope_authorization}; {scope_action} If code is absent, {absent_scope_action}.
 
-- For {inspect_intents} requests, inspect and report only. Do not edit or advance into implementation unless asked.
-- For {change_intents} requests, make in-scope local changes and run non-destructive validation without repeated confirmation.
-- Confirm immediately before {confirm_before}. Ask a question only when repository evidence cannot resolve a {question_trigger}.
+Use Direct for bounded, reversible, low-risk work. Read `.ai/methodology.md` when work involves {planned_triggers} or {hard_triggers}. Keep planning and integration in the primary context; delegate only independent, bounded work that benefits from isolation or parallelism.
 
-## Repository Boundary
-
-- Limit repository search, file reads, and version-control inspection to the {scope_boundary}.
-- Inspect another repository only when {scope_authorization}. {scope_action}
-- If requested code is absent, {absent_scope_action}. Do not discover or search sibling directories.
-
-## Delivery
-
-1. Inspect the working state, relevant code, documented commands, and generated/source boundaries.
-2. Execute a bounded, reversible, low-risk task directly with focused verification, even when the mechanical edit spans files.
-3. Read `.ai/methodology.md` and use one deep plan when work involves {planned_triggers}.
-4. Use the Hard route when work involves {hard_triggers}. Require deep planning, staged evidence, and independent deep risk review.
-5. Reuse and update the accepted plan; do not restart discovery or silently change layers. Delegate only ready, bounded steps and parallelize only independent work.
-
-## Preservation
-
-Treat user-stated values and existing in-scope behavior as acceptance criteria. Preserve {preserve}. Never {prohibited}.
-
-## Completion
-
-Use lifecycle status {words(completion['statuses'])}. Complete requires {words(completion['complete_requires'], 'and')}; partial requires {words(completion['partial_requires'], 'and')}; blocked requires {words(completion['blocked_requires'], 'and')}. Report the outcome, evidence, material caveat, and next action. Never claim completion without evidence or an explicit verification limitation.
+Preserve {preserve}. Never remove behavior or weaken tests to make checks pass, and never expand scope silently. Report {words(completion['statuses'])}; complete requires evidence, while partial or blocked requires blockers and a next action.
 """
 
 
@@ -258,31 +217,33 @@ def render_methodology(policy: dict) -> str:
 
 <!-- {GENERATED_MARKER} -->
 
-Use the smallest route that can produce evidence without losing the user's intent.
+Choose the smallest route that preserves intent and produces evidence.
 
 ## Routes
 
-- **Direct:** {direct}. The primary agent executes and runs a focused check; no formal plan or independent review is required.
-- **Planned:** any of {planned}. The {delivery['planned']['planner_tier']} tier creates one implementation-ready plan, the {delivery['planned']['worker_tier']} tier executes bounded code steps, and the {delivery['planned']['review_tier']} tier performs routine independent review.
-- **Hard:** any of {hard}. The {delivery['hard']['planner_tier']} tier owns planning and the {delivery['hard']['review_tier']} tier performs independent risk review. Use staged gates when a later action is destructive or external.
+- **Direct:** {direct}; the primary acts and runs a focused check.
+- **Planned:** any of {planned}; the primary makes one inference-first plan, delegates only ready independent steps, integrates, and reviews when risk warrants.
+- **Hard:** any of {hard}; the primary uses explicit assumptions and rollback or stop gates, then obtains independent deep review.
 
-File count alone does not select Planned. Prefer Direct for mechanical, reversible changes whose dependencies and success criteria are already clear.
+File count alone does not select Planned; clear mechanical, reversible work stays Direct.
 
-## Plan Contract
+## Ground The Domain
 
-The planner stays in the planning layer. It returns the objective, task mode, material assumptions, success criteria, preserved invariants, dependency-ordered steps with file ownership, risks, required verification, and stop conditions. A small prompt should be expanded from repository evidence, not from invented requirements.
+For consequential work, form a minimal evidenced brief: actors, goals, terms, workflows, invariants, boundaries, sources, and unknowns. Prefer repository and configured knowledge; isolate current external research. Query narrowly and retain citations plus uncertainty.
 
-Reuse the accepted plan. Update only the affected steps when evidence changes; do not make workers rediscover the repository or silently move from explanation/planning into implementation.
+For Planned or Hard specialist needs, consult `.ai/catalog/index.yaml` and load no more than its limit. Activate only recurring procedures. Missing knowledge blocks only if it could change scope, architecture, safety, or acceptance.
+
+## Plan
+
+Inspect first and infer reversible details. Ask one batched question only if its answer changes scope, architecture, risk, or cost. Record goals, useful non-goals, domain assumptions, measurable success, dependency-ordered file-scoped steps, risks, and checks. Continue ready reversible steps autonomously; persist a plan only when requested.
 
 ## Handoff Contract
 
-Every worker handoff supplies {required}. If repository evidence cannot safely fill a missing item, return blocked. Stop on {stop_on}; never redesign silently or expand the approved scope.
-
-Route exploration and primary-source research to the {routing['explore']}/{routing['research']} tiers, bounded implementation and integration to the {routing['implement']}/{routing['integrate']} tiers, tests and documentation to the {routing['test']}/{routing['document']} tiers, routine review to the {routing['review']} tier, and high-consequence review to the {routing['risk_review']} tier. Expose network and MCP tools only to the research role that needs them.
+Every worker handoff supplies {required}. Stop on {stop_on}; do not make a worker rediscover settled context or redesign silently. Use fast isolated reads for exploration/research, balanced workers for scoped edits, and deep review for coordinated or high-consequence work. Restrict external tools to the role and task that need them.
 
 ## Integrate And Prove
 
-Use an integrator only for multiple worker results, conflicts, or material integration risk. Re-read the current diff, reconcile results against success criteria and preserved invariants, run risk-appropriate checks, and request the routed independent review. Return distilled evidence rather than raw logs.
+The primary re-reads the diff, reconciles it with success criteria and preserved invariants, runs risk-appropriate checks, and reports distilled evidence. Promote only recurring verified facts to project context; keep transient research out.
 """
 
 
@@ -304,7 +265,14 @@ def exact_keys(data: dict, expected: set[str], label: str) -> None:
         raise ValueError(f"{label} keys differ: missing={sorted(expected - actual)}, unused={sorted(actual - expected)}")
 
 
+def require_version(data: dict, label: str) -> None:
+    if data.get("version") != 2:
+        raise ValueError(f"{label} must use schema version 2")
+
+
 def validate_policy(policy: dict, capability_map: dict) -> None:
+    require_version(policy, "policy")
+    require_version(capability_map, "capability map")
     exact_keys(
         policy,
         {
@@ -495,9 +463,9 @@ def validate_scenarios(policy: dict, capability_map: dict, scenarios: dict) -> N
     required_reports = {
         "complete_with_evidence",
         "complete_without_evidence",
-        "blocked_with_stop_reason",
+        "blocked_with_next_action",
         "scope_conflict_blocks",
-        "blocked_without_stop_reason",
+        "blocked_without_next_action",
     }
     report_ids = {case["id"] for case in report_cases}
     if required_reports - report_ids:
@@ -509,24 +477,23 @@ def validate_scenarios(policy: dict, capability_map: dict, scenarios: dict) -> N
 
 
 def validate_runtime_profiles(neutral: dict, codex: dict, claude: dict) -> None:
+    require_version(codex, "Codex runtime")
+    require_version(claude, "Claude runtime")
     exact_keys(
         codex,
         {"version", "runtime", "models", "profiles", "orchestration", "reasoning_effort", "agent_extensions", "fallback"},
         "Codex runtime",
     )
-    exact_keys(claude, {"version", "runtime", "models", "profiles", "fallback"}, "Claude runtime")
+    exact_keys(claude, {"version", "runtime", "models", "profiles", "max_turns", "fallback"}, "Claude runtime")
     if codex["runtime"] != "codex" or claude["runtime"] != "claude":
         raise ValueError("runtime identifiers do not match their binding files")
     exact_keys(
         codex["orchestration"],
         {
-            "main_model_tier",
             "main_reasoning_effort",
-            "review_model_tier",
             "max_threads",
             "max_depth",
             "plan_mode_reasoning_effort",
-            "personality",
         },
         "Codex orchestration",
     )
@@ -547,7 +514,7 @@ def validate_runtime_profiles(neutral: dict, codex: dict, claude: dict) -> None:
         exact_keys(claude_profile, {"permission_mode", "tools"}, f"Claude profile {name}")
         if profile["filesystem"] not in {"read", "workspace"}:
             raise ValueError(f"neutral profile {name} has unknown filesystem scope")
-        if profile["write"] not in {False, True, "tests_and_diagnostics"}:
+        if profile["write"] not in {False, True}:
             raise ValueError(f"neutral profile {name} has unknown write scope")
         if not isinstance(profile["network"], bool):
             raise ValueError(f"neutral profile {name} network must be boolean")
@@ -584,6 +551,10 @@ def validate_agents(agents: list[dict], capability_map: dict, profiles: dict, po
         raise ValueError("agent names must be unique")
     if set(codex["reasoning_effort"]) != names:
         raise ValueError("Codex reasoning_effort must bind every agent exactly once")
+    if set(claude["max_turns"]) != names:
+        raise ValueError("Claude max_turns must bind every agent exactly once")
+    if any(not isinstance(value, int) or value < 1 for value in claude["max_turns"].values()):
+        raise ValueError("Claude max_turns values must be positive integers")
     unknown_extensions = set(codex.get("agent_extensions", {})) - names
     if unknown_extensions:
         raise ValueError(f"Codex extensions reference unknown agents: {sorted(unknown_extensions)}")
@@ -601,6 +572,7 @@ def validate_agents(agents: list[dict], capability_map: dict, profiles: dict, po
             if set(model) != {"id"}:
                 raise ValueError(f"{runtime['runtime']} model tier {tier} has unused fields")
     for agent in agents:
+        require_version(agent, f"agent {agent.get('name', '<unnamed>')}")
         allowed_fields = {
             "version",
             "name",
@@ -612,7 +584,6 @@ def validate_agents(agents: list[dict], capability_map: dict, profiles: dict, po
             "profile",
             "model_tier",
             "output_contract",
-            "max_turns",
             "constraints",
         }
         if profiles.get(agent.get("profile"), {}).get("write"):
@@ -640,7 +611,10 @@ def validate_agents(agents: list[dict], capability_map: dict, profiles: dict, po
 
 
 def validate_neutral_core(ai: Path) -> None:
-    provider_terms = re.compile(r"\b(gpt-5|codex|claude|opus|sonnet|haiku)\b", re.IGNORECASE)
+    provider_terms = re.compile(
+        r"\b(gpt-5|codex|claude|openai|anthropic|opus|sonnet|haiku|gemini)\b",
+        re.IGNORECASE,
+    )
     paths = [ai / "policy.yaml", ai / "capabilities/map.yaml", ai / "capabilities/profiles.yaml"]
     paths.extend(sorted((ai / "agents").glob("*.yaml")))
     for path in paths:
@@ -648,9 +622,38 @@ def validate_neutral_core(ai: Path) -> None:
             raise ValueError(f"provider-specific term leaked into neutral source: {path}")
 
 
+def validate_skill_catalog(ai: Path, token_budget: int) -> None:
+    catalog = ai / "catalog"
+    index_path = catalog / "index.yaml"
+    index = load_yaml(index_path)
+    exact_keys(index, {"version", "selection", "skills"}, "conditional skill catalog")
+    if index["version"] != 1:
+        raise ValueError("conditional skill catalog must use schema version 1")
+    exact_keys(index["selection"], {"consult_when", "load_limit", "activate_when"}, "catalog selection")
+    if not isinstance(index["selection"]["load_limit"], int) or index["selection"]["load_limit"] < 1:
+        raise ValueError("catalog selection load_limit must be a positive integer")
+    catalog_dirs = {
+        path.name for path in catalog.iterdir() if path.is_dir() and (path / "SKILL.md").is_file()
+    }
+    if set(index["skills"]) != catalog_dirs:
+        raise ValueError("catalog index must bind every conditional skill exactly once")
+    for name, spec in index["skills"].items():
+        exact_keys(spec, {"path", "use_when", "avoid_when"}, f"catalog skill {name}")
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+            raise ValueError(f"catalog skill has invalid name: {name}")
+        expected = f".ai/catalog/{name}/SKILL.md"
+        if spec["path"] != expected or not (ai.parent / expected).is_file():
+            raise ValueError(f"catalog skill path is invalid: {name}")
+        if not spec["use_when"] or not spec["avoid_when"]:
+            raise ValueError(f"catalog skill routing is incomplete: {name}")
+    if estimate_tokens(index_path.read_text(encoding="utf-8")) > token_budget:
+        raise ValueError(f"conditional skill catalog exceeds {token_budget} tokens")
+
+
 def build_outputs(root: Path) -> dict[Path, str]:
     ai = root / ".ai"
     project = load_yaml(ai / "project.yaml")
+    require_version(project, "project spec")
     exact_keys(project, {"version", "project", "context", "spec", "budgets"}, "project spec")
     exact_keys(project["project"], {"name", "summary"}, "project identity")
     exact_keys(project["context"], {"always", "conditional"}, "project context")
@@ -658,13 +661,25 @@ def build_outputs(root: Path) -> dict[Path, str]:
     exact_keys(project["spec"], {"policy", "contract_evals"}, "compiled spec paths")
     exact_keys(
         project["budgets"],
-        {"always_loaded_tokens", "adapter_tokens", "skill_descriptions_tokens", "skill_entry_tokens", "agent_contract_tokens"},
+        {
+            "always_loaded_tokens",
+            "planned_route_tokens",
+            "adapter_tokens",
+            "skill_descriptions_tokens",
+            "skill_entry_tokens",
+            "agent_catalog_tokens",
+            "agent_contract_tokens",
+            "optional_skill_catalog_tokens",
+        },
         "token budgets",
     )
     policy = load_yaml(root / project["spec"]["policy"])
     scenarios = load_yaml(root / project["spec"]["contract_evals"])
     capability_map = load_yaml(ai / "capabilities/map.yaml")
-    profiles = load_yaml(ai / "capabilities/profiles.yaml")["profiles"]
+    profiles_document = load_yaml(ai / "capabilities/profiles.yaml")
+    require_version(profiles_document, "capability profiles")
+    exact_keys(profiles_document, {"version", "profiles"}, "capability profiles")
+    profiles = profiles_document["profiles"]
     codex = load_yaml(ai / "capabilities/runtimes/codex.yaml")
     claude = load_yaml(ai / "capabilities/runtimes/claude.yaml")
     agents = [load_yaml(path) for path in sorted((ai / "agents").glob("*.yaml"))]
@@ -674,6 +689,7 @@ def build_outputs(root: Path) -> dict[Path, str]:
     validate_runtime_profiles(profiles, codex, claude)
     validate_agents(agents, capability_map, profiles, policy, codex, claude)
     validate_neutral_core(ai)
+    validate_skill_catalog(ai, project["budgets"]["optional_skill_catalog_tokens"])
     known_capabilities = set(capability_map["capabilities"])
 
     generated: dict[Path, str] = {
@@ -705,7 +721,7 @@ def build_outputs(root: Path) -> dict[Path, str]:
     shared_total = 0
     for relative in project["context"]["always"]:
         path = root / relative
-        text = generated.get(path, path.read_text(encoding="utf-8"))
+        text = generated[path] if path in generated else path.read_text(encoding="utf-8")
         shared_total += estimate_tokens(text)
     runtime_total = shared_total + max(
         estimate_tokens(generated[root / "AGENTS.md"]),
@@ -716,25 +732,68 @@ def build_outputs(root: Path) -> dict[Path, str]:
             f"always-loaded estimate {runtime_total} exceeds {budgets['always_loaded_tokens']} tokens"
         )
 
+    agent_catalog_total = sum(
+        estimate_tokens(f"{agent['mission']} Use when: {agent['when_to_use']}") for agent in agents
+    )
+    if agent_catalog_total > budgets["agent_catalog_tokens"]:
+        raise ValueError(
+            f"agent catalog estimate {agent_catalog_total} exceeds {budgets['agent_catalog_tokens']} tokens"
+        )
+    planned_total = (
+        runtime_total
+        + estimate_tokens(generated[ai / "methodology.md"])
+        + agent_catalog_total
+    )
+    if planned_total > budgets["planned_route_tokens"]:
+        raise ValueError(
+            f"planned-route estimate {planned_total} exceeds {budgets['planned_route_tokens']} tokens"
+        )
+
     description_total = 0
     for skill_dir in sorted((ai / "skills").iterdir()):
         if not skill_dir.is_dir():
             continue
         skill_path = skill_dir / "SKILL.md"
         manifest_path = skill_dir / "manifest.yaml"
-        if not skill_path.exists() or not manifest_path.exists():
-            raise ValueError(f"{skill_dir} must contain SKILL.md and manifest.yaml")
+        if not skill_path.exists():
+            continue
         content = skill_path.read_text(encoding="utf-8")
         match = re.match(r"^---\n(.*?)\n---\n", content, re.DOTALL)
         if not match:
             raise ValueError(f"{skill_path} has invalid frontmatter")
         frontmatter = yaml.safe_load(match.group(1))
+        description_total += estimate_tokens(str(frontmatter.get("description", "")))
+        entry_tokens = estimate_tokens(content)
+        if entry_tokens > budgets["skill_entry_tokens"]:
+            raise ValueError(f"{skill_path} estimate {entry_tokens} exceeds the project skill budget")
+        if not manifest_path.exists():
+            continue
         manifest = load_yaml(manifest_path)
+        if manifest.get("managed_by") != "dev-template":
+            continue
+        exact_keys(
+            manifest,
+            {
+                "version",
+                "name",
+                "managed_by",
+                "audience",
+                "requires_capabilities",
+                "budgets",
+                "references",
+                "package",
+                "triggers",
+            },
+            f"skill manifest {skill_dir.name}",
+        )
+        if manifest["version"] != 1:
+            raise ValueError(f"{manifest_path} has an unsupported version")
+        if manifest["audience"] not in {"default", "optional", "maintainer"}:
+            raise ValueError(f"skill {skill_dir.name} has an invalid audience")
         if frontmatter.get("name") != manifest.get("name") or manifest.get("name") != skill_dir.name:
             raise ValueError(f"skill name mismatch in {skill_dir}")
-        description_total += estimate_tokens(str(frontmatter.get("description", "")))
-        entry_budget = manifest.get("budgets", {}).get("entry_tokens", budgets["skill_entry_tokens"])
-        entry_tokens = estimate_tokens(content)
+        exact_keys(manifest["budgets"], {"entry_tokens", "total_tokens"}, f"skill budgets {skill_dir.name}")
+        entry_budget = min(manifest["budgets"]["entry_tokens"], budgets["skill_entry_tokens"])
         if entry_tokens > entry_budget:
             raise ValueError(f"{skill_path} estimate {entry_tokens} exceeds {entry_budget} tokens")
         missing_capabilities = set(manifest.get("requires_capabilities", [])) - known_capabilities
@@ -743,6 +802,29 @@ def build_outputs(root: Path) -> dict[Path, str]:
         for reference in manifest.get("references", []):
             if not (skill_dir / reference).exists():
                 raise ValueError(f"{manifest_path} references missing path {reference}")
+        exact_keys(manifest["triggers"], {"positive", "negative"}, f"skill triggers {skill_dir.name}")
+        for kind in ("positive", "negative"):
+            if len(manifest["triggers"][kind]) < 5:
+                raise ValueError(f"{manifest_path} requires at least five {kind} trigger cases")
+        source_root = skill_dir.resolve()
+        source_files = [path for path in source_root.rglob("*") if path.is_file()]
+        packaged = [
+            path
+            for path in source_files
+            if any(
+                fnmatch.fnmatch(path.relative_to(source_root).as_posix(), pattern)
+                for pattern in manifest["package"]
+            )
+        ]
+        if set(packaged) != set(source_files):
+            raise ValueError(f"{manifest_path} package allowlist does not cover every source file")
+        total_tokens = sum(
+            estimate_tokens(path.read_text(encoding="utf-8"))
+            for path in packaged
+            if path.suffix in {".md", ".yaml", ".yml", ".py", ".js", ".ts", ".toml", ".json", ".txt"}
+        )
+        if total_tokens > manifest["budgets"]["total_tokens"]:
+            raise ValueError(f"{skill_dir} packaged text exceeds its total token budget")
     if description_total > budgets["skill_descriptions_tokens"]:
         raise ValueError(
             f"skill description estimate {description_total} exceeds {budgets['skill_descriptions_tokens']} tokens"
@@ -754,19 +836,31 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--preserve-existing",
+        action="store_true",
+        help="create missing generated files but do not replace or prune existing outputs",
+    )
     args = parser.parse_args()
     root = args.root.resolve()
     generated = build_outputs(root)
     stale: list[Path] = []
     for path, text in generated.items():
+        existing = path.read_text(encoding="utf-8") if path.exists() else None
         if args.check:
-            if not path.exists() or path.read_text(encoding="utf-8") != text:
+            if existing is None or (GENERATED_MARKER in existing and existing != text):
                 stale.append(path)
+            continue
+        if args.preserve_existing and existing is not None:
+            print(f"preserved existing file {path.relative_to(root)}")
+            continue
+        if existing is not None and GENERATED_MARKER not in existing:
+            print(f"preserved customized file {path.relative_to(root)}")
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text, encoding="utf-8")
         print(f"generated {path.relative_to(root)}")
-    if not args.check:
+    if not args.check and not args.preserve_existing:
         for directory, suffix in ((root / ".codex/agents", ".toml"), (root / ".claude/agents", ".md")):
             for path in directory.glob(f"*{suffix}"):
                 if path not in generated and GENERATED_MARKER in path.read_text(encoding="utf-8"):

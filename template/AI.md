@@ -7,7 +7,7 @@ TODO replace this line with a one-sentence description of the project and its us
 1. Replace `PROJECTNAME` in `AI.md`, `.ai/project.yaml`, and `flake.nix`.
 2. Run `direnv allow` or `nix develop`.
 3. Ask for the first outcome in plain language. The agent workflow will inspect, plan when needed, execute, and verify.
-4. Run `cc-setup` after source code exists to replace the starter facts with repository evidence.
+4. Invoke `agent-context` after source code exists to replace starter facts with repository evidence.
 
 ## Stack
 
@@ -23,7 +23,8 @@ TODO replace this line with a one-sentence description of the project and its us
 
 ## Layout
 
-- `.ai/` - neutral agent specification, project context, and shared skills.
+- `.ai/` - neutral agent specification, project context, and the default shared skill.
+- `.ai/catalog/` - conditional domain skills; consult its index for Planned or Hard work.
 - `.agents/skills/` - Codex skill discovery link.
 - `.claude/` - Claude Code agents and native settings.
 - `.codex/` - Codex agents and native settings.

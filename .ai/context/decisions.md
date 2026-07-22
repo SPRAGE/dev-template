@@ -42,7 +42,7 @@ Entry format:
 
 ## Compiled Agent Specification And Tiered Execution
 - **Date:** 2026-07-12
-- **Status:** active
+- **Status:** superseded by Lean Runtime Contracts And Explicit Skill Discovery
 - **Decision:** `.ai/` is a validated source specification. Provider adapters and agents are generated from neutral policy, capability, and agent contracts. Coordinated or high-risk work is planned on the deep tier, bounded implementation and routine review run on the balanced tier, and read-heavy/support work runs on the fast tier.
 - **Why:** Minimal prompts should trigger deep analysis while execution cost scales with task complexity; generated views and CI budgets prevent provider drift and context bloat.
 - **Alternatives considered:** Keep handwritten provider agents; run every subagent on the parent model; encode orchestration only in an optional skill.
@@ -53,3 +53,31 @@ Entry format:
 - **Decision:** Do not seed placeholder active context, global MCP servers, or optional Claude plugins. Load architecture, conventions, decisions, skills, references, and external tools only when the task needs them.
 - **Why:** Empty context and global tool schemas impose recurring token cost without improving most tasks.
 - **Alternatives considered:** Session-start decision injection; Context7 in every session; always-loaded full project context.
+
+## Public Codex From Unstable Nixpkgs
+- **Date:** 2026-07-22
+- **Status:** active
+- **Decision:** Install Codex directly as `pkgs.codex` from the locked unstable nixpkgs input. Emit only `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin`, which that input and package support.
+- **Why:** The private input made public evaluation depend on an internal SSH endpoint and selected a different binary on one system. Current unstable nixpkgs no longer evaluates Intel macOS.
+- **Alternatives considered:** Keep the private input with fallback; conditionally omit Codex while retaining unsupported systems.
+
+## Lean Runtime Contracts And Explicit Skill Discovery
+- **Date:** 2026-07-22
+- **Status:** active
+- **Decision:** Keep planning and integration in the primary context; expose only scout, researcher, worker, and reviewer roles. Discover one default `agent-context` skill and keep domain/maintainer skills in an opt-in catalog.
+- **Why:** Nine roles and nine default skill descriptions repeated policy, created trigger conflicts, and added context without behavioral evidence. Four roles preserve meaningful isolation while route-level budgets make the static cost visible.
+- **Alternatives considered:** Preserve all specialist roles; remove custom roles entirely; keep all skills discoverable with lower entry budgets.
+
+## Explicit Runtime Schema Migration
+- **Date:** 2026-07-22
+- **Status:** active
+- **Decision:** Runtime schema version 2 is validated. Sync never upgrades an existing compiler and compiles only schema-v2 projects in preserve-existing mode; older projects require an explicit migration.
+- **Why:** Updating the compiler while retaining older strict-schema inputs could break refresh, and normal compilation overwrote provider files that lifecycle messages claimed to preserve.
+- **Alternatives considered:** Treat every marker-bearing file as replaceable; silently rewrite all managed neutral sources during sync.
+
+## Autonomous Domain Grounding And Conditional Specialists
+- **Date:** 2026-07-22
+- **Status:** active
+- **Decision:** Planned and Hard work begins with a minimal evidence-backed domain brief. A compact catalog routes at most two specialist procedures per task; only recurring procedures are activated into provider discovery through a collision-safe relative link.
+- **Why:** Domain, knowledge, visualization, performance, migration, and testing guidance can materially improve complex delivery, but loading all of it in every session would waste context and create trigger conflicts.
+- **Alternatives considered:** Discover all specialist skills by default; keep only generic methodology; restore a large virtual organization skill.

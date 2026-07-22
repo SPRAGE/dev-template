@@ -1,7 +1,0 @@
-version: 1
-name: planner
-managed_by: dev-template
-layer: work
-requires_capabilities: [explore, plan]
-budgets: {entry_tokens: 1200, total_warn: 3000}
-references: []

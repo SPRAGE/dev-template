@@ -2,72 +2,79 @@
 
 ## Objective
 
-A minimal request should produce the analysis needed for a verified result without paying deep-model cost for every step. The primary context retains user intent, preserved values, decisions, and delivery state. Specialized agents receive bounded work and return evidence instead of raw session history.
+Preserve user intent and integration state in one primary context while loading specialized instructions, project facts, roles, and tools only when they improve the task.
 
-## Instruction Layers
+## Layers
 
-Authored policy lives under `template/.ai/`:
+- `AI.md` contains frequent project facts and exact commands.
+- `.ai/instructions.md` is the compact, always-relevant safety and delivery contract.
+- `.ai/methodology.md` loads only for Planned or Hard work.
+- `.ai/context/` contains evidence-backed architecture, conventions, decisions, or active work only when those files are useful.
+- `.ai/skills/` contains recurring judgment-heavy procedures; provider paths are discovery links.
+- `.ai/catalog/` contains dormant provider-neutral specialist procedures and a compact routing index.
+- `.ai/tools/skillctl.py` activates recurring catalog procedures without replacing project-owned skills.
+- `.ai/policy.yaml`, capabilities, agents, and evals are versioned neutral source specifications.
+- `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.codex/`, and `.claude/` are generated or provider-native views.
 
-- `project.yaml` defines project identity, context routes, budgets, and compiled-spec paths;
-- `policy.yaml` defines authorization, delivery triggers, handoffs, preservation, and completion;
-- `capabilities/` defines task inputs, report contracts, profiles, and runtime bindings;
-- `agents/` defines bounded roles, model posture, escalation conditions, and write scope;
-- `instructions.md` and `methodology.md` are generated readable policy views;
-- `skills/` hold procedures loaded only when triggered;
-- `evals/` holds deterministic policy and generation fixtures.
+## Routing
 
-`AGENTS.md`, `CODEX.md`, and `CLAUDE.md` are generated pointer-only adapters. They identify runtime discovery paths and point to shared policy; they do not restate the delivery loop. This keeps an instruction authoritative in one place and prevents provider drift.
+Intent sets the authorization boundary before complexity selects a route. Explain, review, diagnose, and plan requests inspect and report. Build, change, and fix requests permit scoped local edits and non-destructive checks. Destructive actions, external mutations, privilege expansion, purchases, deployments, and material scope expansion require confirmation.
 
-## Authorization And Routing
+- **Direct:** bounded, reversible, low-risk work; the primary executes and runs focused verification.
+- **Planned:** coupled or materially ambiguous work; the primary creates one inference-first plan, delegates only ready independent steps, and integrates the current diff.
+- **Hard:** security-sensitive, destructive, regulated, or otherwise high-consequence work; the plan includes stop/rollback gates and receives independent deep review.
 
-Intent determines the action boundary before task complexity determines the model tier:
+File count alone does not make work Planned.
 
-- Explain, review, diagnose, and plan requests inspect and report without implementation.
-- Build, change, and fix requests authorize scoped local edits and non-destructive validation.
-- Destructive actions, external writes or deployments, purchases, permission expansion, and material scope expansion require confirmation.
+## Autonomous Domain-To-Delivery Loop
 
-Direct, routine work executes without a formal plan. Use a deep planner when work is genuinely coordinated, architecturally coupled, materially ambiguous, security-sensitive, destructive, regulated, or otherwise high risk. Reuse an adequate existing plan instead of planning again.
+For consequential work, the primary assembles the smallest evidenced domain brief: actors, goals, terms, workflows, invariants, boundaries, sources, and material unknowns. Repository facts and configured knowledge sources come first; current external research is isolated and returned as citations, freshness, and uncertainty rather than bulk context.
 
-| Work | Codex | Claude |
-|---|---|---|
-| Coordinated/Hard planning; risk and security review | Sol | Opus |
-| Routine implementation, integration, and code review | Terra | Sonnet |
-| Focused exploration, documentation, and bounded verification | Luna | Haiku |
+Planned and Hard routes consult the 699-token catalog index only when specialist guidance is material and load no more than two skill bodies. A procedure is activated into runtime discovery only when it will recur. The primary then owns the dependency-ordered plan, continues through safe reversible steps, integrates the live diff, runs risk-appropriate proof, and promotes only verified recurring facts into project context. It stops for missing knowledge only when the answer could change scope, architecture, safety, or acceptance.
 
-Model identity and reasoning effort are independent controls. Routine Sol or Opus work should not default to maximum effort, and a fast-tier worker must stop or escalate when synthesis, diagnosis, or risk exceeds its contract.
+## Roles
 
-## Handoff And Evidence
+The primary owns planning, integration, routine testing, documentation, and final delivery. The runtime exposes four bounded helpers:
 
-Every dispatched step includes:
+| Role | Contract |
+|---|---|
+| `scout` | Find targeted repository evidence without edits. |
+| `researcher` | Verify version-sensitive claims against current primary sources. |
+| `worker` | Implement one settled, disjoint scope and return proof. |
+| `reviewer` | Independently identify correctness, security, regression, and verification risks. |
 
-- task mode and current delivery layer;
-- step identifier, relevant facts, dependencies, and exact file scope;
-- success criteria and user-provided values or behavior that must remain unchanged;
-- required evidence and validation commands;
-- stop conditions for contradictions, missing dependencies, scope expansion, or elevated risk.
+Every handoff contains an objective, file scope, success criteria, preserved invariants, and required evidence. Workers stop on contradictions, missing dependencies, unsafe actions, or scope conflict. The primary re-reads and integrates the current repository state; reports never substitute for that check.
 
-Every worker report has a normalized `complete`, `partial`, or `blocked` status, evidence, material caveats, and a next action. `complete` is invalid when required evidence is absent. Workers do not silently redesign a plan, weaken behavior, or delete functionality to make a check pass.
+Codex fast/balanced/deep role tiers map to Luna/Terra/Sol with low/medium/high role effort. Claude maps them to Haiku/Sonnet/Opus. The main model is inherited from the active runtime instead of being pinned by the project. External tools are limited to the role that needs them, and delegation depth is one.
 
-The primary or a balanced integrator reconciles worker reports against current repository state. Sol/Opus review is added when risk warrants it, not as a mandatory ceremony for every cross-file edit.
+## Compilation And Migration
 
-## Tool Isolation
+The compiler validates schema version 2, exact fields, provider-neutral core files, profile parity, permission expansion, role routing, the conditional catalog, activated skill ownership, package allowlists, deterministic scenarios, and context budgets. It emits provider adapters and role files from neutral source.
 
-The main runtime does not load a global MCP or web catalog. Network and documentation tools are scoped to the research role, and other agents receive only the tools required by their profile. Parallel work stays flat and is limited to independent reads or disjoint write scopes.
+Normal maintainer generation updates marked outputs. Lifecycle sync is conservative: missing generated outputs come from the target project's compiler, while existing compilers, specs, adapters, configuration, and roles are preserved. This big-bang release intentionally has no automatic v1-to-v2 transformer; older projects require a reviewed manual reconciliation or a confirmed `fresh-start`.
 
-## Compilation And Policy Checks
+## Evidence
 
-`compile.py` validates the neutral schema and generates Codex TOML agents, Claude Markdown agents, pointer adapters, and the readable capability map. It rejects unused policy fields, unexplained provider privilege expansion, missing scopes, budget overruns, and stale generated files.
+Deterministic tests prove routing, authorization, completion contracts, provider parity, source mirroring, archive reproducibility, lifecycle preservation, and Nix evaluation. Static token estimates prove only context-size reductions. Live representative tasks with blinded outcome grading are needed to claim better reasoning or delivery quality.
 
-Deterministic fixtures cover authorization outcomes, delivery-tier selection, provider metadata parity, contradiction stops, and evidence requirements. These tests prove policy and compiler behavior; optional live-model evaluations are still required to measure GPT-5.6 or Claude judgment quality.
+Using the compiler's byte/word estimator against the generated base template before and after this rewrite:
 
-## Context Budget
+| Static surface | Before | After | Reduction |
+|---|---:|---:|---:|
+| Always-loaded route | 1,215 | 910 | 25% |
+| Planned route including role catalog | 2,531 | 1,704 | 33% |
+| Role discovery catalog | 635 | 165 | 74% |
+| Skill discovery descriptions | 380 | 52 | 86% |
+| Runtime roles | 9 | 4 | 56% |
+| Individual generated role contract | 401–529 | 278–360 | 31–32% by range endpoint |
+| Conditional specialist index | none | 699 | loaded only when specialist routing is material |
 
-The compiler estimates and enforces always-loaded, adapter, skill-discovery, skill-entry, and agent-contract budgets. Architecture, conventions, decisions, active work, references, and tool schemas remain conditional. Placeholder active context and globally exposed tool schemas are intentionally absent.
+These are comparable static estimates from committed before/after files, not API billing tokens.
 
 ## Change Workflow
 
-1. Edit the neutral source or deterministic fixtures.
-2. Run `python template/.ai/generators/compile.py --root template`.
-3. Run `bash tests/sync-template-shared.sh`.
-4. Regenerate skill archives when skill sources changed.
-5. Run agent-system, template-sync, skill, app, and flake checks.
+1. Edit `template/.ai/` or one documented language overlay.
+2. Compile the base runtime.
+3. Sync the language mirrors and compile them.
+4. Repackage changed default or optional skills.
+5. Run agent, mirror, skill, lifecycle, and all-system flake checks.

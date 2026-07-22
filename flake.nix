@@ -8,10 +8,9 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    custom-codex-release.url = "git+ssh://pai@192.168.0.7/srv/git/custom-codex-release.git?ref=latest";
   };
 
-  outputs = { self, nixpkgs, flake-utils, claude-code, custom-codex-release, ... }:
+  outputs = { self, nixpkgs, flake-utils, claude-code, ... }:
     {
       templates = {
         default = {
@@ -31,10 +30,9 @@
       };
     }
     //
-    flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        codexPackage = custom-codex-release.packages.${system}.codex or pkgs.codex;
       in
       rec {
         devShells.default = pkgs.mkShell {
@@ -49,7 +47,7 @@
             pkgs.unzip
             (pkgs.python3.withPackages (ps: [ ps.pyyaml ]))
             claude-code.packages.${system}.default
-            codexPackage
+            pkgs.codex
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             pkgs.bubblewrap
           ];
@@ -288,20 +286,12 @@
               codex_config_skipped=0
               if [ -f "$CODEX_SOURCE/config.toml" ]; then
                 if [ ! -f "$PWD/.codex/config.toml" ]; then
-                  cp -L "$CODEX_SOURCE/config.toml" "$PWD/.codex/config.toml"
-                  chmod u+w "$PWD/.codex/config.toml"
-                  echo "  + config.toml (added)"
-                  codex_config_added=1
+                  echo "  = config.toml (missing; target compiler will generate it)"
                 elif cmp -s "$CODEX_SOURCE/config.toml" "$PWD/.codex/config.toml"; then
                   echo "  = config.toml (up to date)"
                   codex_config_unchanged=1
-                elif grep -q "Generated from .ai/" "$PWD/.codex/config.toml" 2>/dev/null; then
-                  cp -L "$CODEX_SOURCE/config.toml" "$PWD/.codex/config.toml"
-                  chmod u+w "$PWD/.codex/config.toml"
-                  echo "  ~ config.toml (updated)"
-                  codex_config_updated=1
                 else
-                  echo "  = config.toml (customized, not overwriting)"
+                  echo "  = config.toml (existing, not overwriting; regenerate explicitly)"
                   codex_config_skipped=1
                 fi
               fi
@@ -319,20 +309,12 @@
                   agent_name=$(basename "$agent_file")
                   target="$PWD/.codex/agents/$agent_name"
                   if [ ! -f "$target" ]; then
-                    cp -L "$agent_file" "$target"
-                    chmod u+w "$target"
-                    echo "  + $agent_name (added)"
-                    codex_agents_added=$((codex_agents_added + 1))
+                    echo "  = $agent_name (missing; target compiler will generate it)"
                   elif cmp -s "$agent_file" "$target"; then
                     echo "  = $agent_name (up to date)"
                     codex_agents_unchanged=$((codex_agents_unchanged + 1))
-                  elif grep -q "Generated from .ai/" "$target" 2>/dev/null; then
-                    cp -L "$agent_file" "$target"
-                    chmod u+w "$target"
-                    echo "  ~ $agent_name (updated)"
-                    codex_agents_updated=$((codex_agents_updated + 1))
                   else
-                    echo "  = $agent_name (customized, not overwriting)"
+                    echo "  = $agent_name (existing, not overwriting; regenerate explicitly)"
                     codex_agents_skipped=$((codex_agents_skipped + 1))
                   fi
                 done
@@ -351,20 +333,12 @@
                   agent_name=$(basename "$agent_file")
                   target="$PWD/.claude/agents/$agent_name"
                   if [ ! -f "$target" ]; then
-                    cp -L "$agent_file" "$target"
-                    chmod u+w "$target"
-                    echo "  + $agent_name (added)"
-                    claude_agents_added=$((claude_agents_added + 1))
+                    echo "  = $agent_name (missing; target compiler will generate it)"
                   elif cmp -s "$agent_file" "$target"; then
                     echo "  = $agent_name (up to date)"
                     claude_agents_unchanged=$((claude_agents_unchanged + 1))
-                  elif grep -q "Generated from .ai/" "$target" 2>/dev/null; then
-                    cp -L "$agent_file" "$target"
-                    chmod u+w "$target"
-                    echo "  ~ $agent_name (updated)"
-                    claude_agents_updated=$((claude_agents_updated + 1))
                   else
-                    echo "  = $agent_name (customized, not overwriting)"
+                    echo "  = $agent_name (existing, not overwriting; regenerate explicitly)"
                     claude_agents_skipped=$((claude_agents_skipped + 1))
                   fi
                 done
@@ -487,7 +461,7 @@
                 echo ""
                 echo "sync-skills: syncing AI context templates"
 
-                for spec_path in project.yaml policy.yaml methodology.md capabilities agents evals generators; do
+                for spec_path in project.yaml policy.yaml capabilities agents evals generators catalog tools; do
                   if [ -e "$AI_TARGET/$spec_path" ]; then
                     echo "  = .ai/$spec_path (exists, not overwriting)"
                     ai_skipped=$((ai_skipped + 1))
@@ -510,12 +484,8 @@
                     ai_added=$((ai_added + 1))
                   elif cmp -s "$compiler_source" "$compiler_target"; then
                     echo "  = .ai/generators/compile.py (up to date)"
-                  elif grep -Fqx '"""Compile the neutral agent specification into Codex and Claude artifacts."""' "$compiler_target" 2>/dev/null; then
-                    cp -L "$compiler_source" "$compiler_target"
-                    chmod u+wx "$compiler_target"
-                    echo "  ~ .ai/generators/compile.py (managed compiler updated)"
                   else
-                    echo "  = .ai/generators/compile.py (customized, not overwriting)"
+                    echo "  = .ai/generators/compile.py (existing compiler preserved; migrate explicitly)"
                     ai_skipped=$((ai_skipped + 1))
                   fi
                 fi
@@ -525,10 +495,7 @@
                     echo "  = .ai/instructions.md (exists, not overwriting)"
                     ai_skipped=$((ai_skipped + 1))
                   else
-                    cp -L "$AI_SOURCE/instructions.md" "$AI_TARGET/instructions.md"
-                    chmod u+w "$AI_TARGET/instructions.md"
-                    echo "  + .ai/instructions.md (added)"
-                    ai_added=$((ai_added + 1))
+                    echo "  = .ai/instructions.md (missing; target compiler will generate it)"
                   fi
                 fi
 
@@ -685,7 +652,12 @@
 
               echo ""
               echo "sync-skills: compiling provider runtimes from the target neutral spec"
-              "$PYTHON" "$PWD/.ai/generators/compile.py" --root "$PWD"
+              if grep -Eq '^version: 2$' "$PWD/.ai/project.yaml" 2>/dev/null &&
+                 "$PYTHON" "$PWD/.ai/generators/compile.py" --help 2>&1 | grep -q -- '--preserve-existing'; then
+                "$PYTHON" "$PWD/.ai/generators/compile.py" --root "$PWD" --preserve-existing
+              else
+                echo "  = provider compile skipped (neutral schema requires an explicit migration)"
+              fi
 
               echo ""
               echo "Done: shared skills: $shared_added added, $shared_updated updated, $shared_unchanged unchanged, $shared_skipped customized collisions preserved | Codex repo skill link: $agents_skill_added added, $agents_skill_updated updated, $agents_skill_unchanged unchanged, $agents_skill_skipped skipped | Claude skill link: $claude_added added, $claude_updated updated, $claude_unchanged unchanged, $claude_skipped skipped | Codex compatibility skill link: $codex_added added, $codex_updated updated, $codex_unchanged unchanged, $codex_skipped skipped | .agents README: $agents_readme_added added, $agents_readme_updated updated, $agents_readme_unchanged unchanged, $agents_readme_skipped skipped | .codex README: $codex_readme_added added, $codex_readme_updated updated, $codex_readme_unchanged unchanged, $codex_readme_skipped skipped | .codex config: $codex_config_added added, $codex_config_updated updated, $codex_config_unchanged unchanged, $codex_config_skipped skipped | .codex agents: ''${codex_agents_added:-0} added, ''${codex_agents_updated:-0} updated, ''${codex_agents_unchanged:-0} unchanged, ''${codex_agents_skipped:-0} skipped | hooks: ''${hooks_added:-0} added, ''${hooks_updated:-0} updated, ''${hooks_unchanged:-0} unchanged, ''${hooks_skipped:-0} skipped | legacy migrations: $legacy_migrations | AI context: $ai_added added, $ai_skipped skipped | AI.md: $ai_md_added added, $ai_md_updated updated, $ai_md_unchanged unchanged, $ai_md_skipped skipped | CLAUDE.md: $claude_md_added added, $claude_md_updated updated, $claude_md_unchanged unchanged, $claude_md_skipped skipped | CODEX.md: $codex_md_added added, $codex_md_updated updated, $codex_md_unchanged unchanged, $codex_md_skipped skipped | AGENTS.md: $agent_added added, $agent_updated updated, $agent_unchanged unchanged, $agent_skipped skipped"
@@ -1036,9 +1008,9 @@
               fi
 
               # Detect state — if already onboarded, suggest refresh instead
-              if [ -d "$PWD/.ai/skills" ] && [ -f "$PWD/.ai/project.yaml" ] && [ -f "$PWD/.ai/policy.yaml" ] && [ -f "$PWD/.ai/evals/contract-scenarios.yaml" ] && [ -d "$PWD/.ai/capabilities" ] && [ -d "$PWD/.ai/agents" ] && [ -d "$PWD/.agents/skills" ] && [ -d "$PWD/.claude/skills" ] && [ -d "$PWD/.claude/agents" ] && [ -d "$PWD/.codex/skills" ] && [ -f "$PWD/.codex/config.toml" ] && [ -d "$PWD/.codex/agents" ] && [ -f "$PWD/.claude/settings.json" ] && [ -f "$PWD/.mcp.json" ] && [ -f "$PWD/AI.md" ] && [ -f "$PWD/CLAUDE.md" ] && [ -f "$PWD/CODEX.md" ] && [ -f "$PWD/AGENTS.md" ] && [ -f "$PWD/.ai/instructions.md" ]; then
+              if [ -d "$PWD/.ai/skills" ] && [ -f "$PWD/.ai/project.yaml" ] && [ -f "$PWD/.ai/policy.yaml" ] && [ -f "$PWD/.ai/catalog/index.yaml" ] && [ -f "$PWD/.ai/tools/skillctl.py" ] && [ -f "$PWD/.ai/evals/contract-scenarios.yaml" ] && [ -d "$PWD/.ai/capabilities" ] && [ -d "$PWD/.ai/agents" ] && [ -d "$PWD/.agents/skills" ] && [ -d "$PWD/.claude/skills" ] && [ -d "$PWD/.claude/agents" ] && [ -d "$PWD/.codex/skills" ] && [ -f "$PWD/.codex/config.toml" ] && [ -d "$PWD/.codex/agents" ] && [ -f "$PWD/.claude/settings.json" ] && [ -f "$PWD/.mcp.json" ] && [ -f "$PWD/AI.md" ] && [ -f "$PWD/CLAUDE.md" ] && [ -f "$PWD/CODEX.md" ] && [ -f "$PWD/AGENTS.md" ] && [ -f "$PWD/.ai/instructions.md" ]; then
                 echo "This project appears already onboarded (.ai/context, .ai/skills, .agents/skills, .claude/skills, .codex/skills, .codex/config.toml, .codex/agents, AI.md, AGENTS.md, CODEX.md, and CLAUDE.md exist)."
-                echo "Run /cc-refresh inside Claude Code to update existing configuration."
+                echo "Ask your agent to run the agent-context audit, or use 'nix run .#ai-doctor'."
                 echo "Or run 'nix run .#fresh-start' to nuke and re-sync from template."
                 exit 0
               fi
@@ -1049,7 +1021,7 @@
 
               # Provider-neutral AI context
               mkdir -p "$PWD/.ai/context"
-              for spec_path in project.yaml policy.yaml methodology.md capabilities agents evals generators; do
+              for spec_path in project.yaml policy.yaml methodology.md capabilities agents evals generators catalog tools; do
                 if [ -e "$PWD/.ai/$spec_path" ]; then
                   echo "  = .ai/$spec_path (already exists, skipped)"
                 elif [ -e "${ai-src}/$spec_path" ]; then
@@ -1441,7 +1413,7 @@
                   fail ".ai/instructions.md missing"
                 fi
 
-                for path in project.yaml policy.yaml methodology.md capabilities/map.yaml capabilities/profiles.yaml capabilities/runtimes/codex.yaml capabilities/runtimes/claude.yaml evals/contract-scenarios.yaml generators/compile.py; do
+                for path in project.yaml policy.yaml methodology.md capabilities/map.yaml capabilities/profiles.yaml capabilities/runtimes/codex.yaml capabilities/runtimes/claude.yaml evals/contract-scenarios.yaml generators/compile.py catalog/index.yaml tools/skillctl.py; do
                   if [ -e ".ai/$path" ]; then
                     pass ".ai/$path present"
                   else
@@ -1456,13 +1428,14 @@
 
                 if [ -d .ai/context ]; then
                   pass ".ai/context/ present"
+                  context_count=0
                   for file in architecture-snapshot.md conventions.md decisions.md stale-log.md; do
                     if [ -f ".ai/context/$file" ]; then
                       pass ".ai/context/$file present"
-                    else
-                      fail ".ai/context/$file missing"
+                      context_count=$((context_count + 1))
                     fi
                   done
+                  pass ".ai/context uses conditional project facts ($context_count material file(s) present)"
                   if grep -R "TODO:" .ai/context >/dev/null 2>&1; then
                     warn ".ai/context still contains template TODOs"
                   fi
@@ -1676,7 +1649,7 @@
           };
 
         packages = {
-          "codex-redesign" = codexPackage;
+          codex = pkgs.codex;
           "sync-skills" = pkgs.runCommand "sync-skills" { } ''
             mkdir -p $out/bin
             ln -s ${apps.sync-skills.program} $out/bin/sync-skills

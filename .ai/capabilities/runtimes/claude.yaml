@@ -1,4 +1,4 @@
-version: 1
+version: 2
 runtime: claude
 models:
   deep:
@@ -17,10 +17,9 @@ profiles:
   workspace_write:
     permission_mode: acceptEdits
     tools: [Read, Edit, Write, Grep, Glob, Bash]
-  verify:
-    permission_mode: default
-    tools: [Read, Grep, Glob, Bash]
-  privileged:
-    permission_mode: default
-    tools: [Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch]
+max_turns:
+  researcher: 8
+  reviewer: 16
+  scout: 8
+  worker: 18
 fallback: inline_and_report_limitation

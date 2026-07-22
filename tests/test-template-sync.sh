@@ -7,6 +7,7 @@
 # Generated copies are committed because Nix templates are static paths. This test makes
 # template/ the only authored source for all non-overlay files.
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 REPO=${1:-$(git rev-parse --show-toplevel)}
 REPO=$(cd "$REPO" && pwd)
@@ -55,6 +56,30 @@ if failures:
 
 print("PASS: shared files identical across template/, templates/python, templates/rust")
 print("      per-language overlays:", ", ".join(sorted(overlays)))
+PY
+
+echo "=== Flake runtime source and supported-system contract ==="
+REPO="$REPO" python - <<'PY'
+import os
+from pathlib import Path
+
+root = Path(os.environ["REPO"])
+flakes = [root / "flake.nix", root / "template/flake.nix", root / "templates/python/flake.nix", root / "templates/rust/flake.nix"]
+required_systems = {'"x86_64-linux"', '"aarch64-linux"', '"aarch64-darwin"'}
+forbidden_values = ('custom-codex-release', '192.168.0.7', 'codex-redesign', 'eachDefaultSystem')
+for path in flakes:
+    text = path.read_text()
+    assert 'github:NixOS/nixpkgs/nixpkgs-unstable' in text, path
+    assert 'pkgs.codex' in text, path
+    assert 'flake-utils.lib.eachSystem' in text, path
+    assert all(system in text for system in required_systems), path
+    for forbidden in forbidden_values:
+        assert forbidden not in text, f"{path}: stale {forbidden}"
+    print("PASS:", path.relative_to(root))
+lock = (root / "flake.lock").read_text()
+for forbidden in forbidden_values[:-1]:
+    assert forbidden not in lock, f"flake.lock: stale {forbidden}"
+print("PASS: flake.lock has no private Codex dependency")
 PY
 
 for language in python rust; do

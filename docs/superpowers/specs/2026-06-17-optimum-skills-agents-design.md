@@ -1,7 +1,7 @@
 # Optimum Skills + Agents Design — dev-template north star
 
 - **Date:** 2026-06-17
-- **Status:** current architecture; GPT-5.6 routing and contract refinement adopted 2026-07-12
+- **Status:** superseded historical design; see `docs/agent-runtime.md` and `docs/skill-audit-2026-07-22.md`
 - **Authors:** Claude (Opus 4.8) + Codex (custom-codex v0.2.13), co-designed via adversarial debate.
 - **Verification:** Codex runtime bindings checked against the official Codex config reference (`developers.openai.com/codex/config-reference`, `/codex/subagents`). Claude runtime bindings corrected against the real subagent-type set (no built-in `Research`/`Test` types).
 

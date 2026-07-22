@@ -1,45 +1,24 @@
 # dev-template
 
-Nix templates that compile a provider-neutral agent specification into efficient Codex and Claude project runtimes.
-
-## Stack
-
-- Nix flakes for templates, packages, and lifecycle apps.
-- Bash for app/test orchestration.
-- Python plus PyYAML for neutral-spec validation and provider artifact generation.
-- Markdown and YAML for project facts, skills, capabilities, and agent contracts.
+Nix templates that compile provider-neutral repository policy and skills into small runtime adapters for Codex and Claude Code.
 
 ## Commands
 
-- `nix flake check --all-systems` - validate flake outputs.
-- `bash tests/test-agent-system.sh` - validate contracts, token budgets, model pins, and generated artifacts.
-- `bash tests/test-template-sync.sh` - enforce base-template plus overlay generation.
-- `nix develop -c bash tests/test-skills.sh` - validate skill sources and archives.
-- `nix develop -c bash tests/test-apps.sh` - exercise onboard, sync, reset, and doctor apps.
-- `bash tests/sync-template-shared.sh` - regenerate Python/Rust shared files and runtime artifacts.
-- `python template/.ai/generators/compile.py --root template` - compile the base runtime.
+- `nix flake check path:. --all-systems --no-build --no-update-lock-file` — evaluate every emitted system and package.
+- `nix develop path:. -c bash tests/test-agent-system.sh` — validate schemas, route budgets, and generated runtimes.
+- `nix develop path:. -c bash tests/test-template-sync.sh` — enforce base-plus-overlay template generation.
+- `nix develop path:. -c bash tests/test-skills.sh` — validate default/optional skills and archives.
+- `nix develop path:. -c bash tests/test-apps.sh` — exercise onboard, sync, reset, and doctor lifecycles.
+- `nix develop path:. -c bash tests/sync-template-shared.sh` — regenerate language mirrors after base changes.
 
 ## Architecture
 
-- `template/` - authored language-neutral template and neutral agent source.
-- `templates/{python,rust}/` - generated shared files plus four explicit language overlays.
-- `template/.ai/` - policy, capabilities, agents, model tiers, context, skills, eval fixtures, and compiler.
-- `template/.codex/` and `template/.claude/agents/` - generated provider artifacts.
-- `flake.nix` - template exports and lifecycle apps: `onboard`, `sync-skills`, `fresh-start`, `ai-doctor`.
-- `skills/*.skill` - distributable archives generated from `template/.ai/skills/`.
-- `tests/` - generation, contract, archive, and app behavior checks.
+- `template/` is the authored base; `templates/{python,rust}/` are generated shared files plus four language overlays.
+- `template/.ai/` owns neutral policy, capabilities, roles, context, the default skill, eval fixtures, and compiler.
+- `template/.codex/` and `template/.claude/agents/` are generated runtime bindings.
+- `skill-catalog/` contains opt-in skills; `skills/*.skill` are deterministic archives.
+- `flake.nix` exports the templates and lifecycle apps. Codex comes directly from the locked unstable nixpkgs input.
 
-## Source Boundaries
+## Boundaries
 
-- Edit neutral behavior in `template/.ai/`, then compile and sync variants.
-- Edit provider-native settings only in their provider directories.
-- Treat generated files bearing the compiler marker as outputs, not sources.
-- Keep language differences limited to `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`.
-- Regenerate skill archives after any skill source change.
-
-## Working Rules
-
-- Preserve user-local state and unrelated changes, especially `.claude/settings.local.json`, `.agents/local/`, and `.codex/local/`.
-- Do not hardcode secrets or organization-private endpoints into public template defaults.
-- Keep the Codex/Claude topology flat and enforce model tiers through the neutral runtime maps.
-- Add or update tests whenever lifecycle app behavior, generated contracts, or template propagation changes.
+Edit neutral sources before generated outputs and regenerate every affected mirror. Language differences are limited to `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`. Preserve unrelated work plus `.codex/local/`, `.agents/local/`, and provider-local settings. Never publish private endpoints or credentials.

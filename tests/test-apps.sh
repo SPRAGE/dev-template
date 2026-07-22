@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # tests/test-apps.sh — smoke tests for nix app behavior
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 REPO=${1:-$(git rev-parse --show-toplevel)}
 REPO=$(cd "$REPO" && pwd)
@@ -41,10 +42,15 @@ write_test_skill() {
   printf '%s\n' \
     'version: 1' \
     "name: $skill_name" \
-    'layer: test' \
+    'managed_by: local-test' \
+    'audience: default' \
     'requires_capabilities: []' \
-    'budgets: {entry_tokens: 1200}' \
-    'references: []' > "$skill_dir/manifest.yaml"
+    'budgets: {entry_tokens: 700, total_tokens: 900}' \
+    'references: []' \
+    'package: [SKILL.md, manifest.yaml]' \
+    'triggers:' \
+    '  positive: [one, two, three, four, five]' \
+    '  negative: [six, seven, eight, nine, ten]' > "$skill_dir/manifest.yaml"
 }
 
 for manifest in "$REPO"/template/.ai/skills/*/manifest.yaml; do
@@ -170,18 +176,10 @@ grep -qx 'custom statusline' .claude/hooks/statusline.sh || { echo "FAIL: custom
 grep -qx 'custom hook' .claude/hooks/custom-hook.sh || { echo "FAIL: custom hook was removed"; exit 1; }
 grep -qx '# planner' .ai/skills/planner/SKILL.md || { echo "FAIL: unmarked same-name skill collision was overwritten"; exit 1; }
 
-for d in .claude/skills/cc-setup \
-         .claude/skills/fresh-start \
-         .claude/skills/skill-creator \
-         .agents/skills/cc-setup \
-         .agents/skills/fresh-start \
-         .agents/skills/skill-creator \
-         .codex/skills/cc-setup \
-         .codex/skills/fresh-start \
-         .codex/skills/skill-creator \
-         .ai/skills/cc-setup \
-         .ai/skills/fresh-start \
-         .ai/skills/skill-creator; do
+for d in .claude/skills/agent-context \
+         .agents/skills/agent-context \
+         .codex/skills/agent-context \
+         .ai/skills/agent-context; do
   [ -d "$d" ] || { echo "FAIL: $d not synced"; exit 1; }
 done
 assert_skill_link .ai/skills .claude/skills
@@ -204,36 +202,49 @@ for f in .ai/instructions.md \
          .ai/policy.yaml \
          .ai/methodology.md \
          .ai/capabilities/map.yaml \
-         .ai/agents/architecture_planner.yaml \
+         .ai/agents/scout.yaml \
          .ai/evals/contract-scenarios.yaml \
-         .ai/context/architecture-snapshot.md \
-         .ai/context/conventions.md \
-         .ai/context/decisions.md \
-         .ai/context/stale-log.md \
+         .ai/catalog/index.yaml \
+         .ai/tools/skillctl.py \
          .ai/context/.gitignore \
          .agents/README.md \
          .codex/README.md \
          .codex/config.toml \
-         .claude/agents/architecture-planner.md \
-         .codex/agents/repo-explorer.toml \
+         .claude/agents/scout.md \
+         .codex/agents/scout.toml \
          AI.md \
          CLAUDE.md \
          CODEX.md \
          AGENTS.md; do
   [ -f "$f" ] || { echo "FAIL: $f not synced"; exit 1; }
 done
+[ -z "$(find .ai/context -maxdepth 1 -type f ! -name .gitignore -print)" ] || { echo "FAIL: sync should not seed placeholder project facts"; exit 1; }
 
-# Existing neutral configuration is authoritative: a refresh must regenerate
-# provider artifacts from it instead of leaving copied template defaults.
-sed -i '0,/gpt-5.6-sol/s//gpt-5.6-sol-lifecycle-test/' .ai/capabilities/runtimes/codex.yaml
+# Missing generated outputs must come from the target v2 spec, not template defaults.
+sed -i 's/id: gpt-5.6-luna/id: gpt-5.6-luna-lifecycle-test/' .ai/capabilities/runtimes/codex.yaml
+sed -i 's/max_threads: 4/max_threads: 3/' .ai/capabilities/runtimes/codex.yaml
+rm .codex/config.toml .codex/agents/researcher.toml .claude/agents/researcher.md
+run_app sync-skills
+grep -q 'model = "gpt-5.6-luna-lifecycle-test"' .codex/agents/researcher.toml || { echo "FAIL: missing Codex role was copied from template instead of compiled from target spec"; exit 1; }
+grep -q 'max_threads = 3' .codex/config.toml || { echo "FAIL: missing Codex config was copied from template instead of compiled from target spec"; exit 1; }
+[ -f .claude/agents/researcher.md ] || { echo "FAIL: target compiler did not restore missing Claude role"; exit 1; }
+
+# Existing neutral configuration and provider outputs are authoritative during sync.
 printf '\n# stale managed compiler fixture\n' >> .ai/generators/compile.py
-printf '\n# stale managed skill fixture\n' >> .ai/skills/cc-setup/SKILL.md
+printf '\n# stale managed skill fixture\n' >> .ai/skills/agent-context/SKILL.md
+sed -i 's/Running ordinary tests or a one-off review\./Ordinary tests./' .ai/catalog/index.yaml
+printf '\n# customized activation tool fixture\n' >> .ai/tools/skillctl.py
+printf '\n# customized provider config\n' >> .codex/config.toml
+printf '\n# customized provider role\n' >> .codex/agents/reviewer.toml
 printf '{"custom":true}\n' > .claude/settings.json
 printf '{"mcpServers":{"custom":{"type":"stdio","command":"custom-mcp"}}}\n' > .mcp.json
 run_app sync-skills
-grep -q 'model = "gpt-5.6-sol-lifecycle-test"' .codex/config.toml || { echo "FAIL: sync-skills did not compile the target neutral spec"; exit 1; }
-cmp -s .ai/generators/compile.py "$REPO/template/.ai/generators/compile.py" || { echo "FAIL: sync-skills did not refresh the managed compiler"; exit 1; }
-cmp -s .ai/skills/cc-setup/SKILL.md "$REPO/template/.ai/skills/cc-setup/SKILL.md" || { echo "FAIL: marked managed skill was not refreshed"; exit 1; }
+grep -q '# stale managed compiler fixture' .ai/generators/compile.py || { echo "FAIL: sync-skills replaced the target compiler without migration"; exit 1; }
+cmp -s .ai/skills/agent-context/SKILL.md "$REPO/template/.ai/skills/agent-context/SKILL.md" || { echo "FAIL: marked managed skill was not refreshed"; exit 1; }
+grep -q 'avoid_when: Ordinary tests\.' .ai/catalog/index.yaml || { echo "FAIL: sync-skills replaced the project catalog"; exit 1; }
+grep -q '# customized activation tool fixture' .ai/tools/skillctl.py || { echo "FAIL: sync-skills replaced the project activation tool"; exit 1; }
+grep -q '# customized provider config' .codex/config.toml || { echo "FAIL: customized Codex config was overwritten"; exit 1; }
+grep -q '# customized provider role' .codex/agents/reviewer.toml || { echo "FAIL: customized Codex role was overwritten"; exit 1; }
 grep -qx '# planner' .ai/skills/planner/SKILL.md || { echo "FAIL: customized skill collision was not preserved on refresh"; exit 1; }
 grep -qx '{"custom":true}' .claude/settings.json || { echo "FAIL: customized Claude settings were not preserved"; exit 1; }
 grep -q 'custom-mcp' .mcp.json || { echo "FAIL: customized MCP config was not preserved"; exit 1; }
@@ -298,18 +309,10 @@ for state_root in .ai .agents .codex; do
   done
 done
 
-for d in .claude/skills/cc-setup \
-         .claude/skills/fresh-start \
-         .claude/skills/virtual-tech-org \
-         .agents/skills/cc-setup \
-         .agents/skills/fresh-start \
-         .agents/skills/virtual-tech-org \
-         .codex/skills/cc-setup \
-         .codex/skills/fresh-start \
-         .codex/skills/virtual-tech-org \
-         .ai/skills/cc-setup \
-         .ai/skills/fresh-start \
-         .ai/skills/virtual-tech-org; do
+for d in .claude/skills/agent-context \
+         .agents/skills/agent-context \
+         .codex/skills/agent-context \
+         .ai/skills/agent-context; do
   [ -d "$d" ] || { echo "FAIL: $d not restored"; exit 1; }
 done
 assert_skill_link .ai/skills .claude/skills
@@ -321,18 +324,16 @@ for f in .ai/instructions.md \
          .ai/policy.yaml \
          .ai/methodology.md \
          .ai/capabilities/map.yaml \
-         .ai/agents/architecture_planner.yaml \
+         .ai/agents/scout.yaml \
          .ai/evals/contract-scenarios.yaml \
-         .ai/context/architecture-snapshot.md \
-         .ai/context/conventions.md \
-         .ai/context/decisions.md \
-         .ai/context/stale-log.md \
+         .ai/catalog/index.yaml \
+         .ai/tools/skillctl.py \
          .ai/context/.gitignore \
          .agents/README.md \
          .codex/README.md \
          .codex/config.toml \
-         .claude/agents/architecture-planner.md \
-         .codex/agents/repo-explorer.toml \
+         .claude/agents/scout.md \
+         .codex/agents/scout.toml \
          .claude/settings.json \
          .mcp.json \
          flake.nix \
@@ -343,9 +344,10 @@ for f in .ai/instructions.md \
   [ -f "$f" ] || { echo "FAIL: $f not restored"; exit 1; }
 done
 [ ! -f .ai/context/active-context.md ] || { echo "FAIL: placeholder active-context.md should not be restored"; exit 1; }
-grep -q 'model = "gpt-5.6-sol"' .codex/agents/architecture-planner.toml || { echo "FAIL: Sol planner pin missing"; exit 1; }
-grep -q 'model = "gpt-5.6-terra"' .codex/agents/implementation-worker.toml || { echo "FAIL: Terra worker pin missing"; exit 1; }
-grep -q 'model = "gpt-5.6-luna"' .codex/agents/test-verifier.toml || { echo "FAIL: Luna verifier pin missing"; exit 1; }
+[ -z "$(find .ai/context -maxdepth 1 -type f ! -name .gitignore -print)" ] || { echo "FAIL: fresh-start should not restore placeholder project facts"; exit 1; }
+grep -q 'model = "gpt-5.6-sol"' .codex/agents/reviewer.toml || { echo "FAIL: deep reviewer pin missing"; exit 1; }
+grep -q 'model = "gpt-5.6-terra"' .codex/agents/worker.toml || { echo "FAIL: balanced worker pin missing"; exit 1; }
+grep -q 'model = "gpt-5.6-luna"' .codex/agents/scout.toml || { echo "FAIL: fast scout pin missing"; exit 1; }
 jq -e '.permissions.allow | index("Bash(git status:*)") != null' .claude/settings.json >/dev/null || { echo "FAIL: safe git inspection is not allowed"; exit 1; }
 jq -e '.permissions.allow | index("Bash(cargo test:*)") != null' .claude/settings.json >/dev/null || { echo "FAIL: focused validation is not allowed"; exit 1; }
 jq -e '([.permissions.allow[], .permissions.deny[]] | index("Bash(npx:*)")) == null' .claude/settings.json >/dev/null || { echo "FAIL: npx should require normal confirmation"; exit 1; }

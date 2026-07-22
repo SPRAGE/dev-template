@@ -54,6 +54,7 @@ def check_root(root: Path) -> None:
     agents = [load_yaml(path) for path in sorted((ai / "agents").glob("*.yaml"))]
 
     expected_names = {agent["name"] for agent in agents}
+    assert expected_names == {"scout", "researcher", "worker", "reviewer"}, (root, expected_names)
     codex_files = {path.stem.replace("-", "_") for path in (root / ".codex/agents").glob("*.toml")}
     claude_files = {path.stem.replace("-", "_") for path in (root / ".claude/agents").glob("*.md")}
     assert codex_files == expected_names, (root, codex_files ^ expected_names)
@@ -78,7 +79,7 @@ def check_root(root: Path) -> None:
         assert claude_data["name"] == filename
         assert claude_data["model"] == claude_runtime["models"][agent["model_tier"]]["id"]
         assert claude_data["permissionMode"] == claude_profile["permission_mode"]
-        assert claude_data["maxTurns"] == agent["max_turns"]
+        assert claude_data["maxTurns"] == claude_runtime["max_turns"][agent["name"]]
         actual_tools = [tool.strip() for tool in claude_data["tools"].split(",")]
         assert actual_tools == claude_profile["tools"]
         assert claude_prompt == expected_prompt
@@ -89,11 +90,13 @@ def check_root(root: Path) -> None:
 
     codex_config = tomllib.loads((root / ".codex/config.toml").read_text(encoding="utf-8"))
     orchestration = codex_runtime["orchestration"]
-    assert codex_config["model"] == codex_runtime["models"][orchestration["main_model_tier"]]["id"]
+    assert "model" not in codex_config
+    assert "review_model" not in codex_config
     assert codex_config["model_reasoning_effort"] == orchestration["main_reasoning_effort"]
     assert codex_config["plan_mode_reasoning_effort"] == orchestration["plan_mode_reasoning_effort"]
-    assert codex_config["review_model"] == codex_runtime["models"][orchestration["review_model_tier"]]["id"]
     assert codex_config["web_search"] == "disabled"
+    assert codex_config["agents"]["max_threads"] == orchestration["max_threads"]
+    assert codex_config["agents"]["max_depth"] == orchestration["max_depth"]
     assert "mcp_servers" not in codex_config
 
 

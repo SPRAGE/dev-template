@@ -2,21 +2,19 @@
 
 ## Authoring
 
-- Edit neutral agent behavior under `template/.ai/`; never hand-edit generated provider agents or adapters.
-- Keep language differences to `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`.
-- Keep always-loaded guidance factual and short; move procedures to skills and optional detail to references.
-- Give every writable agent an explicit file scope and every agent a structured output contract.
+- Edit neutral behavior under `template/.ai/`, then regenerate; never hand-edit marked runtime outputs.
+- Keep language differences to the four documented overlays.
+- Keep default discovery small. Route task-local specialist guidance through `.ai/catalog/index.yaml`; activate it only for recurring work. Add a skill only for recurring judgment that passes trigger and with/without-skill evaluation; use scripts or hooks for deterministic work.
+- Provider syntax belongs in runtime bindings, not shared policy, roles, or skill entry points.
 
 ## Verification
 
-- Neutral/runtime changes: `bash tests/test-agent-system.sh`.
-- Shared template changes: `bash tests/test-template-sync.sh`.
-- Skill changes: regenerate archives, then `bash tests/test-skills.sh`.
-- Lifecycle changes: `nix develop path:. -c bash tests/test-apps.sh`.
-- Flake changes: `nix flake check path:. --all-systems --no-update-lock-file`.
+- Agent/runtime: `nix develop path:. -c bash tests/test-agent-system.sh`.
+- Mirrors: `nix develop path:. -c bash tests/test-template-sync.sh`.
+- Skills/archives: `nix develop path:. -c bash tests/test-skills.sh`.
+- Lifecycle: `nix develop path:. -c bash tests/test-apps.sh`.
+- Nix outputs: `nix flake check path:. --all-systems --no-build --no-update-lock-file`.
 
-## Safety
+## Preservation
 
-- Preserve local runtime state, customized project guidance, and unrelated worktree changes.
-- Permission changes and destructive reset behavior require explicit user intent.
-- Never put secrets or private credentials in generated guidance.
+Preserve local runtime state, customized project guidance, and unrelated changes. A refresh may create missing generated files but must not replace existing provider output or run a new compiler against an older schema.

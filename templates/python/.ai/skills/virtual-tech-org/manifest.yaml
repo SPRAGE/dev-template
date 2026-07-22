@@ -1,7 +1,0 @@
-version: 1
-name: virtual-tech-org
-managed_by: dev-template
-layer: work
-requires_capabilities: [explore, research, plan, implement, test, review.code, review.security, document, integrate]
-budgets: {entry_tokens: 1200, total_warn: 3000}
-references: [references/domain-checks.md]

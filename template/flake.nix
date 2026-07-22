@@ -10,15 +10,13 @@
       url = "github:sadjow/claude-code-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    custom-codex-release.url = "git+ssh://pai@192.168.0.7/srv/git/custom-codex-release.git?ref=latest";
   };
 
-  outputs = { self, nixpkgs, flake-utils, claude-code, custom-codex-release, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, claude-code, ... }:
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (system:
       let
         pkgs = import nixpkgs { inherit system; };
         agentPython = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
-        codexPackage = custom-codex-release.packages.${system}.codex or pkgs.codex;
       in
       {
         devShells.default = pkgs.mkShell {
@@ -31,7 +29,7 @@
             pkgs.just
             agentPython
             claude-code.packages.${system}.default
-            codexPackage
+            pkgs.codex
             # TODO: add project dependencies
           ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             pkgs.bubblewrap

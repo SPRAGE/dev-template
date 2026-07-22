@@ -1,4 +1,4 @@
-version: 1
+version: 2
 project:
   name: PROJECTNAME
   summary: TODO replace with a one-line Rust project description.
@@ -13,8 +13,11 @@ spec:
   policy: .ai/policy.yaml
   contract_evals: .ai/evals/contract-scenarios.yaml
 budgets:
-  always_loaded_tokens: 2400
-  adapter_tokens: 500
-  skill_descriptions_tokens: 900
-  skill_entry_tokens: 1200
-  agent_contract_tokens: 800
+  always_loaded_tokens: 1100
+  planned_route_tokens: 1800
+  adapter_tokens: 300
+  skill_descriptions_tokens: 150
+  skill_entry_tokens: 700
+  agent_catalog_tokens: 300
+  agent_contract_tokens: 375
+  optional_skill_catalog_tokens: 700
