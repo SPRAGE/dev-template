@@ -221,11 +221,11 @@ done
 [ -z "$(find .ai/context -maxdepth 1 -type f ! -name .gitignore -print)" ] || { echo "FAIL: sync should not seed placeholder project facts"; exit 1; }
 
 # Missing generated outputs must come from the target v2 spec, not template defaults.
-sed -i 's/id: gpt-5.6-luna/id: gpt-5.6-luna-lifecycle-test/' .ai/capabilities/runtimes/codex.yaml
+sed -i 's/id: gpt-5.6-terra/id: gpt-5.6-terra-lifecycle-test/' .ai/capabilities/runtimes/codex.yaml
 sed -i 's/max_threads: 4/max_threads: 3/' .ai/capabilities/runtimes/codex.yaml
 rm .codex/config.toml .codex/agents/researcher.toml .claude/agents/researcher.md
 run_app sync-skills
-grep -q 'model = "gpt-5.6-luna-lifecycle-test"' .codex/agents/researcher.toml || { echo "FAIL: missing Codex role was copied from template instead of compiled from target spec"; exit 1; }
+grep -q 'model = "gpt-5.6-terra-lifecycle-test"' .codex/agents/researcher.toml || { echo "FAIL: missing Codex role was copied from template instead of compiled from target spec"; exit 1; }
 grep -q 'max_threads = 3' .codex/config.toml || { echo "FAIL: missing Codex config was copied from template instead of compiled from target spec"; exit 1; }
 [ -f .claude/agents/researcher.md ] || { echo "FAIL: target compiler did not restore missing Claude role"; exit 1; }
 
@@ -383,7 +383,14 @@ done
 echo "PASS: template compiler dependencies"
 
 echo ""
-echo "=== App Test 5: ai-doctor ==="
+echo "=== App Test 5: migrate-v2 dry run and recovery contracts ==="
+cd "$REPO"
+run_app migrate-v2 --check | grep -q 'migration status: already-v2'
+nix develop --no-write-lock-file "path:$REPO" -c python "$REPO/tests/test-migrate-v2.py"
+echo "PASS: migrate-v2"
+
+echo ""
+echo "=== App Test 6: ai-doctor ==="
 nix run "path:$REPO#ai-doctor" --
 echo "PASS: ai-doctor"
 

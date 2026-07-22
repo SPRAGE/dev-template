@@ -9,6 +9,7 @@ context:
     conventions: .ai/context/conventions.md
     decisions: .ai/context/decisions.md
     active: .ai/context/active-context.md
+    knowledge: .ai/context/knowledge-sources.yaml
 spec:
   policy: .ai/policy.yaml
   contract_evals: .ai/evals/contract-scenarios.yaml
@@ -20,4 +21,4 @@ budgets:
   skill_entry_tokens: 700
   agent_catalog_tokens: 300
   agent_contract_tokens: 375
-  optional_skill_catalog_tokens: 700
+  optional_skill_catalog_tokens: 600

@@ -66,28 +66,17 @@ Configure your repository's `main` branch with:
 
 Enable `web_commit_signoff_required` in your repository settings to ensure commit authorship can be verified.
 
-### 3. Pin Flake Inputs for Production
+### 3. Review Locked Dependencies
 
-The template `flake.nix` files include comments showing how to pin `claude-code-nix` to a specific revision:
-
-```nix
-claude-code = {
-  # SECURITY: Pin to a specific rev for production use
-  # url = "github:sadjow/claude-code-nix/<rev>";
-  url = "github:sadjow/claude-code-nix";
-  inputs.nixpkgs.follows = "nixpkgs";
-};
-```
-
-For production environments, replace the `url` with a pinned revision to prevent supply chain attacks from upstream changes.
+Commit `flake.lock` in generated projects and review lock updates before merging them. The lock records immutable revisions even when an input URL names a branch. CI actions in this repository are pinned to full commit SHAs; update their version comments and SHAs together after reviewing the upstream release.
 
 ### 4. Review Provider Permissions
 
 Review `.claude/settings.json`, `.codex/config.toml`, generated agent profiles, and any local overrides. Remove tools and command patterns that the project does not need, and keep external-write commands behind confirmation.
 
-### 5. Review `.envrc` Secret Loading
+### 5. Keep Secrets Out Of Ambient Agent Environments
 
-Generated templates load `.env.mcp` and `.env` through direnv when those files exist. This is convenient for local development, but Claude Code launched from that shell may inherit those variables. Remove or customize the dotenv lines in `.envrc` for sensitive projects.
+Generated `.envrc` files enter the Nix shell but do not load `.env` or `.env.mcp`. Export only the variables needed by a specific developer-controlled command. File-read deny rules do not protect a secret that was already inherited through the process environment.
 
 ### 6. Populate Audit Hooks
 

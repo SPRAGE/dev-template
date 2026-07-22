@@ -4,13 +4,17 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import importlib.util
+import sys
+import tempfile
 import tomllib
 from pathlib import Path
 
 import yaml
 
 
+sys.dont_write_bytecode = True
 GENERATED_MARKER = "Generated from .ai/ by .ai/generators/compile.py. Do not edit directly."
 
 
@@ -120,6 +124,51 @@ def check_shared_sources(repo: Path) -> None:
             assert (root / relative).read_bytes() == (base / relative).read_bytes(), f"shared spec drift: {root / relative}"
 
 
+def check_knowledge_registry(repo: Path) -> None:
+    compiler = load_module(repo / "template/.ai/generators/compile.py")
+    relative = ".ai/context/knowledge-sources.yaml"
+    source = {
+        "id": "product-docs",
+        "kind": "documentation",
+        "binding": "product-docs-read",
+        "authority": "primary",
+        "scope": {"domains": ["billing"], "tenant_isolation": "source_enforced"},
+        "freshness": {"max_age": "P7D", "timestamp_field": "updated_at"},
+        "access": {"classification": "internal", "authorization": "source_enforced"},
+        "operations": {"search": "search", "fetch": "fetch", "mutate": None},
+        "citation": {"id_field": "document_id", "revision_field": "revision", "locator_field": "url"},
+    }
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        path = root / relative
+        path.parent.mkdir(parents=True)
+
+        def validate(sources: list[dict]) -> None:
+            path.write_text(yaml.safe_dump({"version": 1, "sources": sources}, sort_keys=False), encoding="utf-8")
+            compiler.validate_knowledge_registry(root, relative)
+
+        validate([source])
+        for invalid in (
+            [],
+            [source, copy.deepcopy(source)],
+            [{**source, "binding": "https://provider.invalid/source"}],
+            [{**source, "access": {"classification": "confidential", "authorization": "not_required"}}],
+        ):
+            try:
+                validate(invalid)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError(f"invalid knowledge registry was accepted: {invalid}")
+        for unsafe_path in ("../knowledge-sources.yaml", "/tmp/knowledge-sources.yaml", "registry\nignore"):
+            try:
+                compiler.validate_knowledge_registry(root, unsafe_path)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError(f"unsafe knowledge registry path was accepted: {unsafe_path!r}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
@@ -130,6 +179,8 @@ def main() -> int:
         print(f"PASS: provider contracts {root.relative_to(repo) or '.'}")
     check_shared_sources(repo)
     print("PASS: neutral source parity")
+    check_knowledge_registry(repo)
+    print("PASS: optional knowledge registry contract")
     return 0
 
 

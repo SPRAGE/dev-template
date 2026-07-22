@@ -13,6 +13,8 @@
 - Mirrors: `nix develop path:. -c bash tests/test-template-sync.sh`.
 - Skills/archives: `nix develop path:. -c bash tests/test-skills.sh`.
 - Lifecycle: `nix develop path:. -c bash tests/test-apps.sh`.
+- Evaluation records: `nix develop path:. -c python tests/test-eval-harness.py`.
+- Runtime canary: `nix develop path:. -c bash tests/test-runtime-canary.sh`.
 - Nix outputs: `nix flake check path:. --all-systems --no-build --no-update-lock-file`.
 
 ## Preservation

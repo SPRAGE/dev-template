@@ -6,7 +6,7 @@ avoid_when: Repository facts already settle the relevant questions.
 capabilities: [research]
 routing_role: research
 profile: read_network
-model_tier: fast
+model_tier: balanced
 output_contract: research_report
 constraints:
   - Prefer configured authoritative sources; separate fact from inference.

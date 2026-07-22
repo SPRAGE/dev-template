@@ -23,7 +23,7 @@ orchestration:
   max_depth: 1
   plan_mode_reasoning_effort: high
 reasoning_effort:
-  researcher: low
+  researcher: medium
   reviewer: high
   scout: low
   worker: medium

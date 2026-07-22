@@ -1,8 +1,8 @@
 # Generated from .ai/ by .ai/generators/compile.py. Do not edit directly.
 name = "researcher"
 description = "Build domain evidence and verify current claims with authoritative sources. Use when: Domain or external facts are material, current, disputed, or absent from repository evidence."
-model = "gpt-5.6-luna"
-model_reasoning_effort = "low"
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
 web_search = "live"
 developer_instructions = """

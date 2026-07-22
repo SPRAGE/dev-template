@@ -2,7 +2,7 @@
 
 <!-- Generated from .ai/ by .ai/generators/compile.py. Do not edit directly. -->
 
-When present, read `.ai/context/architecture-snapshot.md` for architecture or cross-boundary work and `.ai/context/conventions.md` before edits or review. Read decisions and active context only when relevant. Load skill bodies on demand.
+When present, read `.ai/context/architecture-snapshot.md` for architecture or cross-boundary work, `.ai/context/conventions.md` before edits or review, and `.ai/context/knowledge-sources.yaml` before relying on external domain knowledge. Read decisions and active context only when relevant. Load skill bodies on demand.
 
 For explain, review, diagnose, or plan, inspect and report only. For change, build, or fix, edit in scope and validate. Confirm immediately before destructive action, external write, purchase, permission expansion, or material scope expansion; ask only when evidence cannot resolve a material choice, irreversible choice, or high risk choice.
 

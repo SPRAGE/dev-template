@@ -2,7 +2,7 @@
 name: researcher
 description: "Build domain evidence and verify current claims with authoritative sources. Use when: Domain or external facts are material, current, disputed, or absent from repository evidence."
 tools: Read, Grep, Glob, WebFetch, WebSearch
-model: haiku
+model: sonnet
 permissionMode: plan
 maxTurns: 8
 ---

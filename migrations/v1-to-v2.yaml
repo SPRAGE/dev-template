@@ -1,0 +1,31 @@
+version: 1
+migration: v1-to-v2
+source_schema: 1
+target_schema: 2
+baseline_commit: 3f189a10072228a673076b837bbe94357ca7a561
+
+# Only these exact v1 sources are transformed automatically. Generated views are
+# identified by their ownership marker, while project identity and routed context
+# are preserved independently.
+managed_files:
+  policy.yaml: 237cb677a5a62698a8b39e040e7cb5fea1589dcf00df9873297f2e46ba6d322e
+  capabilities/map.yaml: 2344136f0c9db2b10a51f6460a03338ab9030d494d0207a01714eb6dc4d58409
+  capabilities/profiles.yaml: f4519dcda43afc391d719e2c4c3b62f1ddb7b4bca35d2d8432dac8bee281f3aa
+  capabilities/runtimes/codex.yaml: 7e093eb936d934218df4f159142a12fb1a589319beb969c7b855ac9a307a58d3
+  capabilities/runtimes/claude.yaml: 24100813d61b533120d6a643368dba7a2dcf1355dbb5ec841eb8411854a04309
+  evals/contract-scenarios.yaml: 83ed374a7d569cee8c4c5ea66021471fa9141abb5bdb5752b582034d3d00c11c
+  generators/compile.py: 6fcfdbb1680046c30e64ff473439cfeb060b9fa9868094028aab3e8d1343246b
+
+managed_trees:
+  agents: 5db634dd11b8570f9ddab1c0da57e5836cce9c655700f2d7b2b338333f06b05b
+
+retired_skills:
+  cc-refresh: c22d24127435854b2d3976bbacdf53fce63ff02affa0d2334a96568763d88283
+  cc-setup: 251477ea58f066b821a410a320d5c53c87d83fdb967704167b3263f7a7765c4e
+  fresh-start: 247d6a0879228a23c6246bb99f46a795d2b632330a559478e4be29d565336909
+  frontend-design: 5ba9b063b6092af4cf7a1b4f7f9872f65ff52c508589c2c39d347a4688d74078
+  knowledge-base: 4c7ea6bc32be030ec97d74693696f20e74f6cda4cd4a2dcfccddeedf005cf44b
+  planner: f754dd371c9e653eaaaf184789b493e68c75e3e99babe25c7a5c4ece318a67c0
+  playground: e15e5a9547630d098d7413eecf30059276f53d9b3b142780f63fc19e8bf81c42
+  skill-creator: 989688d405530ddbef43a2cf0f3dba09a0825dc3c3ca2306c099f03c94da73fa
+  virtual-tech-org: fca92cde17de61a7c4e285625a331ebf094997370b9e8d7aecb5329b640df982

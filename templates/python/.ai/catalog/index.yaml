@@ -5,50 +5,38 @@ selection:
   activate_when: The procedure will recur; otherwise load it only for the task.
 skills:
   agent-evaluation:
-    path: .ai/catalog/agent-evaluation/SKILL.md
     use_when: Measuring whether agent guidance or tools improve outcomes.
     avoid_when: Running ordinary tests or a one-off review.
   api-contracts:
-    path: .ai/catalog/api-contracts/SKILL.md
     use_when: Designing or compatibly evolving a service boundary.
     avoid_when: Consuming a settled internal contract.
   data-visualization:
-    path: .ai/catalog/data-visualization/SKILL.md
     use_when: Chart meaning, uncertainty, or data interaction matters.
     avoid_when: General page styling without analytical data.
   domain-modeling:
-    path: .ai/catalog/domain-modeling/SKILL.md
     use_when: Unfamiliar rules, workflows, states, or boundaries affect design.
     avoid_when: Domain behavior is already settled and evidenced.
   frontend-design:
-    path: .ai/catalog/frontend-design/SKILL.md
     use_when: Interface hierarchy, interaction, responsiveness, and polish matter.
     avoid_when: A non-visual backend or mechanical UI change.
   incident-debugging:
-    path: .ai/catalog/incident-debugging/SKILL.md
     use_when: Production, intermittent, or telemetry-dependent failure needs investigation.
     avoid_when: A local defect has an obvious reproduction.
   interactive-playground:
-    path: .ai/catalog/interactive-playground/SKILL.md
     use_when: The requested deliverable is a standalone interactive decision tool.
     avoid_when: The user wants the final product implementation directly.
   knowledge-integration:
-    path: .ai/catalog/knowledge-integration/SKILL.md
     use_when: Configured knowledge retrieval, ingestion, citations, or quality is material.
     avoid_when: Repository or supplied context already answers it.
   migration-safety:
-    path: .ai/catalog/migration-safety/SKILL.md
     use_when: Data, schema, protocol, or configuration states must coexist safely.
     avoid_when: A disposable local change has no compatibility or recovery risk.
   performance-engineering:
-    path: .ai/catalog/performance-engineering/SKILL.md
     use_when: Latency, throughput, memory, rendering, or resource budgets must be measured.
     avoid_when: No performance outcome or reproducible workload exists.
   skill-authoring:
-    path: .ai/catalog/skill-authoring/SKILL.md
     use_when: Creating, validating, packaging, or evaluating a reusable skill.
     avoid_when: Following an existing procedure once.
   test-design:
-    path: .ai/catalog/test-design/SKILL.md
     use_when: A complex change needs a risk-based multi-layer verification strategy.
     avoid_when: Running or repairing one obvious existing test.

@@ -1,0 +1,18 @@
+version: 1
+network_behavior: forbidden
+model_availability: not_checked_offline
+runtimes:
+  codex:
+    command: codex
+    version_args: [--version]
+    help_args: [--help]
+    tested_version: 0.144.4
+    version_pattern: '^codex-cli ([0-9]+\.[0-9]+\.[0-9]+)$'
+    help_markers: [Codex CLI, --strict-config, features]
+  claude:
+    command: claude
+    version_args: [--bare, --version]
+    help_args: [--bare, --help]
+    tested_version: 2.1.217
+    version_pattern: '^([0-9]+\.[0-9]+\.[0-9]+) \(Claude Code\)$'
+    help_markers: [Claude Code, --agents, --allowedTools]

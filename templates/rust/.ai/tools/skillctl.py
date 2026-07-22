@@ -31,8 +31,6 @@ def skill_source(root: Path, catalog: Path, index: dict, name: str) -> Path:
     if not NAME.fullmatch(name) or name not in index["skills"]:
         raise ValueError(f"unknown catalog skill: {name}")
     expected_path = f".ai/catalog/{name}/SKILL.md"
-    if index["skills"][name].get("path") != expected_path:
-        raise ValueError(f"catalog entry has an invalid path: {name}")
     source = root / expected_path
     if not source.is_file() or source.resolve().parent.parent != catalog.resolve():
         raise ValueError(f"catalog entry escapes the catalog: {name}")

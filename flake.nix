@@ -671,6 +671,26 @@
             };
           };
 
+        apps.migrate-v2 =
+          let
+            python = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
+            script = pkgs.writeShellScriptBin "migrate-v2" ''
+              set -euo pipefail
+
+              "${python}/bin/python" "${./tools/migrate_v2.py}" \
+                --template "${./template}" \
+                --manifest "${./migrations/v1-to-v2.yaml}" \
+                "$@"
+            '';
+          in
+          {
+            type = "app";
+            program = "${script}/bin/migrate-v2";
+            meta = {
+              description = "Dry-run or apply the fingerprint-gated, recoverable dev-template schema-v1 to schema-v2 migration";
+            };
+          };
+
         apps.fresh-start =
           let
             skills-src = ./template/.ai/skills;
@@ -1653,6 +1673,10 @@
           "sync-skills" = pkgs.runCommand "sync-skills" { } ''
             mkdir -p $out/bin
             ln -s ${apps.sync-skills.program} $out/bin/sync-skills
+          '';
+          "migrate-v2" = pkgs.runCommand "migrate-v2" { } ''
+            mkdir -p $out/bin
+            ln -s ${apps.migrate-v2.program} $out/bin/migrate-v2
           '';
           "fresh-start" = pkgs.runCommand "fresh-start" { } ''
             mkdir -p $out/bin

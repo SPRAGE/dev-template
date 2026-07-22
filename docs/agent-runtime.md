@@ -30,7 +30,7 @@ File count alone does not make work Planned.
 
 For consequential work, the primary assembles the smallest evidenced domain brief: actors, goals, terms, workflows, invariants, boundaries, sources, and material unknowns. Repository facts and configured knowledge sources come first; current external research is isolated and returned as citations, freshness, and uncertainty rather than bulk context.
 
-Planned and Hard routes consult the 699-token catalog index only when specialist guidance is material and load no more than two skill bodies. A procedure is activated into runtime discovery only when it will recur. The primary then owns the dependency-ordered plan, continues through safe reversible steps, integrates the live diff, runs risk-appropriate proof, and promotes only verified recurring facts into project context. It stops for missing knowledge only when the answer could change scope, architecture, safety, or acceptance.
+Planned and Hard routes consult the 553-token catalog index only when specialist guidance is material and load no more than two skill bodies. A procedure is activated into runtime discovery only when it will recur. The primary then owns the dependency-ordered plan, continues through safe reversible steps, integrates the live diff, runs risk-appropriate proof, and promotes only verified recurring facts into project context. It stops for missing knowledge only when the answer could change scope, architecture, safety, or acceptance.
 
 ## Roles
 
@@ -45,29 +45,29 @@ The primary owns planning, integration, routine testing, documentation, and fina
 
 Every handoff contains an objective, file scope, success criteria, preserved invariants, and required evidence. Workers stop on contradictions, missing dependencies, unsafe actions, or scope conflict. The primary re-reads and integrates the current repository state; reports never substitute for that check.
 
-Codex fast/balanced/deep role tiers map to Luna/Terra/Sol with low/medium/high role effort. Claude maps them to Haiku/Sonnet/Opus. The main model is inherited from the active runtime instead of being pinned by the project. External tools are limited to the role that needs them, and delegation depth is one.
+Codex fast/balanced/deep role tiers map to Luna/Terra/Sol. Narrow scouts use Luna/low, material researchers and workers use Terra/medium, and reviewers use Sol/high. Claude maps the same intent to Haiku/Sonnet/Opus. The main model is inherited from the active runtime instead of being pinned by the project. External tools are limited to the role that needs them, and delegation depth is one.
 
 ## Compilation And Migration
 
-The compiler validates schema version 2, exact fields, provider-neutral core files, profile parity, permission expansion, role routing, the conditional catalog, activated skill ownership, package allowlists, deterministic scenarios, and context budgets. It emits provider adapters and role files from neutral source.
+The compiler validates schema version 2, exact fields, provider-neutral core files, profile parity, permission expansion, role routing, the conditional catalog, activated skill ownership, optional knowledge-source contracts, package allowlists, deterministic scenarios, and context budgets. It emits provider adapters and role files from neutral source.
 
-Normal maintainer generation updates marked outputs. Lifecycle sync is conservative: missing generated outputs come from the target project's compiler, while existing compilers, specs, adapters, configuration, and roles are preserved. This big-bang release intentionally has no automatic v1-to-v2 transformer; older projects require a reviewed manual reconciliation or a confirmed `fresh-start`.
+Normal maintainer generation updates marked outputs. Lifecycle sync is conservative: missing generated outputs come from the target project's compiler, while existing compilers, specs, adapters, configuration, and roles are preserved. The explicit `migrate-v2` app dry-runs by default, accepts only the fingerprinted v1 core, preserves identity/context/custom skills, stages and compiles v2 before an atomic `.ai` swap, retains a recovery archive, and rolls back caught failures. It does not chain the broader provider-asset sync into that transaction. Customized v1 semantics stop for manual reconciliation; `fresh-start` remains the destructive confirmed alternative.
 
 ## Evidence
 
-Deterministic tests prove routing, authorization, completion contracts, provider parity, source mirroring, archive reproducibility, lifecycle preservation, and Nix evaluation. Static token estimates prove only context-size reductions. Live representative tasks with blinded outcome grading are needed to claim better reasoning or delivery quality.
+Deterministic tests prove routing, authorization, completion contracts, provider parity, knowledge-registry safety, source mirroring, migration recovery, archive reproducibility, lifecycle preservation, offline CLI compatibility, and Nix evaluation. The behavioral harness validates paired baseline/candidate records and aggregates effect sizes, but it never launches a model. The runtime canary permits only each installed CLI's local version/help arguments and parses generated configuration; it does not start an agent session or check remote model access. Static token estimates prove only context-size reductions; live representative trials with blinded grading are still required to claim better reasoning or delivery quality.
 
 Using the compiler's byte/word estimator against the generated base template before and after this rewrite:
 
 | Static surface | Before | After | Reduction |
 |---|---:|---:|---:|
-| Always-loaded route | 1,215 | 910 | 25% |
-| Planned route including role catalog | 2,531 | 1,704 | 33% |
+| Always-loaded route | 1,215 | 931 | 23% |
+| Planned route including role catalog | 2,531 | 1,725 | 32% |
 | Role discovery catalog | 635 | 165 | 74% |
 | Skill discovery descriptions | 380 | 52 | 86% |
 | Runtime roles | 9 | 4 | 56% |
 | Individual generated role contract | 401–529 | 278–360 | 31–32% by range endpoint |
-| Conditional specialist index | none | 699 | loaded only when specialist routing is material |
+| Conditional specialist index | none | 553 | loaded only when specialist routing is material |
 
 These are comparable static estimates from committed before/after files, not API billing tokens.
 
@@ -77,4 +77,4 @@ These are comparable static estimates from committed before/after files, not API
 2. Compile the base runtime.
 3. Sync the language mirrors and compile them.
 4. Repackage changed default or optional skills.
-5. Run agent, mirror, skill, lifecycle, and all-system flake checks.
+5. Run agent, mirror, skill, lifecycle, offline evaluation/canary, and all-system flake checks.

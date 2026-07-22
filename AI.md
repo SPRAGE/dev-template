@@ -9,6 +9,8 @@ Nix templates that compile provider-neutral repository policy and skills into sm
 - `nix develop path:. -c bash tests/test-template-sync.sh` — enforce base-plus-overlay template generation.
 - `nix develop path:. -c bash tests/test-skills.sh` — validate default/optional skills and archives.
 - `nix develop path:. -c bash tests/test-apps.sh` — exercise onboard, sync, reset, and doctor lifecycles.
+- `nix develop path:. -c python tests/test-eval-harness.py` — validate zero-credit paired evaluation records.
+- `nix develop path:. -c bash tests/test-runtime-canary.sh` — check locked CLIs and generated runtime bindings without model calls.
 - `nix develop path:. -c bash tests/sync-template-shared.sh` — regenerate language mirrors after base changes.
 
 ## Architecture

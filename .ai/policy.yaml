@@ -53,7 +53,7 @@ delivery:
 
 routing:
   explore: fast
-  research: fast
+  research: balanced
   plan: deep
   implement: balanced
   test: balanced

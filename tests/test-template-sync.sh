@@ -61,6 +61,7 @@ PY
 echo "=== Flake runtime source and supported-system contract ==="
 REPO="$REPO" python - <<'PY'
 import os
+import re
 from pathlib import Path
 
 root = Path(os.environ["REPO"])
@@ -80,6 +81,16 @@ lock = (root / "flake.lock").read_text()
 for forbidden in forbidden_values[:-1]:
     assert forbidden not in lock, f"flake.lock: stale {forbidden}"
 print("PASS: flake.lock has no private Codex dependency")
+
+workflow = (root / ".github/workflows/ci.yml").read_text()
+uses = re.findall(r"^\s*- uses: ([^\s#]+)", workflow, re.MULTILINE)
+assert uses and all(re.fullmatch(r"[^@]+@[0-9a-f]{40}", value) for value in uses), "CI actions must use full commit SHAs"
+print("PASS: CI actions use immutable revisions")
+
+for template_root in (root / "template", root / "templates/python", root / "templates/rust"):
+    envrc = (template_root / ".envrc").read_text()
+    assert "dotenv" not in envrc, f"{template_root}: .envrc must not auto-load secrets"
+print("PASS: generated shells do not auto-load secret files")
 PY
 
 for language in python rust; do

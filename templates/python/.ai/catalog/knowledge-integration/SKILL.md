@@ -18,7 +18,7 @@ Separate capabilities:
 - **ingest/update/delete** are explicit external mutations requiring authorization;
 - **health/stats** report freshness, coverage, and failures.
 
-Load `references/retrieval-quality.md` when designing ingestion, ranking, or evaluation.
+Load `references/source-registry.md` when creating or auditing `.ai/context/knowledge-sources.yaml`. Load `references/retrieval-quality.md` when designing ingestion, ranking, or evaluation.
 
 ## Retrieve Deliberately
 
