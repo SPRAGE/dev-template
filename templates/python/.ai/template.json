@@ -1,0 +1,32 @@
+{
+  "files": {
+    ".ai/context/.gitignore": {
+      "hash": "08ac3648594f5c64fac5ffa5397f2a6d4a78dfac87c9c6b4d665ee3f12856793",
+      "profile": "core"
+    },
+    ".claude/hooks/statusline.sh": {
+      "hash": "e5e74709d503e2ec79ca6822c428778da5b3123eb0c87587962bb561c0f85ca4",
+      "profile": "core"
+    },
+    ".claude/settings.json": {
+      "hash": "f4b3da6fce4217490041af8e4a266f5428ec07bbd95a134a66b651ec1ee9795d",
+      "profile": "core"
+    },
+    ".envrc": {
+      "hash": "223a2f8dd38504ea0ffe1ac20dc781245dea1c9f271810e9279be40e17134fc9",
+      "profile": "core"
+    },
+    "AGENTS.md": {
+      "hash": "697f5c8b00d74e7504e22ffe79ecbf6c32dbfc22cd8c7424ee52f0d7c2ba7ee2",
+      "profile": "core"
+    },
+    "CLAUDE.md": {
+      "hash": "ef3d1d05dcae06937d237b81f8baee7f2a1bf9df55f92256b1c2f114ebe9775f",
+      "profile": "core"
+    }
+  },
+  "overrides": {},
+  "profiles": [],
+  "startup_budget": 900,
+  "version": 3
+}

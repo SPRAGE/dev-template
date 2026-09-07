@@ -5,16 +5,18 @@ export PYTHONDONTWRITEBYTECODE=1
 REPO=${1:-$(git rev-parse --show-toplevel)}
 REPO=$(cd "$REPO" && pwd)
 
-echo "=== Neutral agent specification and generated runtime assets ==="
-for root in . template templates/python templates/rust; do
-  python "$REPO/$root/.ai/generators/compile.py" --root "$REPO/$root" --check
-  [ ! -f "$REPO/$root/.ai/context/active-context.md" ] || {
-    echo "FAIL: $root seeds placeholder active-context.md"
-    exit 1
-  }
-  echo "PASS: $root"
-done
+echo "=== V3 template lifecycle ==="
+python "$REPO/tools/template.py" --repo "$REPO" check
+python "$REPO/tests/test-template-v3.py"
+python "$REPO/tests/test-knowledge.py"
 
-python "$REPO/tests/test-agent-contracts.py" --repo "$REPO"
+echo ""
+echo "=== V2 compatibility provider contracts ==="
+LEGACY_PROJECT=$(mktemp -d)
+trap 'rm -rf "$LEGACY_PROJECT"' EXIT
+cp -a "$REPO/compat/v2/." "$LEGACY_PROJECT/"
+python "$LEGACY_PROJECT/.ai/generators/compile.py" --root "$LEGACY_PROJECT"
+python "$LEGACY_PROJECT/.ai/generators/compile.py" --root "$LEGACY_PROJECT" --check
+python "$REPO/tests/test-agent-contracts.py" --legacy-root "$LEGACY_PROJECT"
 
 echo "Agent-system checks passed."

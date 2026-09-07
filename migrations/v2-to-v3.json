@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "source_schema": 2,
+  "target_schema": 3,
+  "files": {
+    ".agents/README.md": [
+      "d2b9742b631da05df1b4adc5dba274ee44df94b25c39b18a37544435650d91cb",
+      "e86187610012f76fccb680404f61a380f5699d7404b30b019e1ce24f3738fac1"
+    ],
+    ".agents/skills": [
+      "6eec026300bd8d41aba533d51304c4db6de4d8b4eae657f0d612bea2e71c48f3"
+    ],
+    ".ai/agents/researcher.yaml": [
+      "859e580abc69c4aed1e421dea1459ab2deccb8252428bfd54a57e074ea63e507"
+    ],
+    ".ai/agents/reviewer.yaml": [
+      "67ed26dc71aa2ba8a6e59c0293067e0a67516cedbba648ac08bc9566367460a0"
+    ],
+    ".ai/agents/scout.yaml": [
+      "4762f2e835775c55e62529ebaab9d7e57325b8a57872b5e358b280160dd9f441"
+    ],
+    ".ai/agents/worker.yaml": [
+      "45a702bdcc92e1ae204b52b9d1c9637b9f284bca3e7282480cf94abcc3b46c6b"
+    ],
+    ".ai/capabilities/map.md": [
+      "831d474460a54cc8e42843900388db83848c5ad3ba6dd2c9f4e82029962a0236"
+    ],
+    ".ai/capabilities/map.yaml": [
+      "b42db62cbad3832a3492cec6e1af45af6842940a9dbff1c4e8084ec4552fb2f0"
+    ],
+    ".ai/capabilities/profiles.yaml": [
+      "e95df8b7095c43c5a69f305c7c2cb10ee07daf254fcfc58b5fce239fb4243413"
+    ],
+    ".ai/capabilities/runtimes/claude.yaml": [
+      "77f591fd6265eb54a16e4c324ebf39b53c6c90a1ef7894fbf9834e7c2cd379e5"
+    ],
+    ".ai/capabilities/runtimes/codex.yaml": [
+      "4ce3338264ab3ce4c52ca7fd3bd8ffe403da60f08630f972ce3f8b62a0e2b8c9"
+    ],
+    ".ai/catalog/README.md": [
+      "145718e7d8518e3d4fb1b25060cf7667e387fdcc5b2586b379865f37d991c228"
+    ],
+    ".ai/catalog/agent-evaluation/SKILL.md": [
+      "a4d97357f9935a963fe0174f7d522514b8740aa374f80671cb1d4cdcd4751aee"
+    ],
+    ".ai/catalog/agent-evaluation/manifest.yaml": [
+      "65907c4a8a80e975b00e9caf5b473218eba3979e57632932a9a933f235e54834"
+    ],
+    ".ai/catalog/agent-evaluation/references/benchmark-design.md": [
+      "3dade3516f18b8f793856aabce5be95e32b8ad7c85df3b8ef7fcb8d7bca04db9"
+    ],
+    ".ai/catalog/api-contracts/SKILL.md": [
+      "0bfedae90ceabb3a20043f4adba3afa4bb0d3fb165e39354aecffdf9875b1f80"
+    ],
+    ".ai/catalog/api-contracts/manifest.yaml": [
+      "2df50cfef448ce2ffab55056c526f00e1f94090443fac88a74c77fd9c3976833"
+    ],
+    ".ai/catalog/data-visualization/SKILL.md": [
+      "5c26db92c16af3a92ccc64bdc4491c71589bb19df1ef2df707baace501f2044a"
+    ],
+    ".ai/catalog/data-visualization/manifest.yaml": [
+      "85139b42f16ad1d0b67b3d968948451a3491c4af1c7cb09a701e342751a9b7fa"
+    ],
+    ".ai/catalog/domain-modeling/SKILL.md": [
+      "91cd7ab0dc6f44e3951e5ce26ce32793d4d8ef7fffbf07626d75716e9c39d021"
+    ],
+    ".ai/catalog/domain-modeling/manifest.yaml": [
+      "8b4c3d91e5e20686708d273a7bb9ffe9bf23456ed0ba2ed66e733ac94c204b28"
+    ],
+    ".ai/catalog/frontend-design/SKILL.md": [
+      "8972d68a9ba4d02b3e8928576ea07e6dd21c0ff26b498e7cdffac9752ac60628"
+    ],
+    ".ai/catalog/frontend-design/manifest.yaml": [
+      "43be066b4732eb6c1e038241c32505595aa051858abdd04817637a8f4a8ee36e"
+    ],
+    ".ai/catalog/incident-debugging/SKILL.md": [
+      "61547cbaad8071f97662342e79a28f4fbf15edc10369959527fca42cdeead0ba"
+    ],
+    ".ai/catalog/incident-debugging/manifest.yaml": [
+      "1e3e8f31b9f764ac59d71262cfcd1a622487fdfabb3f9db3766bf13afe520b56"
+    ],
+    ".ai/catalog/index.yaml": [
+      "207a20f439123e7972396f0ee82260d81fcb010cf29d8193d929367fcd1c3bfc"
+    ],
+    ".ai/catalog/interactive-playground/SKILL.md": [
+      "a6671a7833c395328b35d2cb399235e717cf2ec54943520ab7a7ab68f62b6326"
+    ],
+    ".ai/catalog/interactive-playground/manifest.yaml": [
+      "09d09066e1cf501db777e04e599dea58d7465dd1613334beb100970b867d8782"
+    ],
+    ".ai/catalog/interactive-playground/references/patterns.md": [
+      "bbc34673d6ad4798a79354e29dfe3e469e077f13b63cee8cce7ff99b0cd2f74d"
+    ],
+    ".ai/catalog/knowledge-integration/SKILL.md": [
+      "e8237a98ad5f77e517ebfd1ef53dacdaa2713501f5480605c90daaa98ec38e3f"
+    ],
+    ".ai/catalog/knowledge-integration/manifest.yaml": [
+      "af8a733041dd165e697fbc335d1590c7fbaeb63f81ea48fe944310781345726d"
+    ],
+    ".ai/catalog/knowledge-integration/references/retrieval-quality.md": [
+      "fec49bbbee22ea2e01461c9c27b235f121f11a16e540d542c9344fc5785fec94"
+    ],
+    ".ai/catalog/knowledge-integration/references/source-registry.md": [
+      "7eec5f03de4c994f410187e10369bbaae93fcf0ad013b3b9232c5fe7a28c0b8a"
+    ],
+    ".ai/catalog/migration-safety/SKILL.md": [
+      "0d842d4dc5af9e21f54ab3f6ec1bf1cd66b1e93850b3f0b1089fe773ccb42bb4"
+    ],
+    ".ai/catalog/migration-safety/manifest.yaml": [
+      "1fd3b71de960afe04205b49a691e12d016e396e527d39b12fc800e3ee53ccb74"
+    ],
+    ".ai/catalog/migration-safety/references/staged-migration.md": [
+      "183b38317bd78f9b53cfe65f7101920f89856d78ae46465d4212989d86950194"
+    ],
+    ".ai/catalog/performance-engineering/SKILL.md": [
+      "6f512fef1fc11d25b60f50387ca2248dc596c732173b3220786de2e2a9e85459"
+    ],
+    ".ai/catalog/performance-engineering/manifest.yaml": [
+      "e738b142b6d5d83cea1ece77942b22701d606125490754b7daca9f719955bbd8"
+    ],
+    ".ai/catalog/performance-engineering/references/measurement.md": [
+      "16b9b5a2fa741475dc321dcc048609ddbea5aac8a2e882d0065bd354a71d6523"
+    ],
+    ".ai/catalog/skill-authoring/SKILL.md": [
+      "b6a7245dd72df24b71ecfaff37e8847f1f7e5b0c0dde44f757d0636799ab293a"
+    ],
+    ".ai/catalog/skill-authoring/manifest.yaml": [
+      "de87766a635be1825c8c7b94c3452c6862d8d59604f1a3e6b018941f5d4cfcb8"
+    ],
+    ".ai/catalog/skill-authoring/scripts/__init__.py": [
+      "deec4e50e4f8e0b83b21d4372bb6e2ab556fae8c9acd5afdc283d667c806fe24"
+    ],
+    ".ai/catalog/skill-authoring/scripts/package_skill.py": [
+      "9f7909fff9c1612c3e2f6cd07953d3f40a7f4529dbc12b72954a7afc03ffec8d"
+    ],
+    ".ai/catalog/skill-authoring/scripts/quick_validate.py": [
+      "23817824a55cfa83e3e4fde7f31b9ea38c69fe8b0229bbcd861aed5a32fa3a7b"
+    ],
+    ".ai/catalog/test-design/SKILL.md": [
+      "3da74401e286e37a6d1fabda284f3892962d824f615bd63626bea3212607b71e"
+    ],
+    ".ai/catalog/test-design/manifest.yaml": [
+      "80394258edeb7b00cb7cbd029582814b6b5d850c6ffb648bc1cad086e2f63da6"
+    ],
+    ".ai/context/.gitignore": [
+      "08ac3648594f5c64fac5ffa5397f2a6d4a78dfac87c9c6b4d665ee3f12856793"
+    ],
+    ".ai/evals/contract-scenarios.yaml": [
+      "fddf80e8d8be4a84164e465f1756fca4448720ed232e9291ac16f06389b04b78"
+    ],
+    ".ai/generators/compile.py": [
+      "a51136ae906f7d67602f651d6580ab0337fd3645fa83eb0e42ce2d073fdd0448",
+      "6e8408c5f315dfcb59229be49a0564adbd980aadb7acce3175daa999f2988668"
+    ],
+    ".ai/instructions.md": [
+      "13c52347bd4f8e728879d2f11c3125489ac803aa8c97e8febb2689111c18e76c",
+      "3dda29476adc0f7a3361e6881038ac01f409842f464d3ca5d6b698ad57c805ab"
+    ],
+    ".ai/methodology.md": [
+      "d877a102dd60fda66c2da3c24632b6758d95b56fa1d5476a143a521f52b7b517",
+      "fcf90f10de35979f63a9bec1838dc68741c436facd4462881f65b6bb49cbd96e"
+    ],
+    ".ai/policy.yaml": [
+      "f5001e88c1c54194b8d53aac59c65e4fd18abe37fd991d0b8f886621ea497259"
+    ],
+    ".ai/project.yaml": [
+      "6312da53bd5cffaf58a69b0447985e501bdd622918c15a4386ce8ce39c6efb25",
+      "d233a24513b945fe98370f67c60f503bfedb1c92d402131ce71708b753f8d043"
+    ],
+    ".ai/skills/agent-context/SKILL.md": [
+      "f1adfbf33a66e276f5722dee7d913b33ce9409ae5a5f2b7087247d2e708b520a",
+      "18668a55e80e46a6c7efd2849df417d2426057bb262c26b93e75e76b12901cf6"
+    ],
+    ".ai/skills/agent-context/manifest.yaml": [
+      "8dd0aaad003cfb275eeb54bf482316847267137c6d849bbbb6fa8cd263d231fa",
+      "f1fab01a6e458002fcd83d37f11d7c0cdd97edef227cb12ffd405f73d357a87f"
+    ],
+    ".ai/skills/agent-context/references/connectors.md": [
+      "247969d02ebe00cd3dd2114a0ab90cec0de419e6ffce4bcc38af67870bb7e32a"
+    ],
+    ".ai/skills/agent-context/references/guidance-quality.md": [
+      "a8f3ef5c51bab46210c37e871d6c3f0ac381d79015073d0d0641dd3965744d72"
+    ],
+    ".ai/tools/skillctl.py": [
+      "07c5aaefca7fbbd0d2afa47fee0f28e7e9386cceef3f30a2c430a44e89fa1700"
+    ],
+    ".claude/agents/researcher.md": [
+      "f39000666fee7b78a675beb5a941a7b8e66f610646737b5ee419d2bb5f0d2125"
+    ],
+    ".claude/agents/reviewer.md": [
+      "f51cbc051849d7a11148625865936df80381227bc31390079051aaed67770bd4"
+    ],
+    ".claude/agents/scout.md": [
+      "04d5aff334cbb24261aee71999d43219198e597c7d7d37dddd5a262ae205dd15"
+    ],
+    ".claude/agents/worker.md": [
+      "742b244bc39255e87bc3154f9bfc41b1b7cd7887501e9f41a06e76faf3bb67d2"
+    ],
+    ".claude/hooks/statusline.sh": [
+      "e5e74709d503e2ec79ca6822c428778da5b3123eb0c87587962bb561c0f85ca4"
+    ],
+    ".claude/settings.json": [
+      "f4b3da6fce4217490041af8e4a266f5428ec07bbd95a134a66b651ec1ee9795d"
+    ],
+    ".claude/skills": [
+      "6eec026300bd8d41aba533d51304c4db6de4d8b4eae657f0d612bea2e71c48f3"
+    ],
+    ".codex/README.md": [
+      "add20a12b49110c03a2299e10f2b3813a23be2921b6bb3c639c4952fd485723b",
+      "d36a8a71033ac115310b388326fdd465d0f088e5d63221e9edac7b57635b76ab"
+    ],
+    ".codex/agents/researcher.toml": [
+      "406ff4a4b1f4ba48678877ea1c5b08b9201c3bfadd3dc829697c16216844aa23"
+    ],
+    ".codex/agents/reviewer.toml": [
+      "d885cd3b01cf8b969a1327bb4de2984877a7edb395b35a9934b13b20cbb5d517"
+    ],
+    ".codex/agents/scout.toml": [
+      "bbf6a344fc548731c1ea4b69fe3276bdf9aa40817bc06ac3bf59c21c9071b424"
+    ],
+    ".codex/agents/worker.toml": [
+      "236116d565fbf6677bab57f911e89cfa7ed845981225e3b7b24704780cd953a3"
+    ],
+    ".codex/config.toml": [
+      "bfe6374326ca8018544740c2612390c59971ce978608c6f96bd3ed6a029b7feb"
+    ],
+    ".codex/skills": [
+      "6eec026300bd8d41aba533d51304c4db6de4d8b4eae657f0d612bea2e71c48f3"
+    ],
+    ".mcp.json": [
+      "46aa9cfd778e97668c05aa2d86f3709e8f05bc564da4f49c37e3b3513c819a40"
+    ],
+    "AGENTS.md": [
+      "a4e1ba73047c05acea1ac94acb260540bffea361f577271384841f227641f220",
+      "0a104676a747a779a9f79e63f15d13e1cd107bfd423339a938087d61f3730938"
+    ],
+    "CLAUDE.md": [
+      "63968ec5e77e1a63be2d178acc73bb1775a208890ce69af42b5bbc2b51f7e038",
+      "93738717fb42d5d56d172ccefc6a62e8af0c48c4d9ded50466016df51cd6575a"
+    ],
+    "CODEX.md": [
+      "7759c494fcca223f996634221070377305dc334c950cfb43c9fa0e5c7da896f5"
+    ]
+  },
+  "project_specs": [
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line project description.\n\ncontext:\n  always:\n    - AI.md\n    - .ai/instructions.md\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\n\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\n\nbudgets:\n  always_loaded_tokens: 1100\n  planned_route_tokens: 1800\n  adapter_tokens: 300\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 300\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n",
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line project description.\n\ncontext:\n  always:\n    - AI.md\n    - .ai/instructions.md\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\n\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\n\nbudgets:\n  always_loaded_tokens: 900\n  planned_route_tokens: 1350\n  adapter_tokens: 125\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 175\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n",
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line Python project description.\ncontext:\n  always: [AI.md, .ai/instructions.md]\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\nbudgets:\n  always_loaded_tokens: 900\n  planned_route_tokens: 1350\n  adapter_tokens: 125\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 175\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n",
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line Python project description.\ncontext:\n  always: [AI.md, .ai/instructions.md]\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\nbudgets:\n  always_loaded_tokens: 1100\n  planned_route_tokens: 1800\n  adapter_tokens: 300\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 300\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n",
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line Rust project description.\ncontext:\n  always: [AI.md, .ai/instructions.md]\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\nbudgets:\n  always_loaded_tokens: 900\n  planned_route_tokens: 1350\n  adapter_tokens: 125\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 175\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n",
+    "version: 2\nproject:\n  name: PROJECTNAME\n  summary: TODO replace with a one-line Rust project description.\ncontext:\n  always: [AI.md, .ai/instructions.md]\n  conditional:\n    architecture: .ai/context/architecture-snapshot.md\n    conventions: .ai/context/conventions.md\n    decisions: .ai/context/decisions.md\n    active: .ai/context/active-context.md\n    knowledge: .ai/context/knowledge-sources.yaml\nspec:\n  policy: .ai/policy.yaml\n  contract_evals: .ai/evals/contract-scenarios.yaml\nbudgets:\n  always_loaded_tokens: 1100\n  planned_route_tokens: 1800\n  adapter_tokens: 300\n  skill_descriptions_tokens: 150\n  skill_entry_tokens: 700\n  agent_catalog_tokens: 300\n  agent_contract_tokens: 375\n  optional_skill_catalog_tokens: 600\n"
+  ]
+}

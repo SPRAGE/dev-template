@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import importlib.util
+import shutil
 import sys
 import tempfile
 import tomllib
@@ -104,28 +105,8 @@ def check_root(root: Path) -> None:
     assert "mcp_servers" not in codex_config
 
 
-def check_shared_sources(repo: Path) -> None:
-    base = repo / "template"
-    roots = [repo, repo / "templates/python", repo / "templates/rust"]
-    relative_paths = [
-        ".ai/policy.yaml",
-        ".ai/evals/contract-scenarios.yaml",
-        ".ai/capabilities/map.yaml",
-        ".ai/capabilities/profiles.yaml",
-        ".ai/capabilities/runtimes/codex.yaml",
-        ".ai/capabilities/runtimes/claude.yaml",
-        ".ai/generators/compile.py",
-    ]
-    relative_paths.extend(
-        path.relative_to(base).as_posix() for path in sorted((base / ".ai/agents").glob("*.yaml"))
-    )
-    for root in roots:
-        for relative in relative_paths:
-            assert (root / relative).read_bytes() == (base / relative).read_bytes(), f"shared spec drift: {root / relative}"
-
-
-def check_knowledge_registry(repo: Path) -> None:
-    compiler = load_module(repo / "template/.ai/generators/compile.py")
+def check_knowledge_registry(legacy_root: Path) -> None:
+    compiler = load_module(legacy_root / ".ai/generators/compile.py")
     relative = ".ai/context/knowledge-sources.yaml"
     source = {
         "id": "product-docs",
@@ -169,18 +150,45 @@ def check_knowledge_registry(repo: Path) -> None:
                 raise AssertionError(f"unsafe knowledge registry path was accepted: {unsafe_path!r}")
 
 
+def check_context_budgets(legacy_root: Path) -> None:
+    compiler = load_module(legacy_root / ".ai/generators/compile.py")
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary) / "project"
+        shutil.copytree(legacy_root, root, symlinks=True)
+        path = root / ".ai/project.yaml"
+        project = load_yaml(path)
+        outputs = compiler.build_outputs(root)
+        agents = [load_yaml(p) for p in (root / ".ai/agents").glob("*.yaml")]
+        metrics = compiler.context_metrics(root, project, outputs, agents)
+        assert metrics["startup_tokens"] > metrics["guidance_tokens"]
+        assert metrics["specialist_index_tokens"] == 0
+        assert set(metrics["skill_entry_tokens"]) == {"agent-context"}
+        for key, limit, expected in (
+            ("always_loaded_tokens", metrics["guidance_tokens"], "always-loaded"),
+            ("planned_route_tokens", metrics["planned_tokens"] - 1, "planned-route"),
+        ):
+            candidate = copy.deepcopy(project)
+            candidate["budgets"][key] = limit
+            path.write_text(yaml.safe_dump(candidate, sort_keys=False))
+            try:
+                compiler.build_outputs(root)
+            except ValueError as error:
+                assert expected in str(error), str(error)
+            else:
+                raise AssertionError(f"{key} did not count discovery overhead")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument("--legacy-root", type=Path, required=True)
     args = parser.parse_args()
-    repo = args.repo.resolve()
-    for root in (repo, repo / "template", repo / "templates/python", repo / "templates/rust"):
-        check_root(root)
-        print(f"PASS: provider contracts {root.relative_to(repo) or '.'}")
-    check_shared_sources(repo)
-    print("PASS: neutral source parity")
-    check_knowledge_registry(repo)
+    legacy_root = args.legacy_root.resolve()
+    check_root(legacy_root)
+    print("PASS: v2 provider contracts")
+    check_knowledge_registry(legacy_root)
     print("PASS: optional knowledge registry contract")
+    check_context_budgets(legacy_root)
+    print("PASS: context budgets include runtime discovery")
     return 0
 
 

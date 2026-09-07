@@ -18,7 +18,7 @@ import yaml
 sys.dont_write_bytecode = True
 REPO = Path(__file__).resolve().parents[1]
 MIGRATOR_PATH = REPO / "tools/migrate_v2.py"
-TEMPLATE = REPO / "template"
+TEMPLATE = REPO / "compat" / "v2"
 
 
 def load_migrator():
@@ -168,6 +168,23 @@ class MigrationTests(unittest.TestCase):
 
         again = migrator.analyze(self.root, TEMPLATE, self.manifest)
         self.assertEqual(again.status, "already-v2")
+
+    def test_retired_catalog_and_tools_are_preserved_with_activated_skills(self) -> None:
+        ai = self.root / ".ai"
+        write_yaml(ai / "catalog/index.yaml", {
+            "version": 1,
+            "selection": {"consult_when": "Project work.", "load_limit": 1, "activate_when": "Recurring work."},
+            "skills": {"local-check": {"use_when": "Check invariants.", "avoid_when": "Unrelated work."}},
+        })
+        local_skill(ai / "catalog/local-check", "local-check")
+        (ai / "skills/local-check").symlink_to("../catalog/local-check")
+        write_text(ai / "tools/skillctl.py", "# Project-owned activation tool.\n")
+        catalog_before = migrator.tree_digest(ai / "catalog")
+        migrator.migrate(self.root, TEMPLATE, self.manifest, self.analysis())
+        self.assertEqual(migrator.tree_digest(ai / "catalog"), catalog_before)
+        self.assertTrue((ai / "skills/local-check").is_symlink())
+        self.assertTrue((ai / "skills/local-check/SKILL.md").is_file())
+        self.assertEqual((ai / "tools/skillctl.py").read_text(), "# Project-owned activation tool.\n")
 
     def test_customized_core_stops_before_changes(self) -> None:
         write_text(self.root / ".ai/policy.yaml", "custom policy\n")

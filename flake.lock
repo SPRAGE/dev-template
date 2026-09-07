@@ -21,6 +21,25 @@
         "type": "github"
       }
     },
+    "codex-release": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1788723015,
+        "narHash": "sha256-hL8i3aaKvDFMK+U+maB0dM6FNIqge9jLNXxCle+vTdw=",
+        "ref": "latest",
+        "rev": "a405bc7229de296cc87846824aac7c49103d3be4",
+        "revCount": 2,
+        "type": "git",
+        "url": "ssh://pai@192.168.0.7/srv/git/codex-release.git"
+      },
+      "original": {
+        "ref": "latest",
+        "type": "git",
+        "url": "ssh://pai@192.168.0.7/srv/git/codex-release.git"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -59,6 +78,22 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1788584326,
+        "narHash": "sha256-Fd3OB8J9JhgliQwOKcqx4M672CInxi1I5VnwsaXeSQo=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6713828a351efa628b025a1adf7f43cbf8597513",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
         "lastModified": 1784555310,
         "narHash": "sha256-/FCliTPgiuV1owejZFNx3Ch9irdvkOfOFl+HHZ+DrtM=",
         "owner": "NixOS",
@@ -76,8 +111,9 @@
     "root": {
       "inputs": {
         "claude-code": "claude-code",
+        "codex-release": "codex-release",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs_2"
       }
     },
     "systems": {

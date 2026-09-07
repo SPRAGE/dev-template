@@ -6,7 +6,7 @@ runtimes:
     command: codex
     version_args: [--version]
     help_args: [--help]
-    tested_version: 0.144.4
+    tested_version: 0.153.4
     version_pattern: '^codex-cli ([0-9]+\.[0-9]+\.[0-9]+)$'
     help_markers: [Codex CLI, --strict-config, features]
   claude:

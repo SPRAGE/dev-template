@@ -1,18 +1,14 @@
-# Skill Archives
+# Optional Skill Archives
 
-Deterministic `.skill` archives are built from the one default skill under `template/.ai/skills/` and the opt-in skills under `skill-catalog/`.
+`agent-context.skill` and `frontend-design.skill` are optional archives. No skill ships in generated projects by default. Source procedures live in `optional/skills/`; validation and packaging stay in `tools/skills/`.
 
-The manifest `package` allowlist is authoritative. Packaging fixes timestamps and file order; `tests/test-skills.sh` rejects missing, stale, or drifted archives.
-
-Run the packager from the repository root:
+Inside `nix develop path:.`:
 
 ```bash
-export PYTHONPATH="$PWD/template/.ai/catalog/skill-authoring"
-python -m scripts.package_skill template/.ai/skills/agent-context skills
-for skill in template/.ai/catalog/*/; do
-  [ -f "$skill/SKILL.md" ] || continue
-  python -m scripts.package_skill "$skill" skills
-done
+python tools/skills/quick_validate.py optional/skills/agent-context
+python tools/skills/package_skill.py optional/skills/agent-context skills
+python tools/skills/package_skill.py optional/skills/frontend-design skills
+bash tests/test-skills.sh
 ```
 
-Then run `nix develop path:. -c bash tests/test-skills.sh` from the repository root.
+Manifest allowlists control package contents. Tests check exact archives and deterministic rebuilds. Ordinary engineering knowledge needs no skill; keep optional procedures only when real project use justifies them. See [workflow installation](../README.md#optional-workflows).

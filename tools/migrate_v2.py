@@ -20,6 +20,7 @@ import yaml
 
 
 GENERATED_MARKER = "Generated from .ai/ by .ai/generators/compile.py. Do not edit directly."
+DEFAULT_TEMPLATE = Path(__file__).resolve().parents[1] / "compat" / "v2"
 PROJECT_MARKERS = (".git", "flake.nix", "package.json", "Cargo.toml", "pyproject.toml", "go.mod")
 V1_CONTEXT = {
     "always": ["AI.md", ".ai/instructions.md"],
@@ -63,8 +64,6 @@ MANAGED_TOP_LEVEL = {
     "evals",
     "generators",
     "skills",
-    "catalog",
-    "tools",
 }
 STATE_DIRECTORIES = {"local", "tmp", "sessions", "logs"}
 PROVIDER_DIRECTORIES = (".agents", ".claude", ".codex")
@@ -240,17 +239,6 @@ def validate_generated_v1(ai: Path) -> None:
             raise MigrationConflict(f"generated v1 file is customized and cannot be replaced automatically: .ai/{relative}")
 
 
-def validate_current_v2_additions(ai: Path, template_ai: Path) -> None:
-    """Permit exact v2 catalog/tool assets that conservative sync added to a v1 project."""
-    for name in ("catalog", "tools"):
-        candidate = ai / name
-        if not candidate.exists():
-            continue
-        expected = template_ai / name
-        if not candidate.is_dir() or tree_digest(candidate) != tree_digest(expected):
-            raise MigrationConflict(f".ai/{name} differs from the target v2 asset; preserve and reconcile it manually")
-
-
 def validate_managed_directory_contents(ai: Path) -> list[str]:
     allowed = {
         "capabilities": {
@@ -302,7 +290,6 @@ def analyze(root: Path, template: Path, manifest: dict) -> Analysis:
     if load_yaml(template_ai / "project.yaml").get("version") != 2:
         raise MigrationConflict("target template is not schema v2")
     validate_generated_v1(ai)
-    validate_current_v2_additions(ai, template_ai)
 
     conflicts: list[str] = []
     for relative, expected_hash in manifest["managed_files"].items():
@@ -546,7 +533,12 @@ def print_analysis(analysis: Analysis) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path.cwd(), help="project root (default: current directory)")
-    parser.add_argument("--template", type=Path, required=True, help="schema-v2 template directory")
+    parser.add_argument(
+        "--template",
+        type=Path,
+        default=DEFAULT_TEMPLATE,
+        help="schema-v2 template directory (default: bundled compat/v2)",
+    )
     parser.add_argument("--manifest", type=Path, required=True, help="v1 fingerprint manifest")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="preflight only (default)")

@@ -1,23 +1,11 @@
 # Architecture Snapshot
 
-## Source and generation
+`template/` contains ten project files. Python and Rust mirror shared assets with three overlays: `AI.md`, `flake.nix`, and `.gitignore`. Shared instructions originate in `maintainer/guidance.md`; generated projects carry no policy/capability framework or compiler.
 
-- `template/` is the authored language-neutral project; Python and Rust variants mirror it except for `AI.md`, `.ai/project.yaml`, `flake.nix`, and `.gitignore`.
-- `.ai/policy.yaml`, capabilities, four role contracts, and runtime maps are neutral sources. The compiler validates schema version 2, budgets the common routes, and emits readable guidance plus runtime adapters.
-- The primary owns planning, integration, routine testing, and documentation. `scout`, `researcher`, `worker`, and `reviewer` provide context isolation or independent work.
-- One default `agent-context` skill is discovered in generated projects. Twelve dormant specialist skills live under `template/.ai/catalog/`; its 553-token index routes at most two procedures per task, and `skillctl.py` safely activates recurring ones.
+`tools/template.py` maintains file ownership, adapters, optional profiles, startup estimates, onboarding/sync, explicit v2-to-v3 migration, confirmed reset, and recovery. Nix apps are thin wrappers. Transactions preflight fingerprints and symlink parents, preserve customized/local state, back up affected assets, and roll back caught failures. Frozen `compat/v2/` supports the independently tested v1-to-v2 migration.
 
-## Packaging
+`optional/skills/` contains agent-context and frontend-design. Neither is default; this maintainer checkout explicitly selects agent-context. Shared guidance directs autonomous delegation and cheaper-model preference when supported by the runtime. Optional roles inherit models unless a project supplies explicit overrides. Native access/tool bindings stay separate from shared role instructions. Skill archives use deterministic metadata and manifest allowlists.
 
-- The root flake emits `x86_64-linux`, `aarch64-linux`, and `aarch64-darwin`; the locked unstable nixpkgs supplies Codex directly.
-- Lifecycle apps onboard, sync, fingerprint-migrate v1, reset, and diagnose managed assets. Sync preserves existing compilers and provider outputs; `migrate-v2` stages, backs up, and rolls back rather than deleting customized state.
-- Skill archives contain only manifest allowlisted files with deterministic metadata.
-- Maintainer evaluation is offline by default: paired records are validated without launching models, and CLI canaries use only version/help plus local config parsing.
+The flake supports x86_64-linux, aarch64-linux, and aarch64-darwin. Primary Linux uses the retained official Codex release; ARM Linux/macOS use locked unstable nixpkgs. No source check implies deployment or dataserver access.
 
-## Flow
-
-1. Edit neutral sources or an explicit language overlay.
-2. Compile the base and maintainer runtime.
-3. Generate language mirrors and compile each variant.
-4. Package default and optional skills.
-5. Run contract, template, skill, lifecycle, and flake checks.
+Evaluation tooling stays outside generated projects. Offline record validation and zero-network CLI canaries do not prove live model availability or improved task outcomes.

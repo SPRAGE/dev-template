@@ -1,0 +1,18 @@
+version: 1
+roles:
+  scout:
+    description: Find targeted repository facts and cite relevant paths.
+    instructions: Read only the assigned scope. Return the facts and file evidence needed for the next decision; stop when sufficient.
+    access: read
+  researcher:
+    description: Verify material external claims using authoritative sources.
+    instructions: Use current primary sources. Return citations, freshness, uncertainty, and implications. Do not edit files or expand scope.
+    access: research
+  worker:
+    description: Implement one settled, bounded change and verify it.
+    instructions: Stay within the assigned files and invariants. Stop on scope conflict or missing dependencies. Return the change, checks, and remaining risks.
+    access: write
+  reviewer:
+    description: Independently review correctness, security, and regression risks.
+    instructions: Read only. Lead with actionable findings and file evidence; check preserved behavior and missing verification. Omit style preferences and do not implement fixes.
+    access: read

@@ -1,22 +1,7 @@
 # Conventions
 
-## Authoring
+Edit shared behavior in `maintainer/guidance.md`; keep provider syntax in `optional/runtime-bindings.json`. `template/` owns project assets, with only `AI.md`, `flake.nix`, and `.gitignore` differing in language mirrors. Regenerate with `python tools/template.py generate` and `bash tests/sync-template-shared.sh`.
 
-- Edit neutral behavior under `template/.ai/`, then regenerate; never hand-edit marked runtime outputs.
-- Keep language differences to the four documented overlays.
-- Keep default discovery small. Route task-local specialist guidance through `.ai/catalog/index.yaml`; activate it only for recurring work. Add a skill only for recurring judgment that passes trigger and with/without-skill evaluation; use scripts or hooks for deterministic work.
-- Provider syntax belongs in runtime bindings, not shared policy, roles, or skill entry points.
+New projects have no default skills, roles, model pins, or compiler. Keep reusable workflow sources under `optional/`, deterministic utilities under `tools/`, and project-specific facts in `AI.md` or conditional context. Shared guidance carries autonomous delegation, cheaper-model preference, and primary review into downstream projects; runtime capabilities and model availability still govern execution. Startup estimates include native role and skill discovery.
 
-## Verification
-
-- Agent/runtime: `nix develop path:. -c bash tests/test-agent-system.sh`.
-- Mirrors: `nix develop path:. -c bash tests/test-template-sync.sh`.
-- Skills/archives: `nix develop path:. -c bash tests/test-skills.sh`.
-- Lifecycle: `nix develop path:. -c bash tests/test-apps.sh`.
-- Evaluation records: `nix develop path:. -c python tests/test-eval-harness.py`.
-- Runtime canary: `nix develop path:. -c bash tests/test-runtime-canary.sh`.
-- Nix outputs: `nix flake check path:. --all-systems --no-build --no-update-lock-file`.
-
-## Preservation
-
-Preserve local runtime state, customized project guidance, and unrelated changes. A refresh may create missing generated files but must not replace existing provider output or run a new compiler against an older schema.
+Run the checks documented in `AI.md`. Preserve customization, project identity, unrelated changes, and local runtime state. Sync does not upgrade legacy schemas. Migration must preflight, preserve complete custom skill trees, and provide tested recovery. Never infer permission to access the dataserver from source-validation work.

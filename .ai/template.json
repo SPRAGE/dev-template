@@ -1,0 +1,38 @@
+{
+  "files": {
+    ".ai/context/.gitignore": {
+      "hash": "08ac3648594f5c64fac5ffa5397f2a6d4a78dfac87c9c6b4d665ee3f12856793",
+      "profile": "core"
+    },
+    ".ai/skills/agent-context/SKILL.md": {
+      "hash": "06e2d5f411d2e29ad975dc35b1978dc4cd8fe0dd2d18aa011cc83cfa41f2a629",
+      "profile": "skill:agent-context"
+    },
+    ".ai/skills/agent-context/manifest.yaml": {
+      "hash": "73e65c0cd5d7500fcb6c590ad2da31582569bf96db5dc437952fbb2c88dd57eb",
+      "profile": "skill:agent-context"
+    },
+    ".ai/skills/agent-context/references/context-inventory.md": {
+      "hash": "39868e4c95c2f27c808fc63387ce4c31b7eb8e69152dd874ec50e22395921842",
+      "profile": "skill:agent-context"
+    },
+    ".claude/hooks/statusline.sh": {
+      "hash": "e5e74709d503e2ec79ca6822c428778da5b3123eb0c87587962bb561c0f85ca4",
+      "profile": "core"
+    },
+    "AGENTS.md": {
+      "hash": "697f5c8b00d74e7504e22ffe79ecbf6c32dbfc22cd8c7424ee52f0d7c2ba7ee2",
+      "profile": "core"
+    },
+    "CLAUDE.md": {
+      "hash": "ef3d1d05dcae06937d237b81f8baee7f2a1bf9df55f92256b1c2f114ebe9775f",
+      "profile": "core"
+    }
+  },
+  "overrides": {},
+  "profiles": [
+    "skill:agent-context"
+  ],
+  "startup_budget": 1100,
+  "version": 3
+}

@@ -3,6 +3,9 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Prebuilt official release retained on the dataserver.
+    # Refresh explicitly with: nix flake update codex-release
+    codex-release.url = "git+ssh://pai@192.168.0.7/srv/git/codex-release.git?ref=latest";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,12 +19,17 @@
     };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils, claude-code, ... }:
+  outputs = { self, nixpkgs, codex-release, rust-overlay, flake-utils, claude-code, ... }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ] (system:
       let
         overlays = [ (import rust-overlay) ];
         pkgs = import nixpkgs { inherit system overlays; };
         agentPython = pkgs.python3.withPackages (ps: [ ps.pyyaml ]);
+        codexPackage =
+          if system == "x86_64-linux" then
+            codex-release.packages.${system}.default
+          else
+            pkgs.codex;
 
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
           extensions = [
@@ -48,8 +56,8 @@
             pkgs.just
             agentPython
             claude-code.packages.${system}.default
-            pkgs.codex
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+            codexPackage
+          ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             pkgs.bubblewrap
           ];
 

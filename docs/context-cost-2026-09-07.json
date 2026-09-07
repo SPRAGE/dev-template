@@ -1,0 +1,240 @@
+{
+  "date": "2026-09-07",
+  "method": "Per surface: ceil(max(UTF-8 bytes / 4, whitespace words * 1.3)). Startup includes guidance and role/skill descriptions; planned adds methodology. Conditional index is separate. These are static estimates, not API token counts.",
+  "baseline": "Working tree at task start, including pre-existing Codex packaging edits.",
+  "before": {
+    ".": {
+      "guidance_tokens": 1089,
+      "startup_tokens": 1306,
+      "planned_tokens": 1935,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 52,
+      "specialist_index_tokens": 553,
+      "skill_count": 13,
+      "skill_entry_tokens": {
+        "agent-context": 638,
+        "frontend-design": 456,
+        "interactive-playground": 398,
+        "skill-authoring": 426,
+        "domain-modeling": 434,
+        "agent-evaluation": 401,
+        "knowledge-integration": 492,
+        "performance-engineering": 426,
+        "data-visualization": 424,
+        "migration-safety": 398,
+        "incident-debugging": 408,
+        "api-contracts": 397,
+        "test-design": 400
+      },
+      "template_file_count": null
+    },
+    "template": {
+      "guidance_tokens": 931,
+      "startup_tokens": 1148,
+      "planned_tokens": 1777,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 52,
+      "specialist_index_tokens": 553,
+      "skill_count": 13,
+      "skill_entry_tokens": {
+        "agent-context": 638,
+        "frontend-design": 456,
+        "interactive-playground": 398,
+        "skill-authoring": 426,
+        "domain-modeling": 434,
+        "agent-evaluation": 401,
+        "knowledge-integration": 492,
+        "performance-engineering": 426,
+        "data-visualization": 424,
+        "migration-safety": 398,
+        "incident-debugging": 408,
+        "api-contracts": 397,
+        "test-design": 400
+      },
+      "template_file_count": 77
+    },
+    "templates/python": {
+      "guidance_tokens": 913,
+      "startup_tokens": 1130,
+      "planned_tokens": 1759,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 52,
+      "specialist_index_tokens": 553,
+      "skill_count": 13,
+      "skill_entry_tokens": {
+        "agent-context": 638,
+        "agent-evaluation": 401,
+        "api-contracts": 397,
+        "data-visualization": 424,
+        "domain-modeling": 434,
+        "frontend-design": 456,
+        "incident-debugging": 408,
+        "interactive-playground": 398,
+        "knowledge-integration": 492,
+        "migration-safety": 398,
+        "performance-engineering": 426,
+        "skill-authoring": 426,
+        "test-design": 400
+      },
+      "template_file_count": 77
+    },
+    "templates/rust": {
+      "guidance_tokens": 918,
+      "startup_tokens": 1135,
+      "planned_tokens": 1764,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 52,
+      "specialist_index_tokens": 553,
+      "skill_count": 13,
+      "skill_entry_tokens": {
+        "agent-context": 638,
+        "agent-evaluation": 401,
+        "api-contracts": 397,
+        "data-visualization": 424,
+        "domain-modeling": 434,
+        "frontend-design": 456,
+        "incident-debugging": 408,
+        "interactive-playground": 398,
+        "knowledge-integration": 492,
+        "migration-safety": 398,
+        "performance-engineering": 426,
+        "skill-authoring": 426,
+        "test-design": 400
+      },
+      "template_file_count": 77
+    }
+  },
+  "after_first_pass": {
+    ".": {
+      "guidance_tokens": 886,
+      "startup_tokens": 1088,
+      "planned_tokens": 1417,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 37,
+      "specialist_index_tokens": 0,
+      "skill_entry_tokens": {
+        "agent-context": 396
+      },
+      "skill_count": 1,
+      "template_file_count": null
+    },
+    "template": {
+      "guidance_tokens": 628,
+      "startup_tokens": 830,
+      "planned_tokens": 1159,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 37,
+      "specialist_index_tokens": 0,
+      "skill_entry_tokens": {
+        "agent-context": 396
+      },
+      "skill_count": 1,
+      "template_file_count": 41
+    },
+    "templates/python": {
+      "guidance_tokens": 653,
+      "startup_tokens": 855,
+      "planned_tokens": 1184,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 37,
+      "specialist_index_tokens": 0,
+      "skill_entry_tokens": {
+        "agent-context": 396
+      },
+      "skill_count": 1,
+      "template_file_count": 41
+    },
+    "templates/rust": {
+      "guidance_tokens": 647,
+      "startup_tokens": 849,
+      "planned_tokens": 1178,
+      "role_catalog_tokens": 165,
+      "skill_description_tokens": 37,
+      "specialist_index_tokens": 0,
+      "skill_entry_tokens": {
+        "agent-context": 396
+      },
+      "skill_count": 1,
+      "template_file_count": 41
+    }
+  },
+  "after": {
+    ".": {
+      "guidance_tokens": 775,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 32,
+      "startup_tokens": 807,
+      "regular_files": 18
+    },
+    "template": {
+      "guidance_tokens": 448,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 448,
+      "regular_files": 10
+    },
+    "templates/python": {
+      "guidance_tokens": 472,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 472,
+      "regular_files": 10
+    },
+    "templates/rust": {
+      "guidance_tokens": 466,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 466,
+      "regular_files": 10
+    }
+  },
+  "final_layout": {
+    "version": 3,
+    "default_skills": 0,
+    "optional_skills": [
+      "agent-context",
+      "frontend-design"
+    ],
+    "default_roles": 0,
+    "optional_roles": [
+      "scout",
+      "researcher",
+      "worker",
+      "reviewer"
+    ],
+    "model_pins": 0,
+    "project_compilers": 0,
+    "regular_files_per_template": 10,
+    "delegation_policy": "Primary delegates bounded independent implementation, prefers explicitly identified cheaper available models, and reviews integration; runtime capability dependent."
+  },
+  "after_minimal_layout": {
+    ".": {
+      "guidance_tokens": 705,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 32,
+      "startup_tokens": 737,
+      "regular_files": 18
+    },
+    "template": {
+      "guidance_tokens": 378,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 378,
+      "regular_files": 10
+    },
+    "templates/python": {
+      "guidance_tokens": 402,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 402,
+      "regular_files": 10
+    },
+    "templates/rust": {
+      "guidance_tokens": 396,
+      "role_descriptions_tokens": 0,
+      "skill_descriptions_tokens": 0,
+      "startup_tokens": 396,
+      "regular_files": 10
+    }
+  }
+}

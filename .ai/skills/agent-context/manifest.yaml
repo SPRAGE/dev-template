@@ -1,0 +1,27 @@
+version: 1
+name: agent-context
+managed_by: dev-template
+audience: maintainer
+requires_capabilities: [explore, plan, implement, test]
+budgets:
+  entry_tokens: 400
+  total_tokens: 1500
+references:
+  - references/context-inventory.md
+package:
+  - SKILL.md
+  - manifest.yaml
+  - references/*.md
+triggers:
+  positive:
+    - Audit our repository guidance for stale instructions.
+    - Reduce token cost in the agent configuration.
+    - Refresh project context without losing local overrides.
+    - Set up maintainable agent instructions for this repository.
+    - Check whether our optional workflow profiles remain accurate.
+  negative:
+    - Fix this parser error.
+    - Explain this function.
+    - Review the current change.
+    - Build a settings page.
+    - Upgrade a dependency.

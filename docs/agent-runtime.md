@@ -1,80 +1,53 @@
-# Agent Runtime Architecture
+# Agent Runtime Contract
 
-## Objective
+V3 projects have no default skills, custom roles, project compiler, model pins, or effort overrides. Their selected provider entrypoint contains concise shared execution guidance and reads `AI.md` for project facts. Relevant context loads on demand. The primary owns planning and integration; independent review remains appropriate for consequential changes.
 
-Preserve user intent and integration state in one primary context while loading specialized instructions, project facts, roles, and tools only when they improve the task.
+## Downstream delegation policy
 
-## Layers
+Every generated provider entrypoint directs the primary agent to own planning, architecture, integration, and final review. It can autonomously delegate bounded, independent implementation in parallel when coordination cost is justified, supplying relevant context, file ownership, interfaces, and acceptance checks. Prefer an available model explicitly identified as cheaper; inspect actual diffs and verify the integrated result. Escalate stalled or difficult work and obtain independent review for consequential changes.
 
-- `AI.md` contains frequent project facts and exact commands.
-- `.ai/instructions.md` is the compact, always-relevant safety and delivery contract.
-- `.ai/methodology.md` loads only for Planned or Hard work.
-- `.ai/context/` contains evidence-backed architecture, conventions, decisions, or active work only when those files are useful.
-- `.ai/skills/` contains recurring judgment-heavy procedures; provider paths are discovery links.
-- `.ai/catalog/` contains dormant provider-neutral specialist procedures and a compact routing index.
-- `.ai/tools/skillctl.py` activates recurring catalog procedures without replacing project-owned skills.
-- `.ai/policy.yaml`, capabilities, agents, and evals are versioned neutral source specifications.
-- `AGENTS.md`, `CODEX.md`, `CLAUDE.md`, `.codex/`, and `.claude/` are generated or provider-native views.
+This is portable agent guidance, not a scheduler or a provider capability. The runtime must expose subagents and supported model choices. Native subagent tools can follow the policy without the optional role profile. If cheaper model selection or delegation is unavailable, work inline and report the limitation. Do not infer lower cost from parallelism, a role name, or inherited model settings. Named-role runtimes can use the explicit overrides below to select an appropriate worker model. Configuration, review, and tests do not prove actual cost savings; representative runs are needed for that.
 
-## Routing
+## Source and optional profiles
 
-Intent sets the authorization boundary before complexity selects a route. Explain, review, diagnose, and plan requests inspect and report. Build, change, and fix requests permit scoped local edits and non-destructive checks. Destructive actions, external mutations, privilege expansion, purchases, deployments, and material scope expansion require confirmation.
+`maintainer/guidance.md` generates provider entrypoints through `tools/template.py`. `template/` supplies shared project assets; Python and Rust have only `AI.md`, `flake.nix`, and `.gitignore` overlays. Maintainer tooling and `compat/v2/` are never copied into new projects.
 
-- **Direct:** bounded, reversible, low-risk work; the primary executes and runs focused verification.
-- **Planned:** coupled or materially ambiguous work; the primary creates one inference-first plan, delegates only ready independent steps, and integrates the current diff.
-- **Hard:** security-sensitive, destructive, regulated, or otherwise high-consequence work; the plan includes stop/rollback gates and receives independent deep review.
+`agent-profile enable roles` renders `optional/roles.yaml` using `optional/runtime-bindings.json`:
 
-File count alone does not make work Planned.
+| Role | Access | Codex sandbox | Claude permission mode |
+|---|---|---|---|
+| scout | Repository read | read-only | plan |
+| researcher | Read and external research | read-only | plan |
+| worker | Bounded workspace edits | workspace-write | acceptEdits |
+| reviewer | Independent read | read-only | plan |
 
-## Autonomous Domain-To-Delivery Loop
+Role files omit model and reasoning-effort fields by default, leaving selection to the runtime. To choose models explicitly, create a project-owned JSON file and use `agent-profile enable roles --overrides choices.json`:
 
-For consequential work, the primary assembles the smallest evidenced domain brief: actors, goals, terms, workflows, invariants, boundaries, sources, and material unknowns. Repository facts and configured knowledge sources come first; current external research is isolated and returned as citations, freshness, and uncertainty rather than bulk context.
+```json
+{
+  "codex": {"worker": {"model": "your-model-id", "model_reasoning_effort": "low"}},
+  "claude": {"reviewer": {"model": "inherit"}}
+}
+```
 
-Planned and Hard routes consult the 553-token catalog index only when specialist guidance is material and load no more than two skill bodies. A procedure is activated into runtime discovery only when it will recur. The primary then owns the dependency-ordered plan, continues through safe reversible steps, integrates the live diff, runs risk-appropriate proof, and promotes only verified recurring facts into project context. It stops for missing knowledge only when the answer could change scope, architecture, safety, or acceptance.
+Only known role names and model/effort keys are accepted; this interface cannot expand permissions. Availability of an explicitly chosen model is the project's responsibility. No local canary contacts a model endpoint.
 
-## Roles
+`skill:agent-context` and `skill:frontend-design` copy manifest-allowlisted sources into `.ai/skills/` and link only the selected skill into `.agents/skills/` and `.claude/skills/`. Existing canonical discovery links remain valid. Disabling a profile refuses to remove customized files; it never silently removes a project's changes.
 
-The primary owns planning, integration, routine testing, documentation, and final delivery. The runtime exposes four bounded helpers:
+## Ownership and recovery
 
-| Role | Contract |
-|---|---|
-| `scout` | Find targeted repository evidence without edits. |
-| `researcher` | Verify version-sensitive claims against current primary sources. |
-| `worker` | Implement one settled, disjoint scope and return proof. |
-| `reviewer` | Independently identify correctness, security, regression, and verification risks. |
+`.ai/template.json` records version 3, selected profiles, explicit overrides, a startup budget, and fingerprints of owned files. It is bookkeeping, not prompt context. Routine sync updates missing or unchanged owned assets. It preserves modified collisions and always preserves `AI.md`, the application's flake, local settings, context, and source code. Enabling or disabling a profile preflights all its changes.
 
-Every handoff contains an objective, file scope, success criteria, preserved invariants, and required evidence. Workers stop on contradictions, missing dependencies, unsafe actions, or scope conflict. The primary re-reads and integrates the current repository state; reports never substitute for that check.
+Transactions snapshot affected files and symlinks before edits, use atomic replacement per file, and roll back caught failures. Backups have private permissions and their own Git ignore rule under `.ai/local/dev-template/backups/`. This provides recovery from command failures, not an atomic filesystem snapshot across power loss. `agent-restore` refuses intervening edits and backs up the restoration itself.
 
-Codex fast/balanced/deep role tiers map to Luna/Terra/Sol. Narrow scouts use Luna/low, material researchers and workers use Terra/medium, and reviewers use Sol/high. Claude maps the same intent to Haiku/Sonnet/Opus. The main model is inherited from the active runtime instead of being pinned by the project. External tools are limited to the role that needs them, and delegation depth is one.
+V2 upgrades are explicit: `migrate` previews, `migrate --apply` applies. Known framework sources and generated defaults are retired; unknown core changes or customized adapters stop before mutation. Preserve project identity in `.ai/context/legacy-project.yaml`, all context, customized skill trees as complete units, catalog activation targets, and customized native output. A complete unchanged dormant catalog and its known activation CLI are retired; custom content/tools or active canonical/native links preserve the catalog and tool together. V1 still uses the frozen, tested `migrate-v2` route first.
 
-## Compilation And Migration
+`fresh-start` resets agent assets, `AI.md`, `.envrc`, and the selected language flake and removes `flake.lock`. It requires confirmation or `--yes`; application files and designated provider-local state survive. `--flavor default|python|rust` overrides language detection.
 
-The compiler validates schema version 2, exact fields, provider-neutral core files, profile parity, permission expansion, role routing, the conditional catalog, activated skill ownership, optional knowledge-source contracts, package allowlists, deterministic scenarios, and context budgets. It emits provider adapters and role files from neutral source.
+## Measurements and verification
 
-Normal maintainer generation updates marked outputs. Lifecycle sync is conservative: missing generated outputs come from the target project's compiler, while existing compilers, specs, adapters, configuration, and roles are preserved. The explicit `migrate-v2` app dry-runs by default, accepts only the fingerprinted v1 core, preserves identity/context/custom skills, stages and compiles v2 before an atomic `.ai` swap, retains a recovery archive, and rolls back caught failures. It does not chain the broader provider-asset sync into that transaction. Customized v1 semantics stop for manual reconciliation; `fresh-start` remains the destructive confirmed alternative.
+`python tools/template.py stats --root template` is read-only. The estimator is `ceil(max(UTF-8 bytes / 4, whitespace words * 1.3))` per surface. Startup counts `AI.md`, the larger provider entrypoint, and discovered role and skill names/descriptions. Duplicate runtime views are not summed. Loaded skill bodies, project context, runtime wrappers, tool schemas, and conversation history remain additional costs.
 
-## Evidence
+New projects budget 900 estimated startup tokens. Edit `startup_budget` in `.ai/template.json` deliberately as real project facts grow. `ai-doctor` checks the budget against the actual files, including custom role/skill discovery. Estimates cannot establish billing, latency, or model quality improvements.
 
-Deterministic tests prove routing, authorization, completion contracts, provider parity, knowledge-registry safety, source mirroring, migration recovery, archive reproducibility, lifecycle preservation, offline CLI compatibility, and Nix evaluation. The behavioral harness validates paired baseline/candidate records and aggregates effect sizes, but it never launches a model. The runtime canary permits only each installed CLI's local version/help arguments and parses generated configuration; it does not start an agent session or check remote model access. Static token estimates prove only context-size reductions; live representative trials with blinded grading are still required to claim better reasoning or delivery quality.
-
-Using the compiler's byte/word estimator against the generated base template before and after this rewrite:
-
-| Static surface | Before | After | Reduction |
-|---|---:|---:|---:|
-| Always-loaded route | 1,215 | 931 | 23% |
-| Planned route including role catalog | 2,531 | 1,725 | 32% |
-| Role discovery catalog | 635 | 165 | 74% |
-| Skill discovery descriptions | 380 | 52 | 86% |
-| Runtime roles | 9 | 4 | 56% |
-| Individual generated role contract | 401–529 | 278–360 | 31–32% by range endpoint |
-| Conditional specialist index | none | 553 | loaded only when specialist routing is material |
-
-These are comparable static estimates from committed before/after files, not API billing tokens.
-
-## Change Workflow
-
-1. Edit `template/.ai/` or one documented language overlay.
-2. Compile the base runtime.
-3. Sync the language mirrors and compile them.
-4. Repackage changed default or optional skills.
-5. Run agent, mirror, skill, lifecycle, offline evaluation/canary, and all-system flake checks.
+Regression checks cover minimal onboarding, customization and local-state preservation, native discovery and permissions, store-file modes, profile collisions, explicit overrides, fingerprint migration, recovery, injected failure rollback, and unsafe paths/symlinks. The runtime canary validates installed CLI version/help and local formats with no network/model calls. Legacy compiler/registry contracts remain tested against an isolated compatibility fixture.

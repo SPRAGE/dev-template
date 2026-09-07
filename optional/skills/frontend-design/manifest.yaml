@@ -1,0 +1,28 @@
+version: 1
+name: frontend-design
+managed_by: dev-template
+audience: optional
+requires_capabilities: [explore, plan, implement, test]
+budgets:
+  entry_tokens: 400
+  total_tokens: 2200
+references:
+  - references/design-brief.md
+  - references/verification-contract.md
+package:
+  - SKILL.md
+  - manifest.yaml
+  - references/*.md
+triggers:
+  positive:
+    - Implement this screen using our documented design system.
+    - Refine this interaction and verify it in the project browser workflow.
+    - Build the dashboard view from our product brief and component conventions.
+    - Investigate a responsive UI defect with the supplied viewport checks.
+    - Improve this accessible flow using the repository's interface standards.
+  negative:
+    - Change one button label.
+    - Fix an API pagination bug.
+    - Explain this reducer.
+    - Upgrade the CSS dependency.
+    - Review a database migration.
